@@ -265,7 +265,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
         onClick={handleCanvasClick}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        className={`relative w-[360px] h-[530px] sm:w-[410px] sm:h-[590px] md:w-[450px] md:h-[640px] rounded-3xl transition-colors duration-500 overflow-hidden shadow-cute border-4 ${
+        className={`relative w-[360px] h-[530px] sm:w-[410px] sm:h-[590px] md:w-[480px] md:h-[690px] lg:w-[540px] lg:h-[775px] xl:w-[600px] xl:h-[860px] rounded-3xl transition-colors duration-500 overflow-hidden shadow-cute border-4 ${
           isConcertMode
             ? 'bg-slate-950 border-purple-900/60 shadow-glow-blue'
             : 'canvas-grid-pattern border-white shadow-cute-lg'

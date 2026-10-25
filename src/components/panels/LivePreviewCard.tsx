@@ -45,7 +45,7 @@ export const LivePreviewCard: React.FC<LivePreviewCardProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white/95 backdrop-blur-md border-l border-pink-100 p-3.5 w-64 overflow-y-auto shrink-0">
+    <div className="flex flex-col h-full bg-white/95 backdrop-blur-md border-l border-pink-100 p-3.5 w-56 overflow-y-auto shrink-0">
       {/* Header */}
       <div className="flex items-center justify-between pb-2.5 border-b border-pink-100 mb-3">
         <h3 className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
