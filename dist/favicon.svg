@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="pinkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff9ebb" />
+      <stop offset="100%" stop-color="#ff6584" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <circle cx="50" cy="50" r="48" fill="#fff5f8" stroke="#ffb3c6" stroke-width="2"/>
+  <!-- Penlight mini icon -->
+  <circle cx="50" cy="40" r="22" fill="url(#pinkGrad)" filter="url(#glow)" opacity="0.85"/>
+  <path d="M43 58 L45 88 A5 5 0 0 0 55 88 L57 58 Z" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="2"/>
+  <path d="M40 58 Q50 62 60 58 L58 64 Q50 67 42 64 Z" fill="#ff6584"/>
+  <!-- Heart and sparkles -->
+  <path d="M50 33 C45 28 38 31 38 37 C38 45 50 51 50 51 C50 51 62 45 62 37 C62 31 55 28 50 33 Z" fill="#ffffff" opacity="0.95"/>
+  <path d="M22 25 L24 20 L26 25 L31 27 L26 29 L24 34 L22 29 L17 27 Z" fill="#ffea79"/>
+  <path d="M76 22 L77.5 18 L79 22 L83 23.5 L79 25 L77.5 29 L76 25 L72 23.5 Z" fill="#ffea79"/>
+</svg>
