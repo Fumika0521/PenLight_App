@@ -316,7 +316,6 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
           </div>
 
           {/* Preset Idol Avatars */}
-          {PRESET_AVATARS.length > 0 && (
           <div>
             <h4 className="font-bold text-slate-700 mb-2 flex items-center gap-1.5">
               <Smile className="w-4 h-4 text-pink-500" />
@@ -339,7 +338,6 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
               ))}
             </div>
           </div>
-          )}
         </div>
       )}
     </div>
