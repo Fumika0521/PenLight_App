@@ -209,34 +209,10 @@ export const PRESET_WORDS = [
   { text: 'My Idol', color: '#06b6d4' }
 ];
 
-// 5 cute preset idol avatars from reference
-export const PRESET_AVATARS = [
-  {
-    id: 'avatar-1',
-    name: '推し A (ボブヘア)',
-    url: '/assets/stickers/idol_avatar_1.png'
-  },
-  {
-    id: 'avatar-2',
-    name: '推し B (ロング)',
-    url: '/assets/stickers/idol_avatar_2.png'
-  },
-  {
-    id: 'avatar-3',
-    name: '推し C (黒髪)',
-    url: '/assets/stickers/idol_avatar_3.png'
-  },
-  {
-    id: 'avatar-4',
-    name: '推し D (アップヘア)',
-    url: '/assets/stickers/idol_avatar_4.png'
-  },
-  {
-    id: 'avatar-5',
-    name: '推し E (ウェーブ)',
-    url: '/assets/stickers/idol_avatar_5.png'
-  }
-];
+// Preset idol avatar images were corrupted at the source (badly cropped
+// during generation) and had no good replacement, so the list is empty for
+// now. Users can still add their own photo via the upload button.
+export const PRESET_AVATARS: { id: string; name: string; url: string }[] = [];
 
 export const StickerSVG: React.FC<{
   svgKey: string;
