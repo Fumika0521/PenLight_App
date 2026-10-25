@@ -211,7 +211,7 @@ export const DesktopAppView: React.FC<DesktopAppViewProps> = ({
       </aside>
 
       {/* 2. Parts Picker Panel (Left-Center) */}
-      <div className="w-72 shrink-0 h-full border-r border-pink-100">
+      <div className="w-80 shrink-0 h-full border-r border-pink-100">
         <PartsPickerPanel
           onAddSticker={onAddSticker}
           onSetInsidePhoto={(url) => onUpdateConfig({ insidePhotoUrl: url })}
@@ -241,7 +241,7 @@ export const DesktopAppView: React.FC<DesktopAppViewProps> = ({
       </main>
 
       {/* 4. Detailed Customization Properties Panel (Right-Center) */}
-      <div className="w-64 shrink-0 h-full border-l border-pink-100">
+      <div className="w-72 shrink-0 h-full border-l border-pink-100">
         <PropertiesPanel
           selectedSticker={selectedSticker}
           config={config}
