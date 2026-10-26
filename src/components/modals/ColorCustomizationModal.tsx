@@ -8,12 +8,13 @@ interface ColorCustomizationModalProps {
   onClose: () => void;
   config: PenlightConfig;
   onSaveConfig: (updated: Partial<PenlightConfig>) => void;
+  inline?: boolean;
 }
 
 const COVER_COLORS = [
-  '#ffffff',
   '#ffd1dc',
   '#fbcfe8',
+  '#facc15',
   '#bae6fd',
   '#a5f3fc',
   '#e9d5ff',
@@ -39,6 +40,7 @@ export const ColorCustomizationModal: React.FC<ColorCustomizationModalProps> = (
   onClose,
   config,
   onSaveConfig,
+  inline = false,
 }) => {
   const [tempConfig, setTempConfig] = useState<PenlightConfig>({ ...config });
 
@@ -50,7 +52,7 @@ export const ColorCustomizationModal: React.FC<ColorCustomizationModalProps> = (
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+    <div className={`${inline ? 'absolute' : 'fixed'} inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in`}>
       <div className="w-full max-w-sm bg-white rounded-3xl shadow-cute-lg border border-pink-100 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-pink-100 bg-gradient-to-r from-blue-50/50 via-white to-pink-50/50">

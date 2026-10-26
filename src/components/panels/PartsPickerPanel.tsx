@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
-import { 
-  STICKER_CATALOG, 
-  StickerDef, 
-  PRESET_LETTERS, 
-  PRESET_WORDS, 
-  PRESET_AVATARS,
-  StickerSVG 
+import {
+  STICKER_CATALOG,
+  StickerDef,
+  PRESET_LETTERS,
+  PRESET_WORDS,
+  PRESET_HIRAGANA,
+  PRESET_KATAKANA,
+  StickerSVG
 } from '../stickers/StickerSVG';
 import { StickerCategory, StickerItem } from '../../types';
 import { 
   Sparkles, 
   Heart, 
   Star, 
-  Type, 
-  Image as ImageIcon, 
-  Upload, 
-  Smile, 
+  Type,
+  Image as ImageIcon,
+  Upload,
   Plus
 } from 'lucide-react';
 
@@ -23,14 +23,19 @@ interface PartsPickerPanelProps {
   onAddSticker: (sticker: Omit<StickerItem, 'id' | 'zIndex'>) => void;
   onSetInsidePhoto?: (photoUrl: string | null) => void;
   insidePhotoUrl?: string | null;
+  initialCategory?: string;
 }
 
 export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
   onAddSticker,
   onSetInsidePhoto,
   insidePhotoUrl,
+  initialCategory,
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'all');
+  const [isAlphabetOpen, setIsAlphabetOpen] = useState(false);
+  const [isHiraganaOpen, setIsHiraganaOpen] = useState(false);
+  const [isKatakanaOpen, setIsKatakanaOpen] = useState(false);
   const [customText, setCustomText] = useState<string>('LOVE');
   const [customTextColor, setCustomTextColor] = useState<string>('#ff6584');
 
@@ -107,7 +112,7 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
         if (forInsideDome && onSetInsidePhoto) {
           onSetInsidePhoto(result);
         } else {
-          handleAddPhotoSticker(result, '推し写真');
+          handleAddPhotoSticker(result, '好きな写真');
         }
       };
       reader.readAsDataURL(file);
@@ -116,46 +121,38 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-white/95 backdrop-blur-md border-r border-pink-100 p-4 overflow-y-auto">
-      {/* Title */}
-      <div className="flex items-center justify-between pb-3 border-b border-pink-100 mb-3">
-        <h3 className="font-extrabold text-slate-800 text-sm flex items-center gap-1.5">
-          <Sparkles className="w-4 h-4 text-pink-500 animate-sparkle" />
-          パーツを選択
-        </h3>
-        <span className="text-[10px] text-pink-500 bg-pink-50 px-2 py-0.5 rounded-full font-bold">
-          3Dパーツ
-        </span>
-      </div>
 
-      {/* Category Filter Chips */}
-      <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-none mb-3">
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => setSelectedCategory(cat.id)}
-            className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
-              selectedCategory === cat.id
-                ? 'bg-gradient-to-r from-pink-400 to-rose-400 text-white shadow-xs scale-105'
-                : 'bg-pink-50/80 text-pink-600 hover:bg-pink-100'
-            }`}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
+      {/* Category Filter Chips — hidden in text/photo tabs */}
+      {selectedCategory !== 'text' && selectedCategory !== 'photo' && (
+        <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-none mb-3">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+                selectedCategory === cat.id
+                  ? 'bg-gradient-to-r from-pink-400 to-rose-400 text-white shadow-xs scale-105'
+                  : 'bg-pink-50/80 text-pink-600 hover:bg-pink-100'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Main Sticker Grid */}
       {selectedCategory !== 'text' && selectedCategory !== 'photo' && (
         <div className="space-y-4">
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-3 gap-3">
             {filteredStickers.map((item) => (
               <button
                 key={item.key}
                 onClick={() => handleAddPresetSticker(item)}
-                className="group relative aspect-square p-1 rounded-2xl bg-gradient-to-b from-white to-pink-50/30 border border-pink-100 hover:border-pink-300 hover:shadow-cute hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center overflow-hidden"
+                className="group relative aspect-square p-2 rounded-2xl bg-gradient-to-b from-white to-pink-50/30 border border-pink-100 hover:border-pink-300 hover:shadow-cute hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center overflow-hidden"
                 title={item.name}
               >
-                <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-110">
+                <div className="w-14 h-14 flex items-center justify-center transition-transform group-hover:scale-110">
                   <StickerSVG svgKey={item.key} imagePath={item.imagePath} />
                 </div>
               </button>
@@ -168,15 +165,15 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
               <Heart className="w-3.5 h-3.5 text-pink-500 fill-pink-500" />
               人気のパーツ
             </h4>
-            <div className="grid grid-cols-5 gap-1.5">
-              {popularStickers.slice(0, 10).map((item) => (
+            <div className="grid grid-cols-4 gap-2">
+              {popularStickers.slice(0, 8).map((item) => (
                 <button
                   key={`pop-${item.key}`}
                   onClick={() => handleAddPresetSticker(item)}
-                  className="aspect-square p-1 rounded-xl bg-pink-50/60 hover:bg-pink-100 border border-pink-100 hover:border-pink-300 flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+                  className="aspect-square p-1.5 rounded-xl bg-pink-50/60 hover:bg-pink-100 border border-pink-100 hover:border-pink-300 flex items-center justify-center transition-all hover:scale-105 active:scale-95"
                   title={item.name}
                 >
-                  <div className="w-8 h-8 flex items-center justify-center">
+                  <div className="w-12 h-12 flex items-center justify-center">
                     <StickerSVG svgKey={item.key} imagePath={item.imagePath} />
                   </div>
                 </button>
@@ -245,21 +242,80 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
             </div>
           </div>
 
-          {/* Alphabet Letters Grid */}
+          {/* Alphabet Letters Grid — collapsible */}
           <div>
-            <h4 className="font-bold text-slate-700 mb-2">アルファベット・記号</h4>
-            <div className="grid grid-cols-6 gap-1.5">
-              {PRESET_LETTERS.map((char) => (
-                <button
-                  key={char}
-                  onClick={() => handleAddTextSticker(char, '#ff6584')}
-                  className="h-8 rounded-xl bg-white border border-pink-100 hover:border-pink-400 font-extrabold text-pink-500 text-sm hover:scale-110 hover:shadow-xs transition active:scale-95 flex items-center justify-center shadow-2xs"
-                >
-                  {char}
-                </button>
-              ))}
-            </div>
+            <button
+              onClick={() => setIsAlphabetOpen((v) => !v)}
+              className="flex items-center gap-1.5 font-bold text-slate-700 mb-2 w-full text-left"
+            >
+              <span>アルファベット・記号</span>
+              <span className="text-[10px] text-slate-400 ml-1">{isAlphabetOpen ? '▲' : '▼'}</span>
+            </button>
+            {isAlphabetOpen && (
+              <div className="grid grid-cols-6 gap-1.5">
+                {PRESET_LETTERS.map((char) => (
+                  <button
+                    key={char}
+                    onClick={() => handleAddTextSticker(char, '#ff6584')}
+                    className="h-8 rounded-xl bg-white border border-pink-100 hover:border-pink-400 font-extrabold text-pink-500 text-sm hover:scale-110 hover:shadow-xs transition active:scale-95 flex items-center justify-center shadow-2xs"
+                  >
+                    {char}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
+
+          {/* Hiragana Grid — collapsible */}
+          <div>
+            <button
+              onClick={() => setIsHiraganaOpen((v) => !v)}
+              className="flex items-center gap-1.5 font-bold text-slate-700 mb-2 w-full text-left"
+            >
+              <span>ひらがな</span>
+              <span className="text-[10px] text-slate-400 ml-1">{isHiraganaOpen ? '▲' : '▼'}</span>
+            </button>
+            {isHiraganaOpen && (
+              <div className="grid grid-cols-6 gap-1.5">
+                {PRESET_HIRAGANA.map((char) => (
+                  <button
+                    key={char}
+                    onClick={() => handleAddTextSticker(char, '#f472b6')}
+                    className="h-8 rounded-xl bg-white border border-pink-100 hover:border-pink-400 font-extrabold text-pink-500 text-sm hover:scale-110 hover:shadow-xs transition active:scale-95 flex items-center justify-center shadow-2xs"
+                  >
+                    {char}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Katakana Grid — collapsible */}
+          <div>
+            <button
+              onClick={() => setIsKatakanaOpen((v) => !v)}
+              className="flex items-center gap-1.5 font-bold text-slate-700 mb-2 w-full text-left"
+            >
+              <span>カタカナ</span>
+              <span className="text-[10px] text-slate-400 ml-1">{isKatakanaOpen ? '▲' : '▼'}</span>
+            </button>
+            {isKatakanaOpen && (
+              <div className="grid grid-cols-6 gap-1.5">
+                {PRESET_KATAKANA.map((char) => (
+                  <button
+                    key={char}
+                    onClick={() => handleAddTextSticker(char, '#a78bfa')}
+                    className="h-8 rounded-xl bg-white border border-purple-100 hover:border-purple-400 font-extrabold text-purple-500 text-sm hover:scale-110 hover:shadow-xs transition active:scale-95 flex items-center justify-center shadow-2xs"
+                  >
+                    {char}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Korean — text input only, preset grid removed */}
+          <p className="text-[11px] text-slate-400">韓국語はテキスト入力欄に直接入力できます（スマホキーボード対応）</p>
         </div>
       )}
 
@@ -270,10 +326,10 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
           <div className="bg-pink-50/70 p-3 rounded-2xl border border-pink-100 space-y-2">
             <h4 className="font-bold text-slate-700 flex items-center gap-1.5">
               <Upload className="w-4 h-4 text-pink-500" />
-              推しの写真をアップロード
+              好きな写真をアップロード
             </h4>
             <p className="text-[11px] text-slate-500">
-              お好きな推し写真をペンライトのドーム内に入れたり、ステッカーとして飾れます♡
+              好きな写真をペンライトのドーム内に入れたり、ステッカーとして飾れます♡
             </p>
 
             <div className="grid grid-cols-2 gap-2 pt-1">
@@ -315,29 +371,6 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
             )}
           </div>
 
-          {/* Preset Idol Avatars */}
-          <div>
-            <h4 className="font-bold text-slate-700 mb-2 flex items-center gap-1.5">
-              <Smile className="w-4 h-4 text-pink-500" />
-              推しアイコン（タップで追加）
-            </h4>
-            <div className="grid grid-cols-5 gap-2">
-              {PRESET_AVATARS.map((av) => (
-                <button
-                  key={av.id}
-                  onClick={() => handleAddPhotoSticker(av.url, av.name)}
-                  className="group flex flex-col items-center p-1 rounded-2xl bg-white border border-pink-100 hover:border-pink-300 hover:shadow-cute transition hover:-translate-y-0.5"
-                  title={av.name}
-                >
-                  <img
-                    src={av.url}
-                    alt={av.name}
-                    className="w-10 h-10 rounded-full object-cover border border-pink-200 group-hover:scale-105 transition"
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       )}
     </div>

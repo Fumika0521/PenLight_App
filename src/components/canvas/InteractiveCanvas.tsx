@@ -416,27 +416,27 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
       </div>
 
       {/* Bottom Floating Zoom Controls */}
-      <div className="absolute bottom-3 right-4 z-30 flex items-center gap-1 px-2.5 py-1 bg-white/95 backdrop-blur-md border border-pink-100 rounded-full shadow-cute text-xs text-slate-600">
+      <div className="absolute bottom-3 right-4 z-30 flex items-center gap-2 px-3.5 py-2 bg-white/95 backdrop-blur-md border border-pink-100 rounded-full shadow-cute text-sm text-slate-600">
         <button
           onClick={() => setZoom((prev) => Math.max(0.7, prev - 0.1))}
-          className="p-1 rounded-full hover:bg-pink-50 hover:text-pink-600 transition"
+          className="p-2.5 rounded-full hover:bg-pink-50 hover:text-pink-600 transition"
           title="縮小"
         >
-          <ZoomOut className="w-3.5 h-3.5" />
+          <ZoomOut className="w-6 h-6" />
         </button>
         <button
           onClick={() => setZoom(1)}
-          className="px-1.5 font-semibold hover:text-pink-500 transition"
+          className="px-2 font-semibold hover:text-pink-500 transition text-base"
           title="リセット (100%)"
         >
           {Math.round(zoom * 100)}%
         </button>
         <button
           onClick={() => setZoom((prev) => Math.min(1.4, prev + 0.1))}
-          className="p-1 rounded-full hover:bg-pink-50 hover:text-pink-600 transition"
+          className="p-2.5 rounded-full hover:bg-pink-50 hover:text-pink-600 transition"
           title="拡大"
         >
-          <ZoomIn className="w-3.5 h-3.5" />
+          <ZoomIn className="w-6 h-6" />
         </button>
       </div>
     </div>

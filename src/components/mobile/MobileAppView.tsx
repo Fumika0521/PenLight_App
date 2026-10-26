@@ -24,7 +24,6 @@ import {
   Save, 
   Palette, 
   Sparkles, 
-  Heart, 
   Trash2, 
   Type, 
   Image as ImageIcon,
@@ -81,6 +80,12 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
 }) => {
   const [currentScreen, setCurrentScreen] = useState<MobileScreen>('home');
   const [isPartsSheetOpen, setIsPartsSheetOpen] = useState(false);
+  const [partsInitialCategory, setPartsInitialCategory] = useState<string>('all');
+
+  const openPartsSheet = (category: string = 'all') => {
+    setPartsInitialCategory(category);
+    setIsPartsSheetOpen(true);
+  };
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const [isCompleteOpen, setIsCompleteOpen] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -116,8 +121,8 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
         </div>
 
         {/* Hero Illustration (Cute Decorated Penlight - Enlarged) */}
-        <div className="flex-1 flex items-center justify-center p-4">
-          <div className="relative w-64 h-96 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center p-2">
+          <div className="relative w-72 h-[430px] flex items-center justify-center">
             {/* Sparkle background */}
             <div className="absolute -inset-4 bg-gradient-to-r from-pink-200/40 via-purple-200/30 to-blue-200/40 rounded-full blur-2xl animate-pulse-slow" />
             <div className="relative w-full h-full pointer-events-none">
@@ -195,35 +200,31 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
         {/* Dynamic Island */}
         <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-6 bg-slate-900 rounded-full z-40" />
 
-        {/* Top Bar */}
-        <div className="px-5 pt-8 pb-3 border-b border-pink-50 flex items-center justify-between">
+        {/* Top Bar — same height as editor header */}
+        <div className="px-4 pt-11 pb-5 border-b border-pink-50 flex items-center justify-between">
           <button
             onClick={() => setCurrentScreen('home')}
-            className="p-1.5 rounded-full hover:bg-pink-50 text-slate-600"
+            className="p-3 rounded-full hover:bg-pink-50 text-slate-600"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-7 h-7" />
           </button>
-          <h2 className="font-extrabold text-sm text-slate-800">ベースを選択</h2>
-          <div className="w-8" />
+          <h2 className="font-extrabold text-sm text-slate-800">ペンライトを選択</h2>
+          <div className="w-12" />
         </div>
 
-        {/* Subtitle */}
-        <div className="px-5 py-1">
-          <p className="text-[11px] text-slate-500 font-medium">
-            お好みのベースペンライトを選択してください♡
+        {/* Base Grid + Subtitle — subtitle at midpoint between header and first card row */}
+        <div className="flex-1 px-4 flex flex-col justify-evenly">
+          <p className="text-sm text-slate-600 font-semibold text-center">
+            お好みのペンライトを選択してください♡
           </p>
-        </div>
-
-        {/* Base Grid */}
-        <div className="flex-1 px-5 py-3 overflow-y-auto">
-          <div className="grid grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-2 gap-3">
             {baseList.map((item) => {
               const isSelected = config.baseType === item.type;
               return (
                 <div
                   key={item.type}
                   onClick={() => onUpdateConfig({ baseType: item.type })}
-                  className={`relative p-3 rounded-2xl border-2 flex flex-col items-center cursor-pointer transition-all ${
+                  className={`relative px-2 pt-3 pb-2 rounded-2xl border-2 flex flex-col items-center cursor-pointer transition-all ${
                     isSelected
                       ? 'border-blue-400 bg-blue-50/40 shadow-cute'
                       : 'border-slate-100 hover:border-pink-200'
@@ -234,10 +235,10 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
                       <Check className="w-2.5 h-2.5 stroke-[3]" />
                     </div>
                   )}
-                  <div className="w-20 h-28 my-1 pointer-events-none">
+                  <div className="w-32 h-44 pointer-events-none">
                     <PenlightBase config={{ ...config, baseType: item.type }} />
                   </div>
-                  <span className="font-bold text-xs text-slate-700 mt-1">{item.name}</span>
+                  <span className="font-bold text-xs text-slate-600 mt-1">{item.name}</span>
                 </div>
               );
             })}
@@ -264,47 +265,50 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
       <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-6 bg-slate-900 rounded-full z-40" />
 
       {/* Top Bar */}
-      <div className="px-4 pt-8 pb-2.5 bg-white border-b border-pink-100 flex items-center justify-between z-30">
+      <div className="relative px-4 pt-11 pb-5 bg-white border-b border-pink-100 flex items-center justify-between z-30">
+        {/* Left: Back */}
         <button
           onClick={() => setCurrentScreen('home')}
-          className="p-1 rounded-full hover:bg-pink-50 text-slate-600"
+          className="p-3 rounded-full hover:bg-pink-50 text-slate-600"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-7 h-7" />
         </button>
 
-        <div className="flex items-center gap-1.5">
+        {/* Center: Undo / Redo — absolutely centered */}
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
           <button
             onClick={onUndo}
             disabled={!canUndo}
-            className={`p-1.5 rounded-full ${canUndo ? 'text-slate-700' : 'text-slate-300'}`}
+            className={`p-3 rounded-full ${canUndo ? 'text-slate-700 hover:bg-slate-100' : 'text-slate-300'}`}
           >
-            <Undo2 className="w-4 h-4" />
+            <Undo2 className="w-6 h-6" />
           </button>
           <button
             onClick={onRedo}
             disabled={!canRedo}
-            className={`p-1.5 rounded-full ${canRedo ? 'text-slate-700' : 'text-slate-300'}`}
+            className={`p-3 rounded-full ${canRedo ? 'text-slate-700 hover:bg-slate-100' : 'text-slate-300'}`}
           >
-            <Redo2 className="w-4 h-4" />
+            <Redo2 className="w-6 h-6" />
           </button>
         </div>
 
+        {/* Right: Concert mode + Save */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsConcertMode(!isConcertMode)}
-            className={`p-1.5 rounded-full text-xs font-bold ${
+            className={`p-3 rounded-full font-bold ${
               isConcertMode ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-600'
             }`}
             title="暗闇モード"
           >
-            <Music className="w-3.5 h-3.5" />
+            <Music className="w-6 h-6" />
           </button>
           <button
             onClick={() => {
               onSaveCurrentDesign();
               alert('デザインを保存しました！♡');
             }}
-            className="px-3 py-1 bg-gradient-to-r from-blue-400 to-sky-400 text-white font-extrabold text-xs rounded-full shadow-xs active:scale-95"
+            className="px-5 py-2.5 bg-gradient-to-r from-blue-400 to-sky-400 text-white font-extrabold text-base rounded-full shadow-xs active:scale-95"
           >
             保存
           </button>
@@ -312,7 +316,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
       </div>
 
       {/* Center Interactive Canvas */}
-      <div className="flex-1 relative overflow-hidden flex items-center justify-center p-2">
+      <div className="flex-1 relative overflow-hidden flex items-center justify-center p-1">
         <InteractiveCanvas
           config={config}
           stickers={stickers}
@@ -328,7 +332,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
       </div>
 
       {/* Quick Stickers Strip */}
-      <div className="bg-white/95 px-3 py-1.5 border-t border-pink-100 flex items-center gap-2 overflow-x-auto scrollbar-none z-20">
+      <div className="bg-white/95 px-3 py-2 border-t border-pink-100 flex items-center gap-2.5 overflow-x-auto scrollbar-none z-20">
         {STICKER_CATALOG.filter((s) => s.popular).slice(0, 8).map((st) => (
           <button
             key={`quick-${st.key}`}
@@ -345,85 +349,82 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
                 opacity: 1,
               })
             }
-            className="w-9 h-9 p-1 rounded-xl bg-pink-50/60 hover:bg-pink-100 border border-pink-100 shrink-0 flex items-center justify-center transition active:scale-90"
+            className="w-16 h-16 p-1.5 rounded-2xl bg-pink-50/60 hover:bg-pink-100 border border-pink-100 shrink-0 flex items-center justify-center transition active:scale-90"
           >
-            <div className="w-6 h-6">
+            <div className="w-12 h-12">
               <StickerSVG svgKey={st.key} />
             </div>
           </button>
         ))}
       </div>
 
-      {/* Bottom Tool Dock (Matches Mockup Icons: パーツ, ラインストーン, 文字, 写真, 色・照明, 削除) */}
-      <div className="bg-white px-2 py-2 border-t border-pink-100 flex items-center justify-around z-30">
+      {/* Bottom Tool Dock */}
+      <div className="bg-white px-3 py-4 border-t border-pink-100 flex items-center justify-center gap-5 z-30">
         <button
-          onClick={() => setIsPartsSheetOpen(true)}
-          className="flex flex-col items-center text-pink-500 hover:text-pink-600"
+          onClick={() => openPartsSheet('all')}
+          className="flex flex-col items-center text-pink-500 hover:text-pink-600 min-w-[56px]"
         >
-          <Sparkles className="w-5 h-5" />
-          <span className="text-[9px] font-bold mt-0.5">パーツ</span>
+          <Sparkles className="w-7 h-7" />
+          <span className="text-[11px] font-bold mt-1">パーツ</span>
         </button>
 
         <button
-          onClick={() => setIsPartsSheetOpen(true)}
-          className="flex flex-col items-center text-slate-500 hover:text-pink-500"
+          onClick={() => openPartsSheet('text')}
+          className="flex flex-col items-center text-slate-500 hover:text-pink-500 min-w-[56px]"
         >
-          <Heart className="w-5 h-5" />
-          <span className="text-[9px] font-bold mt-0.5">ストーン</span>
+          <Type className="w-7 h-7" />
+          <span className="text-[11px] font-bold mt-1">文字</span>
         </button>
 
         <button
-          onClick={() => setIsPartsSheetOpen(true)}
-          className="flex flex-col items-center text-slate-500 hover:text-pink-500"
+          onClick={() => openPartsSheet('photo')}
+          className="flex flex-col items-center text-slate-500 hover:text-pink-500 min-w-[56px]"
         >
-          <Type className="w-5 h-5" />
-          <span className="text-[9px] font-bold mt-0.5">文字</span>
-        </button>
-
-        <button
-          onClick={() => setIsPartsSheetOpen(true)}
-          className="flex flex-col items-center text-slate-500 hover:text-pink-500"
-        >
-          <ImageIcon className="w-5 h-5" />
-          <span className="text-[9px] font-bold mt-0.5">写真</span>
+          <ImageIcon className="w-7 h-7" />
+          <span className="text-[11px] font-bold mt-1">写真</span>
         </button>
 
         <button
           onClick={() => setIsColorModalOpen(true)}
-          className="flex flex-col items-center text-blue-500 hover:text-blue-600"
+          className="flex flex-col items-center text-blue-500 hover:text-blue-600 min-w-[56px]"
         >
-          <Palette className="w-5 h-5" />
-          <span className="text-[9px] font-bold mt-0.5">色・照明</span>
+          <Palette className="w-7 h-7" />
+          <span className="text-[11px] font-bold mt-1">色・照明</span>
         </button>
 
         {selectedId ? (
           <button
             onClick={() => onDeleteSticker(selectedId)}
-            className="flex flex-col items-center text-rose-500"
+            className="flex flex-col items-center text-rose-500 min-w-[56px]"
           >
-            <Trash2 className="w-5 h-5" />
-            <span className="text-[9px] font-bold mt-0.5">削除</span>
+            <Trash2 className="w-7 h-7" />
+            <span className="text-[11px] font-bold mt-1">削除</span>
           </button>
         ) : (
           <button
             onClick={() => setIsCompleteOpen(true)}
-            className="flex flex-col items-center text-pink-600 font-bold"
+            className="flex flex-col items-center text-pink-600 font-bold min-w-[56px]"
           >
-            <Sparkles className="w-5 h-5 text-amber-400" />
-            <span className="text-[9px] font-bold mt-0.5">完成！</span>
+            <Sparkles className="w-7 h-7 text-amber-400" />
+            <span className="text-[11px] font-bold mt-1">完成！</span>
           </button>
         )}
       </div>
 
       {/* Modals & Sheets */}
       {isPartsSheetOpen && (
-        <div className="absolute inset-0 z-50 bg-slate-900/40 flex flex-col justify-end">
-          <div className="h-[75%] bg-white rounded-t-3xl shadow-2xl flex flex-col overflow-hidden animate-slide-up">
-            <div className="px-4 py-2 border-b border-pink-100 flex items-center justify-between">
-              <span className="font-extrabold text-xs text-slate-700">パーツ一覧</span>
+        <div
+          className="absolute inset-0 z-50 bg-slate-900/40 flex flex-col justify-end"
+          onClick={() => setIsPartsSheetOpen(false)}
+        >
+          <div
+            className="h-[82%] bg-white rounded-t-3xl shadow-2xl flex flex-col overflow-hidden animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-4 py-2 border-b border-pink-100 flex items-center justify-end">
               <button
                 onClick={() => setIsPartsSheetOpen(false)}
-                className="text-xs font-bold text-pink-500 px-2 py-1 rounded-lg hover:bg-pink-50"
+                className="text-xs font-bold text-pink-500 px-3 py-1.5 rounded-lg hover:bg-pink-50"
               >
                 閉じる
               </button>
@@ -436,27 +437,30 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
                 }}
                 onSetInsidePhoto={(url) => onUpdateConfig({ insidePhotoUrl: url })}
                 insidePhotoUrl={config.insidePhotoUrl}
+                initialCategory={partsInitialCategory}
               />
             </div>
           </div>
         </div>
       )}
 
-      {/* Color Customization Modal */}
+      {/* Color Customization Modal — inline so it stays inside the phone frame */}
       <ColorCustomizationModal
         isOpen={isColorModalOpen}
         onClose={() => setIsColorModalOpen(false)}
         config={config}
         onSaveConfig={onUpdateConfig}
+        inline
       />
 
-      {/* Complete Modal */}
+      {/* Complete Modal — inline so it stays inside the phone frame */}
       <CompleteModal
         isOpen={isCompleteOpen}
         onClose={() => setIsCompleteOpen(false)}
         config={config}
         stickers={stickers}
         onExportImage={onExportImage}
+        inline
       />
     </div>
   );

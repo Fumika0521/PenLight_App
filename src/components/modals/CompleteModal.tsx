@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { PenlightConfig, StickerItem } from '../../types';
 import { PenlightBase } from '../penlight/PenlightBase';
 import { StickerSVG } from '../stickers/StickerSVG';
-import { Download, Share2, Sparkles, X, Heart, RotateCcw } from 'lucide-react';
+import { Download, Share2, Sparkles, X, Check } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface CompleteModalProps {
@@ -12,6 +12,7 @@ interface CompleteModalProps {
   stickers: StickerItem[];
   onExportImage: () => void;
   onSaveToGallery?: () => void;
+  inline?: boolean;
 }
 
 export const CompleteModal: React.FC<CompleteModalProps> = ({
@@ -21,10 +22,30 @@ export const CompleteModal: React.FC<CompleteModalProps> = ({
   stickers,
   onExportImage,
   onSaveToGallery,
+  inline = false,
 }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isSaved, setIsSaved] = useState(false);
+
+  const handleSave = () => {
+    onExportImage();
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2500);
+  };
+
   useEffect(() => {
-    if (isOpen) {
-      // Fire confetti burst
+    if (!isOpen) return;
+
+    if (inline && canvasRef.current) {
+      // Confetti bounded to the inline canvas inside the phone frame
+      const bounded = confetti.create(canvasRef.current, { resize: true, useWorker: false });
+      bounded({
+        particleCount: 120,
+        spread: 90,
+        origin: { y: 0.4 },
+        colors: ['#ff9ebb', '#ff6584', '#38bdf8', '#c084fc', '#fef08a'],
+      });
+    } else {
       confetti({
         particleCount: 100,
         spread: 80,
@@ -32,7 +53,7 @@ export const CompleteModal: React.FC<CompleteModalProps> = ({
         colors: ['#ff9ebb', '#ff6584', '#38bdf8', '#c084fc', '#fef08a'],
       });
     }
-  }, [isOpen]);
+  }, [isOpen, inline]);
 
   if (!isOpen) return null;
 
@@ -50,8 +71,15 @@ export const CompleteModal: React.FC<CompleteModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-sm bg-gradient-to-b from-[#fff5f8] via-white to-[#f0f7ff] rounded-3xl shadow-2xl border border-pink-200 overflow-hidden flex flex-col max-h-[92vh]">
+    <div className={`${inline ? 'absolute' : 'fixed'} inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in`}>
+      {/* Confetti canvas — only used in inline mode, covers the phone frame overlay */}
+      {inline && (
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 w-full h-full pointer-events-none z-10"
+        />
+      )}
+      <div className="relative z-20 w-full max-w-sm bg-gradient-to-b from-[#fff5f8] via-white to-[#f0f7ff] rounded-3xl shadow-2xl border border-pink-200 overflow-hidden flex flex-col max-h-[92vh]">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -60,20 +88,21 @@ export const CompleteModal: React.FC<CompleteModalProps> = ({
           <X className="w-4 h-4" />
         </button>
 
-        {/* Header */}
-        <div className="pt-6 pb-2 text-center">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-pink-100/80 rounded-full text-pink-600 text-xs font-bold mb-1">
+        {/* Badge */}
+        <div className="pt-5 text-center">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-pink-100/80 rounded-full text-pink-600 text-xs font-bold">
             <Sparkles className="w-3.5 h-3.5 animate-sparkle" />
             世界にひとつだけのオリジナルペンライト
           </div>
-          <h2 className="text-2xl font-black text-slate-800 tracking-wide">
-            完成！♡
-          </h2>
         </div>
 
-        {/* Decorated Penlight Hero Card */}
-        <div className="relative flex-1 flex flex-col items-center justify-center p-4">
-          <div className="relative w-[240px] h-[340px] rounded-3xl bg-gradient-to-b from-pink-100/40 via-purple-100/30 to-blue-100/40 p-3 shadow-inner border border-white flex items-center justify-center overflow-hidden">
+        {/* 完成！♡ + Penlight Card — evenly spaced so title sits between badge and card */}
+        <div className="relative flex-1 flex flex-col items-center justify-evenly px-4 pb-2">
+          <h2 className="w-full text-2xl font-black text-slate-800 tracking-wide text-center mb-4 pl-8">
+            完成！♡
+          </h2>
+
+          <div className="relative w-[240px] h-[320px] rounded-3xl bg-gradient-to-b from-pink-100/40 via-purple-100/30 to-blue-100/40 p-3 shadow-inner border border-white flex items-center justify-center overflow-hidden">
             {/* Sparkle background elements */}
             <div className="absolute inset-0 pointer-events-none">
               <span className="absolute top-6 left-6 text-pink-300 text-lg animate-sparkle">✦</span>
@@ -146,10 +175,18 @@ export const CompleteModal: React.FC<CompleteModalProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="p-4 pt-1 space-y-2">
-          {/* Save Image CTA (Gradient Pink pill matching design mockup) */}
+        <div className="p-4 pt-1 space-y-2 relative">
+          {/* Save toast */}
+          {isSaved && (
+            <div className="absolute -top-9 left-1/2 -translate-x-1/2 bg-slate-800/90 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg flex items-center gap-1.5 animate-fade-in z-30 whitespace-nowrap">
+              <Check className="w-3.5 h-3.5 text-green-400" />
+              保存しました！
+            </div>
+          )}
+
+          {/* Save Image CTA */}
           <button
-            onClick={onExportImage}
+            onClick={handleSave}
             className="w-full py-3 bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 hover:from-pink-500 hover:to-rose-600 text-white font-black text-sm rounded-full shadow-cute hover:shadow-cute-lg transition-all active:scale-98 flex items-center justify-center gap-2 shimmer-btn"
           >
             <Download className="w-4 h-4 stroke-[2.5]" />
