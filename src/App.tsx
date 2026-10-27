@@ -305,6 +305,12 @@ export const App: React.FC = () => {
     localStorage.setItem('lightdeco_saved_projects_v3', JSON.stringify(updated));
   };
 
+  const handleRenameProject = (id: string, newName: string) => {
+    const updated = savedProjects.map((p) => p.id === id ? { ...p, name: newName } : p);
+    setSavedProjects(updated);
+    localStorage.setItem('lightdeco_saved_projects_v3', JSON.stringify(updated));
+  };
+
   const handleClearAllDecorations = () => {
     if (confirm('配置したすべてのデコレーションを消去して、まっさらなペンライトにしますか？')) {
       setStickers([]);
@@ -478,6 +484,7 @@ export const App: React.FC = () => {
               savedProjects={savedProjects}
               onLoadProject={handleLoadProject}
               onDeleteProject={handleDeleteProject}
+              onRenameProject={handleRenameProject}
               onExportImage={handleExportImage}
             />
           </div>

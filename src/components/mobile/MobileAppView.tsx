@@ -53,6 +53,7 @@ interface MobileAppViewProps {
   savedProjects: SavedProject[];
   onLoadProject: (p: SavedProject) => void;
   onDeleteProject: (id: string) => void;
+  onRenameProject: (id: string, newName: string) => void;
   onExportImage: () => void;
 }
 
@@ -76,6 +77,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
   savedProjects,
   onLoadProject,
   onDeleteProject,
+  onRenameProject,
   onExportImage,
 }) => {
   const [currentScreen, setCurrentScreen] = useState<MobileScreen>('home');
@@ -112,19 +114,35 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
 
         {/* Header Logo */}
         <div className="text-center pt-5">
-          <h1 className="font-cursive text-4xl text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-rose-400 to-blue-400 font-bold">
+          <h1 className="font-cursive text-6xl text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-rose-400 to-blue-400 font-bold">
             Light Deco ♡
           </h1>
-          <p className="text-[11px] text-pink-400 font-bold tracking-widest mt-0.5">
+          <p className="text-base text-pink-400 font-bold mt-0.5" style={{ letterSpacing: '0.15em', marginRight: '-0.15em' }}>
             ペンライトデコアプリ
           </p>
         </div>
 
         {/* Hero Illustration (Cute Decorated Penlight - Enlarged) */}
-        <div className="flex-1 flex items-center justify-center p-2">
-          <div className="relative w-72 h-[430px] flex items-center justify-center">
-            {/* Sparkle background */}
-            <div className="absolute -inset-4 bg-gradient-to-r from-pink-200/40 via-purple-200/30 to-blue-200/40 rounded-full blur-2xl animate-pulse-slow" />
+        <div className="flex-1 flex items-center justify-center overflow-hidden">
+          <div className="relative w-full h-full flex items-center justify-center">
+            {/* Scattered sparkles around penlight */}
+            <span className="absolute text-yellow-300 text-2xl animate-sparkle pointer-events-none select-none" style={{ top: '8%',  left: '18%', animationDelay: '0s' }}>✦</span>
+            <span className="absolute text-pink-400  text-sm  animate-float   pointer-events-none select-none" style={{ top: '14%', left: '8%',  animationDelay: '0.7s' }}>✧</span>
+            <span className="absolute text-blue-300  text-xl  animate-sparkle pointer-events-none select-none" style={{ top: '26%', left: '22%', animationDelay: '1.1s' }}>★</span>
+            <span className="absolute text-purple-300 text-xs animate-float   pointer-events-none select-none" style={{ top: '20%', left: '12%', animationDelay: '0.3s' }}>✦</span>
+            <span className="absolute text-yellow-400 text-lg animate-sparkle pointer-events-none select-none" style={{ top: '44%', left: '7%',  animationDelay: '0.5s' }}>✧</span>
+            <span className="absolute text-pink-300  text-base animate-sparkle pointer-events-none select-none" style={{ top: '60%', left: '19%', animationDelay: '1.4s' }}>✦</span>
+            <span className="absolute text-blue-200  text-sm  animate-float   pointer-events-none select-none" style={{ top: '75%', left: '10%', animationDelay: '0.9s' }}>✨</span>
+            <span className="absolute text-yellow-300 text-xl animate-float   pointer-events-none select-none" style={{ top: '88%', left: '23%', animationDelay: '0.2s' }}>✧</span>
+
+            <span className="absolute text-pink-400  text-xl  animate-sparkle pointer-events-none select-none" style={{ top: '6%',  right: '20%', animationDelay: '0.4s' }}>✧</span>
+            <span className="absolute text-yellow-300 text-base animate-float  pointer-events-none select-none" style={{ top: '17%', right: '9%',  animationDelay: '1.0s' }}>✦</span>
+            <span className="absolute text-blue-300  text-xl  animate-sparkle pointer-events-none select-none" style={{ top: '32%', right: '21%', animationDelay: '0.6s' }}>★</span>
+            <span className="absolute text-pink-200  text-xs  animate-sparkle pointer-events-none select-none" style={{ top: '50%', right: '8%',  animationDelay: '1.3s' }}>✦</span>
+            <span className="absolute text-blue-300  text-lg  animate-float   pointer-events-none select-none" style={{ top: '65%', right: '18%', animationDelay: '0.1s' }}>✧</span>
+            <span className="absolute text-yellow-400 text-sm animate-sparkle pointer-events-none select-none" style={{ top: '79%', right: '11%', animationDelay: '0.8s' }}>✨</span>
+            <span className="absolute text-pink-300  text-xl  animate-float   pointer-events-none select-none" style={{ top: '91%', right: '22%', animationDelay: '0.5s' }}>✦</span>
+
             <div className="relative w-full h-full pointer-events-none">
               <PenlightBase config={config} />
             </div>
@@ -141,7 +159,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
           </button>
           <button
             onClick={() => setIsGalleryOpen(true)}
-            className="w-full py-3 bg-white/90 hover:bg-white text-pink-600 font-bold text-xs rounded-full border border-pink-200 shadow-xs transition-all active:scale-98"
+            className="w-full py-3.5 bg-white/90 hover:bg-white text-pink-600 font-extrabold text-sm rounded-full border border-pink-200 shadow-xs transition-all active:scale-98"
           >
             保存したデザインを見る
           </button>
@@ -171,16 +189,19 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
           </button>
         </div>
 
-        {/* Gallery Modal */}
+        {/* Gallery — inline inside phone frame */}
         <GalleryModal
           isOpen={isGalleryOpen}
           onClose={() => setIsGalleryOpen(false)}
           savedProjects={savedProjects}
           onLoadProject={(p) => {
             onLoadProject(p);
+            setIsGalleryOpen(false);
             setCurrentScreen('editor');
           }}
           onDeleteProject={onDeleteProject}
+          onRenameProject={onRenameProject}
+          inline
         />
       </div>
     );
