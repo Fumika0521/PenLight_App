@@ -275,13 +275,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
           transformOrigin: 'center center',
         }}
       >
-        {/* Floating Sparkles in Background matching the reference mockup */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
-          <span className="absolute top-10 left-8 text-sky-300 text-lg opacity-60 animate-sparkle">✦</span>
-          <span className="absolute top-24 right-10 text-pink-300 text-base opacity-70 animate-sparkle" style={{ animationDelay: '0.6s' }}>✧</span>
-          <span className="absolute bottom-32 left-10 text-pink-300 text-xl opacity-60 animate-sparkle" style={{ animationDelay: '1.2s' }}>✦</span>
-          <span className="absolute bottom-20 right-8 text-purple-300 text-base opacity-70 animate-sparkle" style={{ animationDelay: '0.9s' }}>✧</span>
-        </div>
+        {/* Floating Sparkles removed — keeps canvas clean for editing */}
 
         {/* Concert Dark Mode Lights */}
         {isConcertMode && (

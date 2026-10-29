@@ -229,13 +229,13 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
           >
             <ChevronLeft className="w-7 h-7" />
           </button>
-          <h2 className="font-extrabold text-sm text-slate-800">ペンライトを選択</h2>
+          <h2 className="font-extrabold text-base text-slate-800">ペンライトを選択</h2>
           <div className="w-12" />
         </div>
 
         {/* Base Grid + Subtitle — subtitle at midpoint between header and first card row */}
         <div className="flex-1 px-4 flex flex-col justify-evenly">
-          <p className="text-sm text-slate-600 font-semibold text-center">
+          <p className="text-base text-slate-600 font-semibold text-center">
             お好みのペンライトを選択してください♡
           </p>
           <div className="grid grid-cols-2 gap-3">

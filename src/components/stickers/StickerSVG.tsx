@@ -220,7 +220,9 @@ export const PRESET_WORDS = [
   { text: '一生推し', color: '#ff4b72' },
   { text: 'すき♡', color: '#fb7185' },
   { text: 'NO.1', color: '#f59e0b' },
-  { text: 'My Idol', color: '#06b6d4' }
+  { text: 'My Idol', color: '#06b6d4' },
+  { text: '最推し', color: '#e879f9' },
+  { text: 'エモい', color: '#34d399' }
 ];
 
 // 5 cute preset idol avatars from reference

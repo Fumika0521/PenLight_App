@@ -35,7 +35,6 @@ export interface StickerItem {
 
 export interface PenlightConfig {
   baseType: PenlightBaseType;
-  handleColor: string;
   domeColor: string;
   domeOpacity: number;
   glowColor: string;

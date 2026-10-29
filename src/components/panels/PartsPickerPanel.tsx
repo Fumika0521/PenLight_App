@@ -45,9 +45,6 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
     { id: 'heart', label: 'ハート' },
     { id: 'star', label: '星' },
     { id: 'rhinestone', label: 'ストーン' },
-    { id: 'text', label: '文字' },
-    { id: 'photo', label: '写真' },
-    { id: 'charm', label: 'チャーム' },
   ];
 
   const filteredStickers = selectedCategory === 'all'
@@ -120,7 +117,7 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white/95 backdrop-blur-md border-r border-pink-100 p-4 overflow-y-auto">
+    <div className="flex flex-col bg-white/95 backdrop-blur-md border-r border-pink-100 p-4">
 
       {/* Category Filter Chips — hidden in text/photo tabs */}
       {selectedCategory !== 'text' && selectedCategory !== 'photo' && (
@@ -144,36 +141,47 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
       {/* Main Sticker Grid */}
       {selectedCategory !== 'text' && selectedCategory !== 'photo' && (
         <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-3">
-            {filteredStickers.map((item) => (
-              <button
-                key={item.key}
-                onClick={() => handleAddPresetSticker(item)}
-                className="group relative aspect-square p-2 rounded-2xl bg-gradient-to-b from-white to-pink-50/30 border border-pink-100 hover:border-pink-300 hover:shadow-cute hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center overflow-hidden"
-                title={item.name}
-              >
-                <div className="w-14 h-14 flex items-center justify-center transition-transform group-hover:scale-110">
-                  <StickerSVG svgKey={item.key} imagePath={item.imagePath} />
-                </div>
-              </button>
-            ))}
-          </div>
+          {/* Popular Parts (人気のパーツ) — shown first */}
+          {selectedCategory === 'all' && (
+            <div>
+              <h4 className="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1">
+                <Heart className="w-3.5 h-3.5 text-pink-500 fill-pink-500" />
+                人気のパーツ
+              </h4>
+              <div className="grid grid-cols-4 gap-2">
+                {popularStickers.slice(0, 8).map((item) => (
+                  <button
+                    key={`pop-${item.key}`}
+                    onClick={() => handleAddPresetSticker(item)}
+                    className="aspect-square p-1.5 rounded-xl bg-pink-50/60 hover:bg-pink-100 border border-pink-100 hover:border-pink-300 flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+                    title={item.name}
+                  >
+                    <div className="w-10 h-10 flex items-center justify-center">
+                      <StickerSVG svgKey={item.key} imagePath={item.imagePath} />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
-          {/* Popular Parts (人気のパーツ) */}
-          <div className="pt-2 border-t border-pink-50">
-            <h4 className="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1">
-              <Heart className="w-3.5 h-3.5 text-pink-500 fill-pink-500" />
-              人気のパーツ
-            </h4>
+          {/* Full sticker list */}
+          <div className={selectedCategory === 'all' ? 'pt-2 border-t border-pink-50' : ''}>
+            {selectedCategory === 'all' && (
+              <h4 className="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1">
+                <Heart className="w-3.5 h-3.5 text-pink-500 fill-pink-500" />
+                パーツ一覧
+              </h4>
+            )}
             <div className="grid grid-cols-4 gap-2">
-              {popularStickers.slice(0, 8).map((item) => (
+              {filteredStickers.map((item) => (
                 <button
-                  key={`pop-${item.key}`}
+                  key={item.key}
                   onClick={() => handleAddPresetSticker(item)}
-                  className="aspect-square p-1.5 rounded-xl bg-pink-50/60 hover:bg-pink-100 border border-pink-100 hover:border-pink-300 flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+                  className="group relative aspect-square p-1.5 rounded-xl bg-gradient-to-b from-white to-pink-50/30 border border-pink-100 hover:border-pink-300 hover:shadow-cute hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center overflow-hidden"
                   title={item.name}
                 >
-                  <div className="w-12 h-12 flex items-center justify-center">
+                  <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-110">
                     <StickerSVG svgKey={item.key} imagePath={item.imagePath} />
                   </div>
                 </button>
@@ -315,7 +323,7 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
           </div>
 
           {/* Korean — text input only, preset grid removed */}
-          <p className="text-[11px] text-slate-400">韓국語はテキスト入力欄に直接入力できます（スマホキーボード対応）</p>
+          <p className="text-[11px] text-slate-400">韓国語はテキスト入力欄に直接入力できます（スマホキーボード対応）</p>
         </div>
       )}
 

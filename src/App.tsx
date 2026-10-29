@@ -18,7 +18,6 @@ import {
 
 const INITIAL_CONFIG: PenlightConfig = {
   baseType: 'classic',
-  handleColor: '#ffffff',
   domeColor: '#bae6fd',
   domeOpacity: 0.5,
   glowColor: '#ff6584',

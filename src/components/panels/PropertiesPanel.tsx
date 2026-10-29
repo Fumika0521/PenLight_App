@@ -120,28 +120,6 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
             </div>
           </div>
 
-          {/* Handle Color */}
-          <div className="space-y-3">
-            <div>
-              <label className="text-xs font-semibold text-slate-700 block mb-1.5">
-                持ち手のカラー
-              </label>
-              <div className="flex gap-2">
-                {['#ffffff', '#ffd1dc', '#bae6fd', '#e9d5ff', '#334155'].map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => onUpdateConfig({ handleColor: color })}
-                    className={`w-6 h-6 rounded-full border shadow-xs transition-transform ${
-                      config.handleColor === color
-                        ? 'ring-2 ring-pink-400 scale-110'
-                        : 'border-slate-300 hover:scale-105'
-                    }`}
-                    style={{ backgroundColor: color }}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
 
           {/* Tip card */}
           <div className="mt-4 p-3 bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl border border-pink-100 text-center text-slate-500">

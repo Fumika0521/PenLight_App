@@ -105,9 +105,14 @@ export const CompleteModal: React.FC<CompleteModalProps> = ({
           <div className="relative w-[240px] h-[320px] rounded-3xl bg-gradient-to-b from-pink-100/40 via-purple-100/30 to-blue-100/40 p-3 shadow-inner border border-white flex items-center justify-center overflow-hidden">
             {/* Sparkle background elements */}
             <div className="absolute inset-0 pointer-events-none">
-              <span className="absolute top-6 left-6 text-pink-300 text-lg animate-sparkle">✦</span>
-              <span className="absolute bottom-8 right-6 text-blue-300 text-xl animate-sparkle">✧</span>
-              <span className="absolute top-1/2 right-4 text-purple-300 text-sm animate-sparkle">★</span>
+              {/* top center */}
+              <span className="absolute text-yellow-300 text-sm  animate-sparkle" style={{ top: '4%',  left: '50%', transform: 'translateX(-50%)', animationDelay: '0s'   }}>✦</span>
+              {/* left × 2 */}
+              <span className="absolute text-pink-400  text-xs  animate-sparkle" style={{ top: '28%', left: '5%',  animationDelay: '0.6s' }}>✧</span>
+              <span className="absolute text-purple-300 text-sm  animate-sparkle" style={{ top: '65%', left: '22%', animationDelay: '1.1s' }}>✦</span>
+              {/* right × 2 */}
+              <span className="absolute text-blue-300  text-sm  animate-sparkle" style={{ top: '30%', right: '5%', animationDelay: '0.3s' }}>✦</span>
+              <span className="absolute text-pink-300  text-xs  animate-sparkle" style={{ top: '68%', right: '6%', animationDelay: '0.9s' }}>✧</span>
             </div>
 
             {/* Base Penlight */}

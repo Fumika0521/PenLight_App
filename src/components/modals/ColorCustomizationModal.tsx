@@ -105,24 +105,6 @@ export const ColorCustomizationModal: React.FC<ColorCustomizationModalProps> = (
             </div>
           </div>
 
-          {/* Handle Color */}
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1.5">持ち手（グリップ）の色</label>
-            <div className="flex gap-2">
-              {['#ffffff', '#ffd1dc', '#bae6fd', '#e9d5ff', '#334155'].map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setTempConfig((prev) => ({ ...prev, handleColor: c }))}
-                  className={`w-7 h-7 rounded-full border transition-all ${
-                    tempConfig.handleColor === c
-                      ? 'border-blue-500 scale-110 shadow-sm ring-2 ring-blue-200'
-                      : 'border-slate-300 hover:scale-105'
-                  }`}
-                  style={{ backgroundColor: c }}
-                />
-              ))}
-            </div>
-          </div>
 
           {/* Glow Animation Mode */}
           <div>
