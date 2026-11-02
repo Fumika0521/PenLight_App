@@ -297,7 +297,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
         <div className="absolute inset-0 pointer-events-auto">
           {stickers.map((sticker) => {
             const isSelected = sticker.id === selectedId;
-            const baseSize = 100; // Enlarged base size for stickers to match larger penlight
+            const baseSize = 72; // Balanced base size so stickers fit nicely on the penlight without being overly large
             const itemSize = baseSize * sticker.scale;
 
             return (

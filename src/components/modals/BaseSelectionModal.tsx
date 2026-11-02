@@ -9,30 +9,33 @@ interface BaseSelectionModalProps {
   onSelectBase: (type: PenlightBaseType) => void;
 }
 
-const BASE_OPTIONS: { type: PenlightBaseType; name: string; desc: string; img: string }[] = [
+const BASE_OPTIONS: { type: PenlightBaseType; name: string; desc: string; img: string; badge?: string }[] = [
   { 
     type: 'classic', 
-    name: '定番タイプ', 
+    name: '定番丸型ドーム', 
     desc: '王道ドーム型ペンライト',
     img: '/assets/hires/penlight_classic.png' 
   },
   { 
     type: 'heart', 
-    name: 'ハートタイプ', 
-    desc: 'ガーリーなクリスタルハート',
-    img: '/assets/hires/penlight_heart.png' 
+    name: '少女時代風ハート', 
+    desc: 'クリアハート＆天使の羽ピンク',
+    badge: 'NEW',
+    img: '/assets/hires/penlight_heart_v3.png' 
   },
   { 
-    type: 'star', 
-    name: 'スタータイプ', 
-    desc: 'キラめく星型ペンライト',
-    img: '/assets/hires/penlight_star.png' 
+    type: 'cube', 
+    name: 'NCT WISH風四角', 
+    desc: '透明キューブ＆浮遊スター',
+    badge: 'NEW',
+    img: '/assets/hires/penlight_cube.png' 
   },
   { 
-    type: 'diamond', 
-    name: 'ダイヤタイプ', 
-    desc: '気品あふれるダイヤモンド型',
-    img: '/assets/hires/penlight_diamond.png' 
+    type: 'bar', 
+    name: 'ルセラフィム風棒型', 
+    desc: '洗練ライトバー＆スリークボディ',
+    badge: 'NEW',
+    img: '/assets/hires/penlight_bar.png' 
   },
 ];
 
@@ -93,11 +96,15 @@ export const BaseSelectionModal: React.FC<BaseSelectionModalProps> = ({
                   }`}
                 >
                   {/* Selected Badge */}
-                  {isSelected && (
+                  {isSelected ? (
                     <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-xs">
                       <Check className="w-3 h-3 stroke-[3]" />
                     </div>
-                  )}
+                  ) : opt.badge ? (
+                    <div className="absolute top-2.5 right-2.5 px-1.5 py-0.5 rounded-full bg-gradient-to-r from-pink-500 to-rose-400 text-[9px] font-black text-white shadow-xs">
+                      {opt.badge}
+                    </div>
+                  ) : null}
 
                   {/* 3D Penlight Thumbnail */}
                   <div className="w-24 h-36 flex items-center justify-center my-1 pointer-events-none">

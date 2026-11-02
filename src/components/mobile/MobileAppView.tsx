@@ -210,10 +210,10 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
   // Screen 2: Select Base Screen (Matches Mockup 2)
   if (currentScreen === 'select-base') {
     const baseList: { type: PenlightBaseType; name: string }[] = [
-      { type: 'classic', name: '定番タイプ' },
-      { type: 'heart', name: 'ハートタイプ' },
-      { type: 'star', name: 'スタータイプ' },
-      { type: 'diamond', name: 'ダイヤタイプ' },
+      { type: 'classic', name: '定番丸型ドーム' },
+      { type: 'heart', name: '少女時代風ハート' },
+      { type: 'cube', name: 'NCT WISH風四角' },
+      { type: 'bar', name: 'ルセラフィム風棒型' },
     ];
 
     return (
@@ -363,17 +363,18 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
                 category: st.category as any,
                 x: 50,
                 y: 40,
-                scale: 1,
+                scale: st.defaultScale || 1,
                 rotation: 0,
-                type: 'preset',
+                type: st.is3d ? '3d-png' : 'preset',
+                imageUrl: st.imagePath,
                 svgKey: st.key,
                 opacity: 1,
               })
             }
             className="w-16 h-16 p-1.5 rounded-2xl bg-pink-50/60 hover:bg-pink-100 border border-pink-100 shrink-0 flex items-center justify-center transition active:scale-90"
           >
-            <div className="w-12 h-12">
-              <StickerSVG svgKey={st.key} />
+            <div className="w-12 h-12 p-0.5 flex items-center justify-center">
+              <StickerSVG svgKey={st.key} imagePath={st.imagePath} />
             </div>
           </button>
         ))}

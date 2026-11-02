@@ -74,8 +74,8 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
       name: `文字「${text}」`,
       category: 'text',
       x: 50,
-      y: 36,
-      scale: 1.15,
+      y: 38,
+      scale: 0.85,
       rotation: 0,
       type: 'text',
       text,
@@ -91,7 +91,7 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
       category: 'photo',
       x: 50,
       y: 30,
-      scale: 1.1,
+      scale: 0.85,
       rotation: 0,
       type: 'photo',
       imageUrl: url,
@@ -153,10 +153,10 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
                   <button
                     key={`pop-${item.key}`}
                     onClick={() => handleAddPresetSticker(item)}
-                    className="aspect-square p-1.5 rounded-xl bg-pink-50/60 hover:bg-pink-100 border border-pink-100 hover:border-pink-300 flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+                    className="aspect-square p-1 rounded-xl bg-pink-50/60 hover:bg-pink-100 border border-pink-100 hover:border-pink-300 flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-2xs"
                     title={item.name}
                   >
-                    <div className="w-10 h-10 flex items-center justify-center">
+                    <div className="w-11 h-11 p-1 flex items-center justify-center">
                       <StickerSVG svgKey={item.key} imagePath={item.imagePath} />
                     </div>
                   </button>
@@ -178,10 +178,10 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
                 <button
                   key={item.key}
                   onClick={() => handleAddPresetSticker(item)}
-                  className="group relative aspect-square p-1.5 rounded-xl bg-gradient-to-b from-white to-pink-50/30 border border-pink-100 hover:border-pink-300 hover:shadow-cute hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center overflow-hidden"
+                  className="group relative aspect-square p-1 rounded-xl bg-gradient-to-b from-white to-pink-50/40 border border-pink-100 hover:border-pink-300 hover:shadow-cute hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center"
                   title={item.name}
                 >
-                  <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-110">
+                  <div className="w-11 h-11 p-1 flex items-center justify-center transition-transform group-hover:scale-105">
                     <StickerSVG svgKey={item.key} imagePath={item.imagePath} />
                   </div>
                 </button>

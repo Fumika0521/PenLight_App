@@ -9,9 +9,9 @@ interface PenlightBaseProps {
 
 const BASE_IMAGES: Record<string, string> = {
   classic: '/assets/hires/penlight_classic.png',
-  heart: '/assets/hires/penlight_heart.png',
-  star: '/assets/hires/penlight_star.png',
-  diamond: '/assets/hires/penlight_diamond.png',
+  heart: '/assets/hires/penlight_heart_v3.png',
+  cube: '/assets/hires/penlight_cube.png',
+  bar: '/assets/hires/penlight_bar.png',
 };
 
 export const PenlightBase: React.FC<PenlightBaseProps> = ({
@@ -31,8 +31,19 @@ export const PenlightBase: React.FC<PenlightBaseProps> = ({
   const imageSrc = BASE_IMAGES[baseType] || BASE_IMAGES.classic;
 
   // Head mask cutoff percentage (stops exactly at the collar / neck)
-  const headCutoff = baseType === 'star' ? '46%' : '42%';
-  const headFade = baseType === 'star' ? '49%' : '45%';
+  let headCutoff = '43%';
+  let headFade = '46%';
+
+  if (baseType === 'cube') {
+    headCutoff = '45%';
+    headFade = '48%';
+  } else if (baseType === 'bar') {
+    headCutoff = '48%';
+    headFade = '52%';
+  } else if (baseType === 'heart') {
+    headCutoff = '43%';
+    headFade = '46%';
+  }
 
   return (
     <div
@@ -76,12 +87,12 @@ export const PenlightBase: React.FC<PenlightBaseProps> = ({
         <div
           className="absolute z-10 pointer-events-none transition-all duration-300 overflow-hidden flex items-center justify-center shadow-sm"
           style={{
-            top: baseType === 'star' ? '26%' : '24%',
+            top: baseType === 'cube' ? '23%' : baseType === 'bar' ? '28%' : '24%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: '28%',
-            height: '28%',
-            borderRadius: baseType === 'heart' ? '35% 35% 45% 45%' : '50%',
+            width: baseType === 'bar' ? '18%' : '28%',
+            height: baseType === 'bar' ? '18%' : '28%',
+            borderRadius: baseType === 'cube' ? '18%' : baseType === 'heart' ? '35% 35% 45% 45%' : '50%',
             border: '2px solid rgba(255, 255, 255, 0.9)',
             boxShadow: `0 0 6px ${glowColor}88`,
           }}

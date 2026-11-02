@@ -1,4 +1,8 @@
-export type PenlightBaseType = 'classic' | 'heart' | 'star' | 'diamond';
+export type PenlightBaseType = 
+  | 'classic' 
+  | 'heart' 
+  | 'cube' 
+  | 'bar';
 
 export type StickerCategory = 
   | 'all'
