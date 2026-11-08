@@ -1,0 +1,225 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <defs>
+    <linearGradient id="p-panel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#f0faff"/>
+      <stop offset="30%"  stop-color="#d8f4ff"/>
+      <stop offset="65%"  stop-color="#e8f8f0"/>
+      <stop offset="100%" stop-color="#f0eeff"/>
+    </linearGradient>
+    <radialGradient id="p-star" cx="50%" cy="50%" r="58%">
+      <stop offset="0%"   stop-color="#fffde0"/>
+      <stop offset="45%"  stop-color="#ffe890"/>
+      <stop offset="100%" stop-color="#ffcc50"/>
+    </radialGradient>
+    <linearGradient id="p-handle" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#d0d0d0"/>
+      <stop offset="22%"  stop-color="#ffffff"/>
+      <stop offset="78%"  stop-color="#f5f5f5"/>
+      <stop offset="100%" stop-color="#c8c8c8"/>
+    </linearGradient>
+    <linearGradient id="p-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#9e6040"/>
+      <stop offset="30%"  stop-color="#e8b488"/>
+      <stop offset="65%"  stop-color="#d09070"/>
+      <stop offset="100%" stop-color="#9e6040"/>
+    </linearGradient>
+    <linearGradient id="p-bow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#c8f0ff"/>
+      <stop offset="50%"  stop-color="#70d0ff"/>
+      <stop offset="100%" stop-color="#40b0f0"/>
+    </linearGradient>
+    <linearGradient id="p-strap" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#b8e8ff"/>
+      <stop offset="100%" stop-color="#60b8f0"/>
+    </linearGradient>
+    <filter id="p-shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="rgba(60,120,180,0.20)"/>
+    </filter>
+    <filter id="p-glow">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="p-starglow">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="p-clip">
+      <rect x="90" y="62" width="220" height="192" rx="26"/>
+    </clipPath>
+  </defs>
+
+  <!-- Soft outer glow behind panel -->
+  <rect x="76" y="50" width="248" height="216" rx="30" fill="rgba(100,200,240,0.08)" filter="url(#p-glow)"/>
+
+  <!-- PANEL HEAD - main body -->
+  <rect x="90" y="62" width="220" height="192" rx="26"
+        fill="url(#p-panel)" filter="url(#p-shadow)" stroke="rgba(120,200,240,0.40)" stroke-width="2.5"/>
+
+  <!-- Inner frame border -->
+  <rect x="102" y="74" width="196" height="168" rx="19"
+        fill="none" stroke="rgba(160,220,255,0.55)" stroke-width="3"/>
+
+  <!-- Pastel rainbow shimmer stripe (diagonal, clipped to panel) -->
+  <g clip-path="url(#p-clip)">
+    <rect x="90" y="62" width="80" height="250" rx="0"
+          fill="rgba(255,255,255,0.18)" transform="rotate(-25,200,158)"/>
+  </g>
+
+  <!-- Soft star glow behind center star -->
+  <circle cx="200" cy="155" r="48" fill="rgba(255,220,100,0.18)" filter="url(#p-starglow)"/>
+
+  <!-- 8-point cross rays (behind star) -->
+  <g transform="translate(200,155)" opacity="0.40">
+    <line x1="0" y1="-44" x2="0"  y2="44"  stroke="#ffd060" stroke-width="3" stroke-linecap="round"/>
+    <line x1="-44" y1="0" x2="44" y2="0"   stroke="#ffd060" stroke-width="3" stroke-linecap="round"/>
+    <line x1="-31" y1="-31" x2="31" y2="31" stroke="#ffe080" stroke-width="2" stroke-linecap="round"/>
+    <line x1="31" y1="-31" x2="-31" y2="31" stroke="#ffe080" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- 5-pointed star (center decoration) -->
+  <g transform="translate(200,155)">
+    <polygon points="0,-35 8.4,-11.5 33,-11.5 13.5,-4.4 21.5,19.5 0,7 -21.5,19.5 -13.5,-4.4 -33,-11.5 -8.4,-11.5"
+             fill="url(#p-star)" stroke="rgba(220,170,40,0.65)" stroke-width="1.8" filter="url(#p-starglow)"/>
+    <!-- Star highlight -->
+    <ellipse cx="-4" cy="-10" rx="8" ry="5" fill="rgba(255,255,220,0.75)" transform="rotate(-20,-4,-10)"/>
+  </g>
+
+  <!-- Corner flower ornaments -->
+  <!-- Top-left -->
+  <g transform="translate(112,86)">
+    <circle cx="0"  cy="-9" r="5.5" fill="rgba(255,170,210,0.75)"/>
+    <circle cx="9"  cy="0"  r="5.5" fill="rgba(200,170,255,0.75)"/>
+    <circle cx="0"  cy="9"  r="5.5" fill="rgba(160,220,255,0.75)"/>
+    <circle cx="-9" cy="0"  r="5.5" fill="rgba(255,220,160,0.75)"/>
+    <circle cx="0"  cy="0"  r="6"   fill="rgba(255,250,235,0.95)"/>
+    <!-- Center dot -->
+    <circle cx="0"  cy="0"  r="2"   fill="rgba(255,200,80,0.80)"/>
+  </g>
+  <!-- Top-right -->
+  <g transform="translate(288,86)">
+    <circle cx="0"  cy="-9" r="5.5" fill="rgba(255,170,210,0.75)"/>
+    <circle cx="9"  cy="0"  r="5.5" fill="rgba(200,170,255,0.75)"/>
+    <circle cx="0"  cy="9"  r="5.5" fill="rgba(160,220,255,0.75)"/>
+    <circle cx="-9" cy="0"  r="5.5" fill="rgba(255,220,160,0.75)"/>
+    <circle cx="0"  cy="0"  r="6"   fill="rgba(255,250,235,0.95)"/>
+    <circle cx="0"  cy="0"  r="2"   fill="rgba(255,200,80,0.80)"/>
+  </g>
+  <!-- Bottom-left -->
+  <g transform="translate(112,228)">
+    <circle cx="0"  cy="-9" r="5.5" fill="rgba(255,170,210,0.75)"/>
+    <circle cx="9"  cy="0"  r="5.5" fill="rgba(200,170,255,0.75)"/>
+    <circle cx="0"  cy="9"  r="5.5" fill="rgba(160,220,255,0.75)"/>
+    <circle cx="-9" cy="0"  r="5.5" fill="rgba(255,220,160,0.75)"/>
+    <circle cx="0"  cy="0"  r="6"   fill="rgba(255,250,235,0.95)"/>
+    <circle cx="0"  cy="0"  r="2"   fill="rgba(255,200,80,0.80)"/>
+  </g>
+  <!-- Bottom-right -->
+  <g transform="translate(288,228)">
+    <circle cx="0"  cy="-9" r="5.5" fill="rgba(255,170,210,0.75)"/>
+    <circle cx="9"  cy="0"  r="5.5" fill="rgba(200,170,255,0.75)"/>
+    <circle cx="0"  cy="9"  r="5.5" fill="rgba(160,220,255,0.75)"/>
+    <circle cx="-9" cy="0"  r="5.5" fill="rgba(255,220,160,0.75)"/>
+    <circle cx="0"  cy="0"  r="6"   fill="rgba(255,250,235,0.95)"/>
+    <circle cx="0"  cy="0"  r="2"   fill="rgba(255,200,80,0.80)"/>
+  </g>
+
+  <!-- Pearl border dots (top / sides / bottom) -->
+  <circle cx="160" cy="63"  r="4"   fill="#f8fdff" stroke="rgba(120,200,240,0.50)" stroke-width="1"/>
+  <circle cx="200" cy="62"  r="4.5" fill="#f8fdff" stroke="rgba(120,200,240,0.50)" stroke-width="1"/>
+  <circle cx="240" cy="63"  r="4"   fill="#f8fdff" stroke="rgba(120,200,240,0.50)" stroke-width="1"/>
+  <circle cx="91"  cy="118" r="4"   fill="#f8fdff" stroke="rgba(120,200,240,0.48)" stroke-width="1"/>
+  <circle cx="91"  cy="158" r="4"   fill="#f8fdff" stroke="rgba(120,200,240,0.48)" stroke-width="1"/>
+  <circle cx="91"  cy="198" r="4"   fill="#f8fdff" stroke="rgba(120,200,240,0.48)" stroke-width="1"/>
+  <circle cx="309" cy="118" r="4"   fill="#f8fdff" stroke="rgba(120,200,240,0.48)" stroke-width="1"/>
+  <circle cx="309" cy="158" r="4"   fill="#f8fdff" stroke="rgba(120,200,240,0.48)" stroke-width="1"/>
+  <circle cx="309" cy="198" r="4"   fill="#f8fdff" stroke="rgba(120,200,240,0.48)" stroke-width="1"/>
+  <circle cx="160" cy="253" r="4"   fill="#f8fdff" stroke="rgba(120,200,240,0.45)" stroke-width="1"/>
+  <circle cx="200" cy="254" r="4.5" fill="#f8fdff" stroke="rgba(120,200,240,0.45)" stroke-width="1"/>
+  <circle cx="240" cy="253" r="4"   fill="#f8fdff" stroke="rgba(120,200,240,0.45)" stroke-width="1"/>
+
+  <!-- Crystal shine highlight (panel top-left) -->
+  <path d="M104,75 C118,67 148,64 166,72 C150,80 118,83 104,75 Z" fill="rgba(255,255,255,0.68)"/>
+  <ellipse cx="114" cy="90" rx="18" ry="8" fill="rgba(255,255,255,0.34)" transform="rotate(-18,114,90)"/>
+
+  <!-- Floating sparkles around panel -->
+  <g transform="translate(200,48)">
+    <line x1="0" y1="-7" x2="0"  y2="7"  stroke="#90d8ff" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="-7" y1="0" x2="7"  y2="0"  stroke="#90d8ff" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="-5" y1="-5" x2="5" y2="5"  stroke="#90d8ff" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="5"  y1="-5" x2="-5" y2="5" stroke="#90d8ff" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(78,140)">
+    <line x1="0" y1="-5" x2="0"  y2="5"  stroke="#b0e8d0" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="-5" y1="0" x2="5"  y2="0"  stroke="#b0e8d0" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="-3.5" y1="-3.5" x2="3.5" y2="3.5" stroke="#b0e8d0" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="3.5" y1="-3.5" x2="-3.5" y2="3.5" stroke="#b0e8d0" stroke-width="1.2" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(322,140)">
+    <line x1="0" y1="-5" x2="0"  y2="5"  stroke="#d0c0ff" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="-5" y1="0" x2="5"  y2="0"  stroke="#d0c0ff" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="-3.5" y1="-3.5" x2="3.5" y2="3.5" stroke="#d0c0ff" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="3.5" y1="-3.5" x2="-3.5" y2="3.5" stroke="#d0c0ff" stroke-width="1.2" stroke-linecap="round"/>
+  </g>
+  <circle cx="148" cy="55" r="2.5" fill="#80d0ff" opacity="0.8"/>
+  <circle cx="252" cy="55" r="2.5" fill="#90e8d8" opacity="0.8"/>
+
+  <!-- COLLAR (rose gold) -->
+  <rect x="181" y="254" width="38" height="12" rx="6" fill="url(#p-gold)" filter="url(#p-shadow)"/>
+
+  <!-- BOW - left wing (cyan/blue) -->
+  <path d="M200,280
+           C186,271 156,265 142,275
+           C134,281 138,294 149,297
+           C164,301 186,288 200,280 Z"
+        fill="url(#p-bow)" filter="url(#p-shadow)" stroke="rgba(40,140,220,0.35)" stroke-width="1"/>
+  <path d="M200,280 C188,283 168,287 155,284"
+        fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.2" stroke-linecap="round"/>
+
+  <!-- BOW - right wing -->
+  <path d="M200,280
+           C214,271 244,265 258,275
+           C266,281 262,294 251,297
+           C236,301 214,288 200,280 Z"
+        fill="url(#p-bow)" filter="url(#p-shadow)" stroke="rgba(40,140,220,0.35)" stroke-width="1"/>
+  <path d="M200,280 C212,283 232,287 245,284"
+        fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.2" stroke-linecap="round"/>
+
+  <!-- Bow tails -->
+  <path d="M196,285 C186,295 172,310 168,321" stroke="#60c0f8" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <path d="M204,285 C214,295 228,310 232,321" stroke="#60c0f8" stroke-width="8" stroke-linecap="round" fill="none"/>
+
+  <!-- Bow center -->
+  <ellipse cx="200" cy="281" rx="14" ry="11" fill="#48a8e8" stroke="rgba(30,110,200,0.45)" stroke-width="1.5" filter="url(#p-shadow)"/>
+  <ellipse cx="196" cy="277" rx="5"  ry="4"  fill="rgba(200,238,255,0.72)" transform="rotate(-10,196,277)"/>
+  <!-- Star button on bow -->
+  <g transform="translate(200,282)" fill="#d8f4ff">
+    <polygon points="0,-5 1.3,-1.3 5,0 1.3,1.3 0,5 -1.3,1.3 -5,0 -1.3,-1.3"/>
+  </g>
+
+  <!-- Bottom collar -->
+  <rect x="184" y="319" width="32" height="10" rx="5" fill="url(#p-gold)"/>
+
+  <!-- HANDLE body -->
+  <rect x="183" y="329" width="34" height="172" rx="17" fill="url(#p-handle)" filter="url(#p-shadow)"/>
+  <!-- Highlight -->
+  <rect x="188" y="334" width="10" height="159" rx="5" fill="rgba(255,255,255,0.55)"/>
+  <!-- Branding -->
+  <rect x="185" y="393" width="30" height="14" rx="3.5" fill="rgba(200,148,106,0.10)" stroke="rgba(200,148,106,0.22)" stroke-width="0.8"/>
+  <text x="200" y="403" text-anchor="middle" font-family="Georgia,serif" font-size="6.5" fill="rgba(160,110,80,0.55)" font-style="italic">Light Deco</text>
+
+  <!-- Rose gold base ring -->
+  <rect x="178" y="497" width="44" height="13" rx="6.5" fill="url(#p-gold)" filter="url(#p-shadow)"/>
+  <!-- Connector nub -->
+  <ellipse cx="200" cy="512" rx="9" ry="5.5" fill="#e0e0e0" stroke="rgba(200,148,106,0.80)" stroke-width="1.8"/>
+
+  <!-- STRAP (blue) -->
+  <path d="M200,510 C190,527 162,537 142,532 C122,527 116,542 126,557 C131,564 148,565 158,561"
+        stroke="url(#p-strap)" stroke-width="8" stroke-linecap="round" fill="none"/>
+
+  <!-- Star charm -->
+  <circle cx="158" cy="561" r="10" fill="#b0deff" stroke="rgba(80,160,230,0.48)" stroke-width="1.5" filter="url(#p-shadow)"/>
+  <g transform="translate(158,561)" fill="#ffd060" stroke="rgba(200,150,30,0.45)" stroke-width="0.8">
+    <polygon points="0,-6 1.5,-1.5 6,0 1.5,1.5 0,6 -1.5,1.5 -6,0 -1.5,-1.5"/>
+  </g>
+  <ellipse cx="155" cy="558" rx="2.5" ry="1.5" fill="rgba(255,255,255,0.70)" transform="rotate(-15,155,558)"/>
+</svg>

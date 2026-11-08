@@ -3,7 +3,7 @@ import React from 'react';
 export interface StickerDef {
   key: string;
   name: string;
-  category: 'ribbon' | 'heart' | 'star' | 'pearl' | 'rhinestone' | 'charm';
+  category: 'insert' | 'handle' | 'ribbon' | 'heart' | 'star' | 'pearl' | 'rhinestone' | 'charm';
   defaultScale?: number;
   popular?: boolean;
   is3d?: boolean;
@@ -11,6 +11,145 @@ export interface StickerDef {
 }
 
 export const STICKER_CATALOG: StickerDef[] = [
+  // ================= DOME INSERTS (中身) =================
+  {
+    key: 'insert-moon-star-3d',
+    name: 'クラシック月と星（オリジナル）',
+    category: 'insert',
+    popular: true,
+    is3d: true,
+    imagePath: '/assets/stickers/insert_moon_star.png',
+    defaultScale: 1.05,
+  },
+  {
+    key: 'insert-avatar-1',
+    name: '推しアバター A (ボブ)',
+    category: 'insert',
+    popular: true,
+    is3d: true,
+    imagePath: '/assets/stickers/idol_avatar_1.png',
+    defaultScale: 1.0,
+  },
+  {
+    key: 'insert-avatar-2',
+    name: '推しアバター B (ロング)',
+    category: 'insert',
+    popular: true,
+    is3d: true,
+    imagePath: '/assets/stickers/idol_avatar_2.png',
+    defaultScale: 1.0,
+  },
+  {
+    key: 'insert-avatar-3',
+    name: '推しアバター C (黒髪)',
+    category: 'insert',
+    popular: true,
+    is3d: true,
+    imagePath: '/assets/stickers/idol_avatar_3.png',
+    defaultScale: 1.0,
+  },
+  {
+    key: 'insert-avatar-4',
+    name: '推しアバター D (アップ)',
+    category: 'insert',
+    popular: true,
+    is3d: true,
+    imagePath: '/assets/stickers/idol_avatar_4.png',
+    defaultScale: 1.0,
+  },
+  {
+    key: 'insert-avatar-5',
+    name: '推しアバター E (ウェーブ)',
+    category: 'insert',
+    popular: true,
+    is3d: true,
+    imagePath: '/assets/stickers/idol_avatar_5.png',
+    defaultScale: 1.0,
+  },
+  {
+    key: 'insert-heart-pearl-3d',
+    name: 'スワロフスキーハート（ドーム中身）',
+    category: 'insert',
+    popular: true,
+    is3d: true,
+    imagePath: '/assets/hires/gem_heart_pearl.png',
+    defaultScale: 0.95,
+  },
+  {
+    key: 'insert-star-cyan-3d',
+    name: 'クリスタルスター（ドーム中身）',
+    category: 'insert',
+    popular: true,
+    is3d: true,
+    imagePath: '/assets/stickers/star_cyan_gem.png',
+    defaultScale: 0.85,
+  },
+  {
+    key: 'insert-crown-gold-3d',
+    name: 'ティアラクラウン（ドーム中身）',
+    category: 'insert',
+    popular: true,
+    is3d: true,
+    imagePath: '/assets/stickers/crown_gold.png',
+    defaultScale: 0.9,
+  },
+
+  // ================= HANDLE ACCESSORIES (持ち手アクセ) =================
+  {
+    key: 'handle-ribbon-couture-3d',
+    name: 'クチュールサテンリボン（持ち手用）',
+    category: 'handle',
+    popular: true,
+    is3d: true,
+    imagePath: '/assets/hires/ribbon_couture.png',
+    defaultScale: 1.1,
+  },
+  {
+    key: 'handle-ribbon-pink-satin-3d',
+    name: 'サテンリボン（ピンク・持ち手用）',
+    category: 'handle',
+    popular: true,
+    is3d: true,
+    imagePath: '/assets/stickers/ribbon_pink_satin.png',
+    defaultScale: 0.95,
+  },
+  {
+    key: 'handle-ribbon-blue-lace-3d',
+    name: 'レースリボン（ブルー・持ち手用）',
+    category: 'handle',
+    popular: true,
+    is3d: true,
+    imagePath: '/assets/stickers/ribbon_blue_lace.png',
+    defaultScale: 0.9,
+  },
+  {
+    key: 'handle-ribbon-gold-bow-3d',
+    name: 'ゴールドボウ（持ち手用）',
+    category: 'handle',
+    popular: true,
+    is3d: true,
+    imagePath: '/assets/stickers/ribbon_gold_bow.png',
+    defaultScale: 0.9,
+  },
+  {
+    key: 'handle-ribbon-purple-twin-3d',
+    name: 'ツインリボン（ラベンダー・持ち手用）',
+    category: 'handle',
+    popular: true,
+    is3d: true,
+    imagePath: '/assets/stickers/ribbon_purple_twin.png',
+    defaultScale: 0.9,
+  },
+  {
+    key: 'handle-ribbon-silver-twin-3d',
+    name: 'シルバーツインリボン（持ち手用）',
+    category: 'handle',
+    popular: true,
+    is3d: true,
+    imagePath: '/assets/stickers/ribbon_silver_twin.png',
+    defaultScale: 0.9,
+  },
+
   // ================= 3D RIBBONS =================
   {
     key: 'ribbon-couture-3d',

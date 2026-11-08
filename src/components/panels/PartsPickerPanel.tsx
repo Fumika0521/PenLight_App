@@ -24,6 +24,7 @@ interface PartsPickerPanelProps {
   onSetInsidePhoto?: (photoUrl: string | null) => void;
   insidePhotoUrl?: string | null;
   initialCategory?: string;
+  activeCategory?: string;
 }
 
 export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
@@ -31,16 +32,26 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
   onSetInsidePhoto,
   insidePhotoUrl,
   initialCategory,
+  activeCategory,
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'all');
+  const [selectedCategory, setSelectedCategory] = useState<string>(activeCategory || initialCategory || 'all');
   const [isAlphabetOpen, setIsAlphabetOpen] = useState(false);
   const [isHiraganaOpen, setIsHiraganaOpen] = useState(false);
   const [isKatakanaOpen, setIsKatakanaOpen] = useState(false);
   const [customText, setCustomText] = useState<string>('LOVE');
   const [customTextColor, setCustomTextColor] = useState<string>('#ff6584');
 
+  // Sync external category changes from left navigation tabs
+  React.useEffect(() => {
+    if (activeCategory) {
+      setSelectedCategory(activeCategory);
+    }
+  }, [activeCategory]);
+
   const categories = [
     { id: 'all', label: 'すべて' },
+    { id: 'insert', label: '中身' },
+    { id: 'handle', label: '持ち手アクセ' },
     { id: 'ribbon', label: 'リボン' },
     { id: 'heart', label: 'ハート' },
     { id: 'star', label: '星' },
@@ -54,11 +65,15 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
   const popularStickers = STICKER_CATALOG.filter((s) => s.popular);
 
   const handleAddPresetSticker = (def: StickerDef) => {
+    const isInsert = def.category === 'insert';
+    const isHandle = def.category === 'handle';
+
     onAddSticker({
       name: def.name,
       category: def.category as StickerCategory,
-      x: 50 + (Math.random() * 6 - 3),
-      y: 42 + (Math.random() * 6 - 3),
+      layer: isInsert ? 'insert' : isHandle ? 'handle' : 'sticker',
+      x: isInsert ? 50 : isHandle ? 50 : 50 + (Math.random() * 6 - 3),
+      y: isInsert ? 33.4 : isHandle ? 62 : 42 + (Math.random() * 6 - 3),
       scale: def.defaultScale || 1.0,
       rotation: 0,
       type: def.is3d ? '3d-png' : 'preset',
@@ -141,6 +156,64 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
       {/* Main Sticker Grid */}
       {selectedCategory !== 'text' && selectedCategory !== 'photo' && (
         <div className="space-y-4">
+          {/* Insert Specific Guide & Quick Photo Upload */}
+          {selectedCategory === 'insert' && (
+            <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-3 rounded-2xl border border-pink-100 mb-3 space-y-2">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-pink-600">
+                <Sparkles className="w-3.5 h-3.5" />
+                ドームの中身パーツ
+              </div>
+              <p className="text-[11px] text-slate-500 leading-tight">
+                ガラスドームの中に配置されます。ガラス反射レイヤーの下に重なり、リアルな奥行きが出ます♡
+              </p>
+              <label className="flex items-center justify-center gap-2 w-full py-2 bg-white text-pink-600 font-bold text-xs rounded-xl border border-pink-200 shadow-2xs hover:bg-pink-50 cursor-pointer active:scale-95 transition">
+                <Upload className="w-3.5 h-3.5" />
+                推し写真をドーム内に入れる
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (ev) => {
+                        const url = ev.target?.result as string;
+                        onAddSticker({
+                          name: 'ドーム内推し写真',
+                          category: 'insert',
+                          layer: 'insert',
+                          x: 50,
+                          y: 33.4,
+                          scale: 0.9,
+                          rotation: 0,
+                          type: 'photo',
+                          imageUrl: url,
+                          imageShape: 'circle',
+                          opacity: 1,
+                        });
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </label>
+            </div>
+          )}
+
+          {/* Handle Specific Guide */}
+          {selectedCategory === 'handle' && (
+            <div className="bg-gradient-to-r from-pink-50 to-rose-50 p-3 rounded-2xl border border-pink-100 mb-3 space-y-1">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-pink-600">
+                <Heart className="w-3.5 h-3.5 fill-pink-500 text-pink-500" />
+                持ち手アクセサリー
+              </div>
+              <p className="text-[11px] text-slate-500 leading-tight">
+                持ち手に結ぶリボンやチャームです。ガラス反射の前面に美しく重ねられます♡
+              </p>
+            </div>
+          )}
+
           {/* Popular Parts (人気のパーツ) — shown first */}
           {selectedCategory === 'all' && (
             <div>

@@ -1,0 +1,222 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <defs>
+    <radialGradient id="w-starfill" cx="50%" cy="42%" r="58%">
+      <stop offset="0%"   stop-color="#fff8e0"/>
+      <stop offset="40%"  stop-color="#ffe890"/>
+      <stop offset="100%" stop-color="#f8c040"/>
+    </radialGradient>
+    <radialGradient id="w-starglow" cx="50%" cy="50%" r="60%">
+      <stop offset="0%"   stop-color="rgba(255,240,160,0.95)"/>
+      <stop offset="100%" stop-color="rgba(255,200,80,0)"/>
+    </radialGradient>
+    <linearGradient id="w-shaft" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#d0c8b8"/>
+      <stop offset="20%"  stop-color="#fffff0"/>
+      <stop offset="50%"  stop-color="#fff8e8"/>
+      <stop offset="80%"  stop-color="#f8f0e0"/>
+      <stop offset="100%" stop-color="#c8c0b0"/>
+    </linearGradient>
+    <linearGradient id="w-handle" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#d0d0d0"/>
+      <stop offset="22%"  stop-color="#ffffff"/>
+      <stop offset="78%"  stop-color="#f5f5f5"/>
+      <stop offset="100%" stop-color="#c8c8c8"/>
+    </linearGradient>
+    <linearGradient id="w-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#9e6040"/>
+      <stop offset="30%"  stop-color="#e8b488"/>
+      <stop offset="65%"  stop-color="#d09070"/>
+      <stop offset="100%" stop-color="#9e6040"/>
+    </linearGradient>
+    <linearGradient id="w-goldband" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#b07848"/>
+      <stop offset="35%"  stop-color="#f0c888"/>
+      <stop offset="70%"  stop-color="#e0b070"/>
+      <stop offset="100%" stop-color="#b07848"/>
+    </linearGradient>
+    <linearGradient id="w-bow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#ffecd8"/>
+      <stop offset="50%"  stop-color="#ffb880"/>
+      <stop offset="100%" stop-color="#ff9050"/>
+    </linearGradient>
+    <linearGradient id="w-strap" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#ffe0b8"/>
+      <stop offset="100%" stop-color="#f0a060"/>
+    </linearGradient>
+    <linearGradient id="w-swirl" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="rgba(255,220,120,0.35)"/>
+      <stop offset="100%" stop-color="rgba(255,180,60,0)"/>
+    </linearGradient>
+    <filter id="w-shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="rgba(140,90,30,0.22)"/>
+    </filter>
+    <filter id="w-starglow-filter">
+      <feGaussianBlur stdDeviation="10" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="w-sparkle-glow">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="w-shaft-shadow">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="rgba(140,100,40,0.18)"/>
+    </filter>
+  </defs>
+
+  <!-- ======================== -->
+  <!-- BIG STAR HEAD (top)     -->
+  <!-- ======================== -->
+
+  <!-- Outer radial star glow -->
+  <circle cx="200" cy="118" r="90" fill="rgba(255,220,100,0.10)" filter="url(#w-starglow-filter)"/>
+  <circle cx="200" cy="118" r="65" fill="rgba(255,230,140,0.14)" filter="url(#w-starglow-filter)"/>
+
+  <!-- Long cross rays (star burst) -->
+  <g transform="translate(200,118)" opacity="0.50" filter="url(#w-sparkle-glow)">
+    <line x1="0" y1="-75" x2="0"  y2="75"  stroke="#ffc840" stroke-width="4" stroke-linecap="round"/>
+    <line x1="-75" y1="0" x2="75" y2="0"   stroke="#ffc840" stroke-width="4" stroke-linecap="round"/>
+    <line x1="-53" y1="-53" x2="53" y2="53" stroke="#ffe080" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="53"  y1="-53" x2="-53" y2="53" stroke="#ffe080" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- 8-pointed large star shape -->
+  <!-- Using two overlapping squares rotated 45deg -->
+  <g transform="translate(200,118)">
+    <!-- Base square 1 -->
+    <rect x="-46" y="-46" width="92" height="92" rx="8" fill="url(#w-starfill)" transform="rotate(0)"
+          filter="url(#w-shadow)" stroke="rgba(220,160,40,0.55)" stroke-width="1.5"/>
+    <!-- Base square 2, rotated 45deg -->
+    <rect x="-46" y="-46" width="92" height="92" rx="8" fill="url(#w-starfill)" transform="rotate(45)"
+          filter="url(#w-shadow)" stroke="rgba(220,160,40,0.55)" stroke-width="1.5"/>
+    <!-- Inner circle overlay -->
+    <circle r="38" fill="rgba(255,248,220,0.80)" stroke="rgba(240,200,80,0.45)" stroke-width="2"/>
+    <!-- Center sparkle symbol -->
+    <g fill="#f8d060" stroke="rgba(200,140,20,0.45)" stroke-width="0.8">
+      <polygon points="0,-22 5.2,-5.2 22,0 5.2,5.2 0,22 -5.2,5.2 -22,0 -5.2,-5.2"/>
+    </g>
+    <!-- Center circle highlight -->
+    <circle r="9" fill="rgba(255,255,200,0.90)"/>
+    <circle r="5" fill="rgba(255,255,255,0.80)"/>
+    <!-- Star highlight (top-left quadrant) -->
+    <ellipse cx="-12" cy="-14" rx="12" ry="8" fill="rgba(255,255,255,0.55)" transform="rotate(-30,-12,-14)"/>
+  </g>
+
+  <!-- Pearl dots around star tips -->
+  <circle cx="200" cy="34"  r="4.5" fill="#fffde8" stroke="rgba(220,180,60,0.55)" stroke-width="1"/>
+  <circle cx="265" cy="53"  r="4"   fill="#fffde8" stroke="rgba(220,180,60,0.50)" stroke-width="1"/>
+  <circle cx="284" cy="118" r="4.5" fill="#fffde8" stroke="rgba(220,180,60,0.55)" stroke-width="1"/>
+  <circle cx="265" cy="183" r="4"   fill="#fffde8" stroke="rgba(220,180,60,0.50)" stroke-width="1"/>
+  <circle cx="200" cy="202" r="4.5" fill="#fffde8" stroke="rgba(220,180,60,0.55)" stroke-width="1"/>
+  <circle cx="135" cy="183" r="4"   fill="#fffde8" stroke="rgba(220,180,60,0.50)" stroke-width="1"/>
+  <circle cx="116" cy="118" r="4.5" fill="#fffde8" stroke="rgba(220,180,60,0.55)" stroke-width="1"/>
+  <circle cx="135" cy="53"  r="4"   fill="#fffde8" stroke="rgba(220,180,60,0.50)" stroke-width="1"/>
+
+  <!-- Floating sparkles around star -->
+  <g transform="translate(200,20)" filter="url(#w-sparkle-glow)">
+    <line x1="0" y1="-9" x2="0"  y2="9"  stroke="#ffe880" stroke-width="3" stroke-linecap="round"/>
+    <line x1="-9" y1="0" x2="9"  y2="0"  stroke="#ffe880" stroke-width="3" stroke-linecap="round"/>
+    <line x1="-6" y1="-6" x2="6" y2="6"  stroke="#ffe880" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="6"  y1="-6" x2="-6" y2="6" stroke="#ffe880" stroke-width="1.8" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(100,78)" filter="url(#w-sparkle-glow)">
+    <line x1="0" y1="-6" x2="0"  y2="6"  stroke="#ffd060" stroke-width="2" stroke-linecap="round"/>
+    <line x1="-6" y1="0" x2="6"  y2="0"  stroke="#ffd060" stroke-width="2" stroke-linecap="round"/>
+    <line x1="-4" y1="-4" x2="4" y2="4"  stroke="#ffd060" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="4"  y1="-4" x2="-4" y2="4" stroke="#ffd060" stroke-width="1.2" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(300,78)" filter="url(#w-sparkle-glow)">
+    <line x1="0" y1="-6" x2="0"  y2="6"  stroke="#f8d0a0" stroke-width="2" stroke-linecap="round"/>
+    <line x1="-6" y1="0" x2="6"  y2="0"  stroke="#f8d0a0" stroke-width="2" stroke-linecap="round"/>
+    <line x1="-4" y1="-4" x2="4" y2="4"  stroke="#f8d0a0" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="4"  y1="-4" x2="-4" y2="4" stroke="#f8d0a0" stroke-width="1.2" stroke-linecap="round"/>
+  </g>
+  <circle cx="85"  cy="128" r="3" fill="#ffe080" opacity="0.8"/>
+  <circle cx="315" cy="128" r="3" fill="#ffe080" opacity="0.8"/>
+  <circle cx="240" cy="32"  r="2.5" fill="#ffc840" opacity="0.7"/>
+  <circle cx="160" cy="32"  r="2.5" fill="#ffc840" opacity="0.7"/>
+
+  <!-- ======================== -->
+  <!-- SHAFT / WAND BODY       -->
+  <!-- ======================== -->
+
+  <!-- Top connector (rose gold cap) -->
+  <rect x="186" y="202" width="28" height="14" rx="7" fill="url(#w-goldband)" filter="url(#w-shadow)"/>
+
+  <!-- Wand shaft (ivory/cream, narrower than usual handles) -->
+  <rect x="187" y="216" width="26" height="270" rx="13" fill="url(#w-shaft)" filter="url(#w-shaft-shadow)"/>
+  <!-- Shaft highlight -->
+  <rect x="192" y="220" width="7" height="258" rx="3.5" fill="rgba(255,255,255,0.60)"/>
+
+  <!-- Decorative gold bands along shaft -->
+  <rect x="186" y="265" width="28" height="7" rx="3.5" fill="url(#w-goldband)" opacity="0.75"/>
+  <rect x="186" y="370" width="28" height="7" rx="3.5" fill="url(#w-goldband)" opacity="0.75"/>
+  <rect x="186" y="440" width="28" height="7" rx="3.5" fill="url(#w-goldband)" opacity="0.75"/>
+
+  <!-- Swirl decoration on shaft -->
+  <path d="M196,230 C204,245 196,260 204,275 C212,290 196,305 204,320 C212,335 196,350 204,365"
+        stroke="rgba(240,190,80,0.38)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Branding text -->
+  <rect x="188" y="395" width="24" height="14" rx="3" fill="rgba(200,148,106,0.10)" stroke="rgba(200,148,106,0.22)" stroke-width="0.8"/>
+  <text x="200" y="405" text-anchor="middle" font-family="Georgia,serif" font-size="5.5" fill="rgba(160,110,80,0.50)" font-style="italic">Light Deco</text>
+
+  <!-- ======================== -->
+  <!-- BOW (peach/orange) at middle of shaft -->
+  <!-- ======================== -->
+
+  <!-- Left wing -->
+  <path d="M200,310
+           C187,302 162,297 149,306
+           C141,312 145,324 155,327
+           C168,330 188,319 200,310 Z"
+        fill="url(#w-bow)" filter="url(#w-shadow)" stroke="rgba(220,110,40,0.35)" stroke-width="1"/>
+  <path d="M200,310 C189,313 170,317 158,314"
+        fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.2" stroke-linecap="round"/>
+
+  <!-- Right wing -->
+  <path d="M200,310
+           C213,302 238,297 251,306
+           C259,312 255,324 245,327
+           C232,330 212,319 200,310 Z"
+        fill="url(#w-bow)" filter="url(#w-shadow)" stroke="rgba(220,110,40,0.35)" stroke-width="1"/>
+  <path d="M200,310 C211,313 230,317 242,314"
+        fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.2" stroke-linecap="round"/>
+
+  <!-- Bow tails -->
+  <path d="M197,314 C189,323 177,335 174,344" stroke="#f0a060" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <path d="M203,314 C211,323 223,335 226,344" stroke="#f0a060" stroke-width="7" stroke-linecap="round" fill="none"/>
+
+  <!-- Bow center knot -->
+  <ellipse cx="200" cy="311" rx="13" ry="10" fill="#e8885a" stroke="rgba(200,80,30,0.40)" stroke-width="1.5" filter="url(#w-shadow)"/>
+  <ellipse cx="197" cy="308" rx="4.5" ry="3.5" fill="rgba(255,220,190,0.70)" transform="rotate(-10,197,308)"/>
+  <!-- Star button -->
+  <g transform="translate(200,312)" fill="#ffe8c8">
+    <polygon points="0,-4.5 1.2,-1.2 4.5,0 1.2,1.2 0,4.5 -1.2,1.2 -4.5,0 -1.2,-1.2"/>
+  </g>
+
+  <!-- ======================== -->
+  <!-- HANDLE GRIP (bottom)    -->
+  <!-- ======================== -->
+
+  <!-- Grip section uses slightly different look -->
+  <rect x="187" y="448" width="26" height="38" rx="13" fill="url(#w-handle)" filter="url(#w-shadow)"/>
+  <rect x="192" y="452" width="8" height="30" rx="4" fill="rgba(255,255,255,0.55)"/>
+
+  <!-- Rose gold base ring -->
+  <rect x="182" y="484" width="36" height="12" rx="6" fill="url(#w-goldband)" filter="url(#w-shadow)"/>
+  <!-- Connector nub -->
+  <ellipse cx="200" cy="498" rx="8" ry="5" fill="#e0e0e0" stroke="rgba(200,148,106,0.80)" stroke-width="1.8"/>
+
+  <!-- ======================== -->
+  <!-- STRAP (peach/gold)      -->
+  <!-- ======================== -->
+  <path d="M200,496 C190,512 163,522 143,517 C123,512 117,527 127,542 C132,549 148,550 158,546"
+        stroke="url(#w-strap)" stroke-width="8" stroke-linecap="round" fill="none"/>
+
+  <!-- Star charm (golden, to match wand theme) -->
+  <circle cx="158" cy="546" r="10" fill="#ffe8a0" stroke="rgba(200,160,40,0.50)" stroke-width="1.5" filter="url(#w-shadow)"/>
+  <g transform="translate(158,546)" fill="#f8b020" stroke="rgba(180,120,10,0.45)" stroke-width="0.8">
+    <polygon points="0,-6.5 1.6,-1.6 6.5,0 1.6,1.6 0,6.5 -1.6,1.6 -6.5,0 -1.6,-1.6"/>
+  </g>
+  <ellipse cx="155" cy="543" rx="2.5" ry="1.5" fill="rgba(255,255,255,0.75)" transform="rotate(-15,155,543)"/>
+</svg>

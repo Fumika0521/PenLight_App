@@ -286,127 +286,247 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
           </div>
         )}
 
-        {/* 1. Base 3D Penlight Layer (Significantly enlarged and centered) */}
-        <div className="absolute inset-0 flex items-center justify-center p-2 sm:p-3">
+        {/* 1. Base 3D Penlight Layer (Empty Dome Base) */}
+        <div className="absolute inset-0 flex items-center justify-center p-2 sm:p-3 pointer-events-none z-0">
           <div className="w-[340px] h-[510px] sm:w-[390px] sm:h-[570px] md:w-[430px] md:h-[620px]">
-            <PenlightBase config={config} />
+            <PenlightBase config={config} showGloss={false} />
           </div>
         </div>
 
-        {/* 2. Interactive Stickers Layer */}
-        <div className="absolute inset-0 pointer-events-auto">
-          {stickers.map((sticker) => {
-            const isSelected = sticker.id === selectedId;
-            const baseSize = 72; // Balanced base size so stickers fit nicely on the penlight without being overly large
-            const itemSize = baseSize * sticker.scale;
+        {/* 2. Inserts Layer (Inside Dome — Clipped in the circular dome sphere) */}
+        <div
+          className="absolute inset-0 pointer-events-auto z-10"
+          style={{
+            // Circular clip-path precisely matching the glass dome sphere
+            clipPath: 'circle(17.5% at 50% 33.4%)',
+            WebkitClipPath: 'circle(17.5% at 50% 33.4%)',
+          }}
+        >
+          {stickers
+            .filter((s) => s.category === 'insert' || s.layer === 'insert')
+            .map((sticker) => {
+              const isSelected = sticker.id === selectedId;
+              const baseSize = 84; // Dome inserts can be nicely prominent
+              const itemSize = baseSize * sticker.scale;
 
-            return (
-              <div
-                key={sticker.id}
-                onPointerDown={(e) => handlePointerDown(e, sticker.id, 'move')}
-                className={`absolute cursor-move select-none transition-shadow ${
-                  isSelected ? 'z-40' : ''
-                }`}
-                style={{
-                  left: `${sticker.x}%`,
-                  top: `${sticker.y}%`,
-                  width: `${itemSize}px`,
-                  height: `${itemSize}px`,
-                  transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) ${
-                    sticker.flipX ? 'scaleX(-1)' : ''
-                  }`,
-                  zIndex: isSelected ? 99 : sticker.zIndex,
-                  opacity: sticker.opacity ?? 1,
-                }}
-              >
-                {/* Sticker Content Rendering */}
-                <div className="w-full h-full relative flex items-center justify-center pointer-events-none">
-                  {(sticker.type === '3d-png' || sticker.type === 'preset') && (
-                    <StickerSVG
-                      svgKey={sticker.svgKey || ''}
-                      imagePath={sticker.imageUrl}
-                      customColor={sticker.color}
-                      className="w-full h-full drop-shadow-md"
-                    />
-                  )}
-
-                  {sticker.type === 'text' && (
-                    <div
-                      className="text-center font-extrabold px-2 py-1 leading-none select-none tracking-widest whitespace-nowrap"
-                      style={{
-                        color: sticker.textColor || '#ff6584',
-                        textShadow: `0 0 6px #ffffff, 0 0 10px #ffffff, 0 2px 6px rgba(255, 101, 132, 0.4), 0 3px 0 #ffffff`,
-                        fontFamily: sticker.fontFamily || '"M PLUS Rounded 1c", sans-serif',
-                        fontSize: `${28 * sticker.scale}px`,
-                        letterSpacing: '0.1em',
-                      }}
-                    >
-                      {sticker.text}
-                    </div>
-                  )}
-
-                  {sticker.type === 'photo' && sticker.imageUrl && (
-                    <div
-                      className={`w-full h-full overflow-hidden border-2 border-white shadow-md bg-white ${
-                        sticker.imageShape === 'circle'
-                          ? 'rounded-full'
-                          : sticker.imageShape === 'heart'
-                          ? 'rounded-[30%]'
-                          : 'rounded-2xl'
-                      }`}
-                    >
-                      <img
-                        src={sticker.imageUrl}
-                        alt="oshi stamp"
-                        className="w-full h-full object-cover pointer-events-none"
+              return (
+                <div
+                  key={sticker.id}
+                  onPointerDown={(e) => handlePointerDown(e, sticker.id, 'move')}
+                  className={`absolute cursor-move select-none transition-shadow ${
+                    isSelected ? 'z-40' : ''
+                  }`}
+                  style={{
+                    left: `${sticker.x}%`,
+                    top: `${sticker.y}%`,
+                    width: `${itemSize}px`,
+                    height: `${itemSize}px`,
+                    transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) ${
+                      sticker.flipX ? 'scaleX(-1)' : ''
+                    }`,
+                    zIndex: sticker.zIndex,
+                    opacity: sticker.opacity ?? 1,
+                  }}
+                >
+                  <div className="w-full h-full relative flex items-center justify-center pointer-events-none">
+                    {(sticker.type === '3d-png' || sticker.type === 'preset') && (
+                      <StickerSVG
+                        svgKey={sticker.svgKey || ''}
+                        imagePath={sticker.imageUrl}
+                        customColor={sticker.color}
+                        className="w-full h-full drop-shadow-md"
                       />
-                    </div>
-                  )}
+                    )}
+
+                    {sticker.type === 'text' && (
+                      <div
+                        className="text-center font-extrabold px-2 py-1 leading-none select-none tracking-widest whitespace-nowrap"
+                        style={{
+                          color: sticker.textColor || '#ff6584',
+                          textShadow: `0 0 6px #ffffff, 0 0 10px #ffffff, 0 2px 6px rgba(255, 101, 132, 0.4), 0 3px 0 #ffffff`,
+                          fontFamily: sticker.fontFamily || '"M PLUS Rounded 1c", sans-serif',
+                          fontSize: `${28 * sticker.scale}px`,
+                          letterSpacing: '0.1em',
+                        }}
+                      >
+                        {sticker.text}
+                      </div>
+                    )}
+
+                    {sticker.type === 'photo' && sticker.imageUrl && (
+                      <div
+                        className={`w-full h-full overflow-hidden border-2 border-white shadow-md bg-white ${
+                          sticker.imageShape === 'circle'
+                            ? 'rounded-full'
+                            : sticker.imageShape === 'heart'
+                            ? 'rounded-[30%]'
+                            : 'rounded-2xl'
+                        }`}
+                      >
+                        <img
+                          src={sticker.imageUrl}
+                          alt="oshi stamp"
+                          className="w-full h-full object-cover pointer-events-none"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+
+        {/* 3. Glass Reflection Layer (Dome Gloss — On top of inserts, below handle accessories) */}
+        {config.baseType === 'classic' && (
+          <div className="absolute inset-0 flex items-center justify-center p-2 sm:p-3 pointer-events-none z-20">
+            <div className="w-[340px] h-[510px] sm:w-[390px] sm:h-[570px] md:w-[430px] md:h-[620px]">
+              <img
+                src="/assets/hires/dome_gloss.png"
+                alt="Glass Dome Gloss"
+                className="w-full h-full object-contain pointer-events-none select-none drop-shadow-[0_4px_12px_rgba(255,255,255,0.4)]"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* 4. Handle Accessories & Stickers Layer (On top of glass reflection) */}
+        <div className="absolute inset-0 pointer-events-auto z-30">
+          {stickers
+            .filter((s) => s.category !== 'insert' && s.layer !== 'insert')
+            .map((sticker) => {
+              const isSelected = sticker.id === selectedId;
+              const isHandleAcc = sticker.category === 'handle' || sticker.layer === 'handle';
+              const baseSize = isHandleAcc ? 88 : 72;
+              const itemSize = baseSize * sticker.scale;
+
+              return (
+                <div
+                  key={sticker.id}
+                  onPointerDown={(e) => handlePointerDown(e, sticker.id, 'move')}
+                  className={`absolute cursor-move select-none transition-shadow ${
+                    isSelected ? 'z-40' : ''
+                  }`}
+                  style={{
+                    left: `${sticker.x}%`,
+                    top: `${sticker.y}%`,
+                    width: `${itemSize}px`,
+                    height: `${itemSize}px`,
+                    transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) ${
+                      sticker.flipX ? 'scaleX(-1)' : ''
+                    }`,
+                    zIndex: isSelected ? 99 : sticker.zIndex,
+                    opacity: sticker.opacity ?? 1,
+                  }}
+                >
+                  <div className="w-full h-full relative flex items-center justify-center pointer-events-none">
+                    {(sticker.type === '3d-png' || sticker.type === 'preset') && (
+                      <StickerSVG
+                        svgKey={sticker.svgKey || ''}
+                        imagePath={sticker.imageUrl}
+                        customColor={sticker.color}
+                        className="w-full h-full drop-shadow-md"
+                      />
+                    )}
+
+                    {sticker.type === 'text' && (
+                      <div
+                        className="text-center font-extrabold px-2 py-1 leading-none select-none tracking-widest whitespace-nowrap"
+                        style={{
+                          color: sticker.textColor || '#ff6584',
+                          textShadow: `0 0 6px #ffffff, 0 0 10px #ffffff, 0 2px 6px rgba(255, 101, 132, 0.4), 0 3px 0 #ffffff`,
+                          fontFamily: sticker.fontFamily || '"M PLUS Rounded 1c", sans-serif',
+                          fontSize: `${28 * sticker.scale}px`,
+                          letterSpacing: '0.1em',
+                        }}
+                      >
+                        {sticker.text}
+                      </div>
+                    )}
+
+                    {sticker.type === 'photo' && sticker.imageUrl && (
+                      <div
+                        className={`w-full h-full overflow-hidden border-2 border-white shadow-md bg-white ${
+                          sticker.imageShape === 'circle'
+                            ? 'rounded-full'
+                            : sticker.imageShape === 'heart'
+                            ? 'rounded-[30%]'
+                            : 'rounded-2xl'
+                        }`}
+                      >
+                        <img
+                          src={sticker.imageUrl}
+                          alt="oshi stamp"
+                          className="w-full h-full object-cover pointer-events-none"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+
+        {/* 5. Active Selection Handles Overlay (Always visible on top of all layers) */}
+        {selectedId && (() => {
+          const sticker = stickers.find((s) => s.id === selectedId);
+          if (!sticker) return null;
+          const isInsert = sticker.category === 'insert' || sticker.layer === 'insert';
+          const isHandle = sticker.category === 'handle' || sticker.layer === 'handle';
+          const baseSize = isInsert ? 84 : isHandle ? 88 : 72;
+          const itemSize = baseSize * sticker.scale;
+
+          return (
+            <div
+              className="absolute pointer-events-auto z-50 select-none"
+              style={{
+                left: `${sticker.x}%`,
+                top: `${sticker.y}%`,
+                width: `${itemSize}px`,
+                height: `${itemSize}px`,
+                transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) ${
+                  sticker.flipX ? 'scaleX(-1)' : ''
+                }`,
+              }}
+            >
+              <div className="absolute -inset-1.5 border-2 border-dashed border-[#4facfe] rounded-xl pointer-events-auto shadow-sm">
+                {/* Top Rotation Handle */}
+                <div
+                  onPointerDown={(e) => handlePointerDown(e, sticker.id, 'rotate')}
+                  className="absolute -top-6 left-1/2 -translate-x-1/2 w-5 h-5 bg-white border-2 border-[#4facfe] rounded-full shadow flex items-center justify-center cursor-grab active:cursor-grabbing hover:scale-110 transition"
+                  title="回転"
+                >
+                  <RotateCw className="w-3 h-3 text-[#4facfe]" />
                 </div>
 
-                {/* Bounding Box & Handles (Soft Cyan Dashed line matching reference) */}
-                {isSelected && (
-                  <div className="absolute -inset-1.5 border-2 border-dashed border-[#4facfe] rounded-xl pointer-events-auto shadow-sm">
-                    {/* Top Rotation Handle */}
-                    <div
-                      onPointerDown={(e) => handlePointerDown(e, sticker.id, 'rotate')}
-                      className="absolute -top-6 left-1/2 -translate-x-1/2 w-5 h-5 bg-white border-2 border-[#4facfe] rounded-full shadow flex items-center justify-center cursor-grab active:cursor-grabbing hover:scale-110 transition"
-                      title="回転"
-                    >
-                      <RotateCw className="w-3 h-3 text-[#4facfe]" />
-                    </div>
+                {/* Corner Handles */}
+                <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-[#4facfe] rounded-full shadow-xs" />
+                <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-[#4facfe] rounded-full shadow-xs" />
+                <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-[#4facfe] rounded-full shadow-xs" />
 
-                    {/* Corner Handles */}
-                    <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-[#4facfe] rounded-full shadow-xs" />
-                    <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-[#4facfe] rounded-full shadow-xs" />
-                    <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-[#4facfe] rounded-full shadow-xs" />
+                {/* Bottom-Right Scale Handle */}
+                <div
+                  onPointerDown={(e) => handlePointerDown(e, sticker.id, 'scale')}
+                  className="absolute -bottom-2 -right-2 w-5 h-5 bg-white border-2 border-pink-400 rounded-full shadow flex items-center justify-center cursor-nwse-resize hover:scale-110 transition"
+                  title="拡大・縮小"
+                >
+                  <div className="w-2 h-2 rounded-full bg-pink-400" />
+                </div>
 
-                    {/* Bottom-Right Scale Handle */}
-                    <div
-                      onPointerDown={(e) => handlePointerDown(e, sticker.id, 'scale')}
-                      className="absolute -bottom-2 -right-2 w-5 h-5 bg-white border-2 border-pink-400 rounded-full shadow flex items-center justify-center cursor-nwse-resize hover:scale-110 transition"
-                      title="拡大・縮小"
-                    >
-                      <div className="w-2 h-2 rounded-full bg-pink-400" />
-                    </div>
-
-                    {/* Quick Delete */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteSticker(sticker.id);
-                      }}
-                      className="absolute -top-3 -right-3 w-5 h-5 bg-rose-500 text-white rounded-full shadow flex items-center justify-center hover:scale-110 transition font-bold text-xs"
-                      title="削除"
-                    >
-                      ×
-                    </button>
-                  </div>
-                )}
+                {/* Quick Delete */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteSticker(sticker.id);
+                  }}
+                  className="absolute -top-3 -right-3 w-5 h-5 bg-rose-500 text-white rounded-full shadow flex items-center justify-center hover:scale-110 transition font-bold text-xs"
+                  title="削除"
+                >
+                  ×
+                </button>
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Bottom Floating Zoom Controls */}

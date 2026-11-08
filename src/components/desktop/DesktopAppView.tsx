@@ -26,7 +26,9 @@ import {
   Music, 
   Sun,
   Download,
-  Share2
+  Share2,
+  CircleDot,
+  Gift
 } from 'lucide-react';
 
 interface DesktopAppViewProps {
@@ -118,6 +120,30 @@ export const DesktopAppView: React.FC<DesktopAppViewProps> = ({
             <div className="h-[1px] bg-pink-100 my-2" />
 
             {/* Editing Category Selectors */}
+            <button
+              onClick={() => setActiveNav('insert')}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold transition ${
+                activeNav === 'insert'
+                  ? 'bg-gradient-to-r from-pink-400 to-rose-400 text-white shadow-xs'
+                  : 'text-slate-600 hover:bg-pink-50'
+              }`}
+            >
+              <CircleDot className={`w-4 h-4 ${activeNav === 'insert' ? 'text-white' : 'text-pink-500'}`} />
+              中身
+            </button>
+
+            <button
+              onClick={() => setActiveNav('handle')}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold transition ${
+                activeNav === 'handle'
+                  ? 'bg-gradient-to-r from-pink-400 to-rose-400 text-white shadow-xs'
+                  : 'text-slate-600 hover:bg-pink-50'
+              }`}
+            >
+              <Gift className={`w-4 h-4 ${activeNav === 'handle' ? 'text-white' : 'text-rose-500'}`} />
+              持ち手アクセ
+            </button>
+
             <button
               onClick={() => setActiveNav('parts')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold transition ${
@@ -216,6 +242,7 @@ export const DesktopAppView: React.FC<DesktopAppViewProps> = ({
           onAddSticker={onAddSticker}
           onSetInsidePhoto={(url) => onUpdateConfig({ insidePhotoUrl: url })}
           insidePhotoUrl={config.insidePhotoUrl}
+          activeCategory={activeNav}
         />
       </div>
 

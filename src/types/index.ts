@@ -1,11 +1,13 @@
-export type PenlightBaseType = 
-  | 'classic' 
-  | 'heart' 
-  | 'cube' 
-  | 'bar';
+export type PenlightBaseType =
+  | 'classic'
+  | 'heart2'
+  | 'panel'
+  | 'wand';
 
 export type StickerCategory = 
   | 'all'
+  | 'insert'
+  | 'handle'
   | 'ribbon'
   | 'heart'
   | 'star'
@@ -19,6 +21,7 @@ export interface StickerItem {
   id: string;
   name: string;
   category: StickerCategory;
+  layer?: 'insert' | 'handle' | 'sticker';
   x: number; // percentage from center (0 to 100, where 50 is center)
   y: number; // percentage from top (0 to 100, where 50 is center)
   scale: number; // 0.2 to 2.5 (1.0 default)

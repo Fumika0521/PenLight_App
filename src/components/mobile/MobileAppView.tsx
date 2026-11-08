@@ -30,7 +30,9 @@ import {
   Check,
   Music,
   Share2,
-  FolderHeart
+  FolderHeart,
+  CircleDot,
+  Gift
 } from 'lucide-react';
 
 interface MobileAppViewProps {
@@ -211,9 +213,9 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
   if (currentScreen === 'select-base') {
     const baseList: { type: PenlightBaseType; name: string }[] = [
       { type: 'classic', name: '定番丸型ドーム' },
-      { type: 'heart', name: '少女時代風ハート' },
-      { type: 'cube', name: 'NCT WISH風四角' },
-      { type: 'bar', name: 'ルセラフィム風棒型' },
+      { type: 'heart2', name: 'マジカルラブハート' },
+      { type: 'panel', name: 'キラキラパネル' },
+      { type: 'wand', name: 'マジックワンド' },
     ];
 
     return (
@@ -381,54 +383,70 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
       </div>
 
       {/* Bottom Tool Dock */}
-      <div className="bg-white px-3 py-4 border-t border-pink-100 flex items-center justify-center gap-5 z-30">
+      <div className="bg-white px-2 py-3 border-t border-pink-100 flex items-center justify-between gap-1 z-30 overflow-x-auto">
+        <button
+          onClick={() => openPartsSheet('insert')}
+          className="flex flex-col items-center text-pink-500 hover:text-pink-600 min-w-[50px]"
+        >
+          <CircleDot className="w-6 h-6" />
+          <span className="text-[10px] font-bold mt-1">中身</span>
+        </button>
+
+        <button
+          onClick={() => openPartsSheet('handle')}
+          className="flex flex-col items-center text-rose-500 hover:text-rose-600 min-w-[50px]"
+        >
+          <Gift className="w-6 h-6" />
+          <span className="text-[10px] font-bold mt-1">持ち手</span>
+        </button>
+
         <button
           onClick={() => openPartsSheet('all')}
-          className="flex flex-col items-center text-pink-500 hover:text-pink-600 min-w-[56px]"
+          className="flex flex-col items-center text-purple-500 hover:text-purple-600 min-w-[50px]"
         >
-          <Sparkles className="w-7 h-7" />
-          <span className="text-[11px] font-bold mt-1">パーツ</span>
+          <Sparkles className="w-6 h-6" />
+          <span className="text-[10px] font-bold mt-1">パーツ</span>
         </button>
 
         <button
           onClick={() => openPartsSheet('text')}
-          className="flex flex-col items-center text-slate-500 hover:text-pink-500 min-w-[56px]"
+          className="flex flex-col items-center text-slate-500 hover:text-pink-500 min-w-[50px]"
         >
-          <Type className="w-7 h-7" />
-          <span className="text-[11px] font-bold mt-1">文字</span>
+          <Type className="w-6 h-6" />
+          <span className="text-[10px] font-bold mt-1">文字</span>
         </button>
 
         <button
           onClick={() => openPartsSheet('photo')}
-          className="flex flex-col items-center text-slate-500 hover:text-pink-500 min-w-[56px]"
+          className="flex flex-col items-center text-slate-500 hover:text-pink-500 min-w-[50px]"
         >
-          <ImageIcon className="w-7 h-7" />
-          <span className="text-[11px] font-bold mt-1">写真</span>
+          <ImageIcon className="w-6 h-6" />
+          <span className="text-[10px] font-bold mt-1">写真</span>
         </button>
 
         <button
           onClick={() => setIsColorModalOpen(true)}
-          className="flex flex-col items-center text-blue-500 hover:text-blue-600 min-w-[56px]"
+          className="flex flex-col items-center text-blue-500 hover:text-blue-600 min-w-[50px]"
         >
-          <Palette className="w-7 h-7" />
-          <span className="text-[11px] font-bold mt-1">色・照明</span>
+          <Palette className="w-6 h-6" />
+          <span className="text-[10px] font-bold mt-1">色</span>
         </button>
 
         {selectedId ? (
           <button
             onClick={() => onDeleteSticker(selectedId)}
-            className="flex flex-col items-center text-rose-500 min-w-[56px]"
+            className="flex flex-col items-center text-rose-500 min-w-[50px]"
           >
-            <Trash2 className="w-7 h-7" />
-            <span className="text-[11px] font-bold mt-1">削除</span>
+            <Trash2 className="w-6 h-6" />
+            <span className="text-[10px] font-bold mt-1">削除</span>
           </button>
         ) : (
           <button
             onClick={() => setIsCompleteOpen(true)}
-            className="flex flex-col items-center text-pink-600 font-bold min-w-[56px]"
+            className="flex flex-col items-center text-pink-600 font-bold min-w-[50px]"
           >
-            <Sparkles className="w-7 h-7 text-amber-400" />
-            <span className="text-[11px] font-bold mt-1">完成！</span>
+            <Sparkles className="w-6 h-6 text-amber-400" />
+            <span className="text-[10px] font-bold mt-1">完成！</span>
           </button>
         )}
       </div>

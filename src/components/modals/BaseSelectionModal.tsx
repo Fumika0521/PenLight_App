@@ -10,32 +10,32 @@ interface BaseSelectionModalProps {
 }
 
 const BASE_OPTIONS: { type: PenlightBaseType; name: string; desc: string; img: string; badge?: string }[] = [
-  { 
-    type: 'classic', 
-    name: '定番丸型ドーム', 
-    desc: '王道ドーム型ペンライト',
-    img: '/assets/hires/penlight_classic.png' 
+  {
+    type: 'classic',
+    name: '定番丸型ドーム',
+    desc: '王道クリアドーム型ペンライト',
+    img: '/assets/hires/penlight_empty.png'
   },
-  { 
-    type: 'heart', 
-    name: '少女時代風ハート', 
-    desc: 'クリアハート＆天使の羽ピンク',
+  {
+    type: 'heart2',
+    name: 'マジカルラブハート',
+    desc: 'ラベンダーパール＆天使の羽',
     badge: 'NEW',
-    img: '/assets/hires/penlight_heart_v3.png' 
+    img: '/assets/hires/penlight_heart2_realistic.png',
   },
-  { 
-    type: 'cube', 
-    name: 'NCT WISH風四角', 
-    desc: '透明キューブ＆浮遊スター',
+  {
+    type: 'panel',
+    name: 'キラキラパネル',
+    desc: 'スターバースト＆コーナー花飾り',
     badge: 'NEW',
-    img: '/assets/hires/penlight_cube.png' 
+    img: '/assets/hires/penlight_panel_realistic.png',
   },
-  { 
-    type: 'bar', 
-    name: 'ルセラフィム風棒型', 
-    desc: '洗練ライトバー＆スリークボディ',
+  {
+    type: 'wand',
+    name: 'マジックワンド',
+    desc: 'ゴールドスター＆魔法の杖',
     badge: 'NEW',
-    img: '/assets/hires/penlight_bar.png' 
+    img: '/assets/hires/penlight_wand.svg',
   },
 ];
 
