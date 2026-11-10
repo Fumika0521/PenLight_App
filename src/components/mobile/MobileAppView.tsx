@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { 
-  PenlightConfig, 
-  StickerItem, 
-  MobileScreen, 
-  PenlightBaseType,
-  SavedProject 
+  PenlightConfig,
+  StickerItem,
+  MobileScreen,
+  SavedProject
 } from '../../types';
 import { PenlightBase } from '../penlight/PenlightBase';
 import { StickerSVG, STICKER_CATALOG, StickerDef } from '../stickers/StickerSVG';
@@ -85,6 +84,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
   const [currentScreen, setCurrentScreen] = useState<MobileScreen>('home');
   const [isPartsSheetOpen, setIsPartsSheetOpen] = useState(false);
   const [partsInitialCategory, setPartsInitialCategory] = useState<string>('all');
+  const [selectedInsert, setSelectedInsert] = useState<'moon-star' | 'heart-note' | 'heart-note-music' | null>(null);
 
   const openPartsSheet = (category: string = 'all') => {
     setPartsInitialCategory(category);
@@ -209,59 +209,98 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
     );
   }
 
-  // Screen 2: Select Base Screen (Matches Mockup 2)
+  // Screen 2: Select Base Screen
   if (currentScreen === 'select-base') {
-    const baseList: { type: PenlightBaseType; name: string }[] = [
-      { type: 'classic', name: '定番丸型ドーム' },
-      { type: 'heart2', name: 'マジカルラブハート' },
-      { type: 'panel', name: 'キラキラパネル' },
-      { type: 'wand', name: 'マジックワンド' },
-    ];
+    const inserts = {
+      'moon-star': {
+        name: 'クラシック月と星',
+        imageUrl: '/assets/stickers/insert_moon_star.png',
+        svgKey: 'insert-moon-star-3d',
+      },
+      'heart-note': {
+        name: '雲とクローバー',
+        imageUrl: '/assets/stickers/heart_note_soft_sharp.png',
+        svgKey: 'insert-heart-note',
+      },
+      'heart-note-music': {
+        name: 'ハートと音符',
+        imageUrl: '/assets/stickers/insert_heart_note.png',
+        svgKey: 'insert-heart-note-music',
+      },
+    };
+
+    const handleNext = () => {
+      if (selectedInsert) {
+        const def = inserts[selectedInsert];
+        onAddSticker({
+          name: def.name,
+          category: 'insert',
+          layer: 'insert',
+          x: 50,
+          y: 33.4,
+          scale: 1.05,
+          rotation: 0,
+          type: '3d-png',
+          imageUrl: def.imageUrl,
+          svgKey: def.svgKey,
+          opacity: 1,
+        });
+      }
+      setCurrentScreen('editor');
+    };
 
     return (
       <div className="relative w-full max-w-[420px] sm:max-w-[440px] mx-auto h-[820px] sm:h-[850px] bg-white rounded-[48px] shadow-2xl border-[10px] border-slate-900 overflow-hidden flex flex-col justify-between select-none">
         {/* Dynamic Island */}
         <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-6 bg-slate-900 rounded-full z-40" />
 
-        {/* Top Bar — same height as editor header */}
-        <div className="px-4 pt-11 pb-5 border-b border-pink-50 flex items-center justify-between">
+        {/* Top Bar */}
+        <div className="px-4 pt-11 pb-4 border-b border-pink-50 flex items-center justify-between">
           <button
             onClick={() => setCurrentScreen('home')}
             className="p-3 rounded-full hover:bg-pink-50 text-slate-600"
           >
             <ChevronLeft className="w-7 h-7" />
           </button>
-          <h2 className="font-extrabold text-base text-slate-800">ペンライトを選択</h2>
+          <h2 className="font-extrabold text-base text-slate-800">中身を選択</h2>
           <div className="w-12" />
         </div>
 
-        {/* Base Grid + Subtitle — subtitle at midpoint between header and first card row */}
-        <div className="flex-1 px-4 flex flex-col justify-evenly">
-          <p className="text-base text-slate-600 font-semibold text-center">
-            お好みのペンライトを選択してください♡
+        <div className="flex-1 px-4 flex flex-col items-center justify-center gap-5">
+          <p className="text-sm text-slate-600 font-semibold text-center">
+            ドームの中身を選んでください♡
           </p>
-          <div className="grid grid-cols-2 gap-3">
-            {baseList.map((item) => {
-              const isSelected = config.baseType === item.type;
+          <div className="grid grid-cols-2 gap-3 w-full">
+            {([
+              { key: 'moon-star' as const, label: 'クラシック月と星', src: '/assets/stickers/insert_moon_star.png', objPos: 'center 30%' },
+              { key: 'heart-note' as const, label: '雲とクローバー', src: '/assets/stickers/heart_note_soft_sharp.png', objPos: 'center center' },
+              { key: 'heart-note-music' as const, label: 'ハートと音符', src: '/assets/stickers/insert_heart_note.png', objPos: 'center center' },
+            ]).map((item) => {
+              const isSelected = selectedInsert === item.key;
               return (
                 <div
-                  key={item.type}
-                  onClick={() => onUpdateConfig({ baseType: item.type })}
-                  className={`relative px-2 pt-3 pb-2 rounded-2xl border-2 flex flex-col items-center cursor-pointer transition-all ${
+                  key={item.key}
+                  onClick={() => setSelectedInsert(isSelected ? null : item.key)}
+                  className={`relative flex flex-col items-center px-3 py-4 rounded-3xl border-2 cursor-pointer transition-all ${
                     isSelected
-                      ? 'border-blue-400 bg-blue-50/40 shadow-cute'
+                      ? 'border-pink-400 bg-pink-50/60 shadow-cute'
                       : 'border-slate-100 hover:border-pink-200'
                   }`}
                 >
                   {isSelected && (
-                    <div className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center">
-                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-pink-500 text-white flex items-center justify-center">
+                      <Check className="w-3 h-3 stroke-[3]" />
                     </div>
                   )}
-                  <div className="w-32 h-44 pointer-events-none">
-                    <PenlightBase config={{ ...config, baseType: item.type }} />
+                  <div className="w-28 h-28 rounded-full overflow-hidden shadow-md">
+                    <img
+                      src={item.src}
+                      alt={item.label}
+                      className="w-full h-full object-cover pointer-events-none"
+                      style={{ objectPosition: item.objPos }}
+                    />
                   </div>
-                  <span className="font-bold text-xs text-slate-600 mt-1">{item.name}</span>
+                  <span className="font-bold text-xs text-slate-600 mt-2 text-center">{item.label}</span>
                 </div>
               );
             })}
@@ -271,7 +310,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
         {/* Bottom CTA */}
         <div className="p-5 border-t border-pink-50 bg-pink-50/20">
           <button
-            onClick={() => setCurrentScreen('editor')}
+            onClick={handleNext}
             className="w-full py-3.5 bg-gradient-to-r from-pink-400 to-rose-400 hover:from-pink-500 hover:to-rose-500 text-white font-extrabold text-sm rounded-full shadow-cute transition-all active:scale-98"
           >
             次へ

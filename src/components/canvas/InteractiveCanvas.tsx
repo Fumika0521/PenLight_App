@@ -297,17 +297,20 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
         <div
           className="absolute inset-0 pointer-events-auto z-10"
           style={{
-            // Circular clip-path precisely matching the glass dome sphere
-            clipPath: 'circle(17.5% at 50% 33.4%)',
-            WebkitClipPath: 'circle(17.5% at 50% 33.4%)',
+            // Circular clip-path matching the visible glass dome sphere.
+            // 12% of sqrt((w²+h²)/2) ≈ dome radius for the 36:53 aspect penlight.
+            clipPath: 'circle(12% at 50% 33.4%)',
+            WebkitClipPath: 'circle(12% at 50% 33.4%)',
           }}
         >
           {stickers
             .filter((s) => s.category === 'insert' || s.layer === 'insert')
             .map((sticker) => {
               const isSelected = sticker.id === selectedId;
-              const baseSize = 84; // Dome inserts can be nicely prominent
-              const itemSize = baseSize * sticker.scale;
+              // Sized to fill the dome circle (diameter ≈ 30% of container width).
+              // Height % = 30 * (36/53) ≈ 20.4% to keep square in pixels.
+              const wPct = 31 * sticker.scale;
+              const hPct = 21 * sticker.scale;
 
               return (
                 <div
@@ -319,8 +322,8 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                   style={{
                     left: `${sticker.x}%`,
                     top: `${sticker.y}%`,
-                    width: `${itemSize}px`,
-                    height: `${itemSize}px`,
+                    width: `${wPct}%`,
+                    height: `${hPct}%`,
                     transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) ${
                       sticker.flipX ? 'scaleX(-1)' : ''
                     }`,
@@ -328,14 +331,16 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                     opacity: sticker.opacity ?? 1,
                   }}
                 >
-                  <div className="w-full h-full relative flex items-center justify-center pointer-events-none">
-                    {(sticker.type === '3d-png' || sticker.type === 'preset') && (
-                      <StickerSVG
-                        svgKey={sticker.svgKey || ''}
-                        imagePath={sticker.imageUrl}
-                        customColor={sticker.color}
-                        className="w-full h-full drop-shadow-md"
-                      />
+                  <div className="w-full h-full relative flex items-center justify-center pointer-events-none overflow-hidden rounded-full">
+                    {(sticker.type === '3d-png' || sticker.type === 'preset') && sticker.imageUrl && (
+                      <>
+                        <img
+                          src={sticker.imageUrl}
+                          alt={sticker.svgKey || ''}
+                          className="w-full h-full object-cover pointer-events-none select-none"
+                          style={{ objectPosition: 'center center' }}
+                        />
+                      </>
                     )}
 
                     {sticker.type === 'text' && (
@@ -354,15 +359,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                     )}
 
                     {sticker.type === 'photo' && sticker.imageUrl && (
-                      <div
-                        className={`w-full h-full overflow-hidden border-2 border-white shadow-md bg-white ${
-                          sticker.imageShape === 'circle'
-                            ? 'rounded-full'
-                            : sticker.imageShape === 'heart'
-                            ? 'rounded-[30%]'
-                            : 'rounded-2xl'
-                        }`}
-                      >
+                      <div className="w-full h-full overflow-hidden rounded-full border-2 border-white shadow-md bg-white">
                         <img
                           src={sticker.imageUrl}
                           alt="oshi stamp"
@@ -472,8 +469,10 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
           if (!sticker) return null;
           const isInsert = sticker.category === 'insert' || sticker.layer === 'insert';
           const isHandle = sticker.category === 'handle' || sticker.layer === 'handle';
-          const baseSize = isInsert ? 84 : isHandle ? 88 : 72;
-          const itemSize = baseSize * sticker.scale;
+
+          const sizeStyle = isInsert
+            ? { width: `${31 * sticker.scale}%`, height: `${21 * sticker.scale}%` }
+            : { width: `${(isHandle ? 88 : 72) * sticker.scale}px`, height: `${(isHandle ? 88 : 72) * sticker.scale}px` };
 
           return (
             <div
@@ -481,8 +480,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
               style={{
                 left: `${sticker.x}%`,
                 top: `${sticker.y}%`,
-                width: `${itemSize}px`,
-                height: `${itemSize}px`,
+                ...sizeStyle,
                 transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) ${
                   sticker.flipX ? 'scaleX(-1)' : ''
                 }`,

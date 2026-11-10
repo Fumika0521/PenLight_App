@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.DS_Store
+
+# バックアップ画像
+public/assets/stickers/*_backup.png
+public/assets/stickers/*_old.png
+public/assets/stickers/heart_note_soft_sharp_v*.png
+public/assets/stickers/heart_note_clean.png
