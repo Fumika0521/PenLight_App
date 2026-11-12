@@ -29,7 +29,8 @@ const INITIAL_CONFIG: PenlightConfig = {
   insidePhotoUrl: null,
 };
 
-const INITIAL_STICKERS: StickerItem[] = [
+// サンプル用の初期パーツ（ギャラリーのサンプルプロジェクトとリセット機能で使用）
+const INITIAL_STICKERS_SAMPLE: StickerItem[] = [
   // Big Couture Pink & Sky-Blue Satin Ribbon at collar
   {
     id: 'init-ribbon-1',
@@ -131,6 +132,9 @@ const INITIAL_STICKERS: StickerItem[] = [
   },
 ];
 
+// 新規デコ開始時の初期パーツ（空：ペンライト本体のみ表示）
+const INITIAL_STICKERS: StickerItem[] = [];
+
 export const App: React.FC = () => {
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
   const [config, setConfig] = useState<PenlightConfig>(INITIAL_CONFIG);
@@ -140,7 +144,7 @@ export const App: React.FC = () => {
 
   // Undo / Redo History
   const [history, setHistory] = useState<{ config: PenlightConfig; stickers: StickerItem[] }[]>([
-    { config: INITIAL_CONFIG, stickers: INITIAL_STICKERS },
+    { config: INITIAL_CONFIG, stickers: [] },
   ]);
   const [historyIndex, setHistoryIndex] = useState<number>(0);
 
@@ -310,6 +314,13 @@ export const App: React.FC = () => {
     localStorage.setItem('lightdeco_saved_projects_v3', JSON.stringify(updated));
   };
 
+  const handleNewDeco = () => {
+    setStickers([]);
+    setConfig(INITIAL_CONFIG);
+    setSelectedId(null);
+    pushHistory(INITIAL_CONFIG, []);
+  };
+
   const handleClearAllDecorations = () => {
     if (confirm('配置したすべてのデコレーションを消去して、まっさらなペンライトにしますか？')) {
       setStickers([]);
@@ -320,11 +331,11 @@ export const App: React.FC = () => {
   };
 
   const handleResetToDefault = () => {
-    if (confirm('キャンバスの配置を初期状態にリセットしますか？')) {
+    if (confirm('キャンバスの配置をサンプルデコにリセットしますか？')) {
       setConfig(INITIAL_CONFIG);
-      setStickers(INITIAL_STICKERS);
+      setStickers(INITIAL_STICKERS_SAMPLE);
       setSelectedId(null);
-      pushHistory(INITIAL_CONFIG, INITIAL_STICKERS);
+      pushHistory(INITIAL_CONFIG, INITIAL_STICKERS_SAMPLE);
     }
   };
 
@@ -485,6 +496,7 @@ export const App: React.FC = () => {
               onDeleteProject={handleDeleteProject}
               onRenameProject={handleRenameProject}
               onExportImage={handleExportImage}
+              onNewDeco={handleNewDeco}
             />
           </div>
         )}

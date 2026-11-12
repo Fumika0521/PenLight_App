@@ -8,6 +8,10 @@ interface PenlightBaseProps {
   showGloss?: boolean;
 }
 
+// ドームヘッド部分の拡大率と変換基準点（首元 = コンテナ高さの45%）
+export const HEAD_SCALE = 1.15;
+const HEAD_ORIGIN = '50% 45%';
+
 const BASE_IMAGES: Record<string, string> = {
   classic: '/assets/hires/penlight_empty.png',
   heart2: '/assets/hires/penlight_heart2_realistic.png',
@@ -47,17 +51,33 @@ export const PenlightBase: React.FC<PenlightBaseProps> = ({
     headFade = '42%';
   }
 
+  const headMask = `linear-gradient(to bottom, black 0%, black ${headCutoff}, transparent ${headFade})`;
+  const headTransform = `scale(${HEAD_SCALE})`;
+
   return (
     <div
-      className={`relative w-full h-full flex items-center justify-center select-none pointer-events-none transition-all duration-300 ${className}`}
+      className={`relative w-full h-full select-none pointer-events-none transition-all duration-300 ${className}`}
     >
-      {/* 1. Contour-Hugging Head Glow (Wraps ONLY around the heart/star/dome/diamond head shape) */}
+      {/* 1. Main 3D Penlight — unscaled, handle only (inverse mask hides head to prevent seam) */}
+      <img
+        src={imageSrc}
+        alt={`Penlight ${baseType}`}
+        className="absolute inset-0 z-[5] w-full h-full object-contain pointer-events-none drop-shadow-[0_12px_22px_rgba(0,0,0,0.1)]"
+        style={{
+          WebkitMaskImage: `linear-gradient(to bottom, transparent 0%, transparent ${headCutoff}, black ${headFade})`,
+          maskImage: `linear-gradient(to bottom, transparent 0%, transparent ${headCutoff}, black ${headFade})`,
+        }}
+      />
+
+      {/* 2. Head Glow — scaled from neck origin */}
       {isLightOn && (
         <div
-          className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-all duration-300 ${
+          className={`absolute inset-0 z-[10] pointer-events-none transition-all duration-300 ${
             glowMode === 'pulse' ? 'animate-pulse' : ''
           }`}
           style={{
+            transform: headTransform,
+            transformOrigin: HEAD_ORIGIN,
             filter: `drop-shadow(0 0 ${6 * glowIntensity}px ${glowColor}) drop-shadow(0 0 ${
               18 * glowIntensity
             }px ${glowColor}) drop-shadow(0 0 ${34 * glowIntensity}px ${glowColor}cc) drop-shadow(0 0 ${
@@ -67,12 +87,11 @@ export const PenlightBase: React.FC<PenlightBaseProps> = ({
             }px ${glowColor}25)`,
           }}
         >
-          {/* Masked Head Silhouette (Handle is 100% masked out, so handle receives ZERO glow) */}
           <div
-            className="w-full h-full flex items-center justify-center pointer-events-none"
+            className="w-full h-full pointer-events-none"
             style={{
-              WebkitMaskImage: `linear-gradient(to bottom, black 0%, black ${headCutoff}, transparent ${headFade})`,
-              maskImage: `linear-gradient(to bottom, black 0%, black ${headCutoff}, transparent ${headFade})`,
+              WebkitMaskImage: headMask,
+              maskImage: headMask,
             }}
           >
             <img
@@ -84,14 +103,32 @@ export const PenlightBase: React.FC<PenlightBaseProps> = ({
         </div>
       )}
 
-      {/* 2. Optional User Photo (only if explicitly uploaded by user) */}
+      {/* 3. Scaled head image — covers unscaled head from layer 1, masked to head-only */}
+      <div
+        className="absolute inset-0 z-[20] pointer-events-none"
+        style={{
+          transform: headTransform,
+          transformOrigin: HEAD_ORIGIN,
+          WebkitMaskImage: headMask,
+          maskImage: headMask,
+        }}
+      >
+        <img
+          src={imageSrc}
+          alt=""
+          className="w-full h-full object-contain pointer-events-none"
+        />
+      </div>
+
+      {/* 4. Optional User Photo — scaled with head */}
       {showInsidePhoto && insidePhotoUrl && (
         <div
-          className="absolute z-10 pointer-events-none transition-all duration-300 overflow-hidden flex items-center justify-center shadow-sm"
+          className="absolute z-[25] pointer-events-none transition-all duration-300 overflow-hidden flex items-center justify-center shadow-sm"
           style={{
             top: baseType === 'wand' ? '20%' : '24%',
             left: '50%',
-            transform: 'translate(-50%, -50%)',
+            transform: `translate(-50%, -50%) ${headTransform}`,
+            transformOrigin: HEAD_ORIGIN,
             width: '28%',
             height: '28%',
             borderRadius: '50%',
@@ -107,19 +144,16 @@ export const PenlightBase: React.FC<PenlightBaseProps> = ({
         </div>
       )}
 
-      {/* 3. Main 3D Penlight (Pure crisp body with soft grounding shadow, handle does NOT glow) */}
-      <img
-        src={imageSrc}
-        alt={`Penlight ${baseType}`}
-        className="relative z-20 w-full h-full object-contain pointer-events-none drop-shadow-[0_12px_22px_rgba(0,0,0,0.1)]"
-      />
-
-      {/* 4. Optional Dome Gloss (shown when rendered standalone) */}
+      {/* 5. Optional Dome Gloss — scaled with head */}
       {showGloss && baseType === 'classic' && (
         <img
           src="/assets/hires/dome_gloss.png"
           alt="Glass Dome Gloss"
-          className="absolute inset-0 z-30 w-full h-full object-contain pointer-events-none select-none"
+          className="absolute inset-0 z-[30] w-full h-full object-contain pointer-events-none select-none"
+          style={{
+            transform: headTransform,
+            transformOrigin: HEAD_ORIGIN,
+          }}
         />
       )}
     </div>

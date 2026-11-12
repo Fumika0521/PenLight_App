@@ -115,7 +115,7 @@ export const LivePreviewCard: React.FC<LivePreviewCardProps> = ({
                       className="text-center font-bold px-1 py-0.5 leading-none whitespace-nowrap"
                       style={{
                         color: s.textColor || '#ff6584',
-                        textShadow: `0 0 3px ${s.textBorderColor || '#ffffff'}, 0 0 6px #ffffff`,
+                        textShadow: `0 2px 4px rgba(255, 101, 132, 0.3)`,
                         fontSize: `${13 * s.scale}px`,
                       }}
                     >

@@ -25,6 +25,8 @@ interface PartsPickerPanelProps {
   insidePhotoUrl?: string | null;
   initialCategory?: string;
   activeCategory?: string;
+  addedTexts?: { text: string; color: string }[];
+  onAddedTextsChange?: (texts: { text: string; color: string }[]) => void;
 }
 
 export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
@@ -33,12 +35,14 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
   insidePhotoUrl,
   initialCategory,
   activeCategory,
+  addedTexts = [],
+  onAddedTextsChange,
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>(activeCategory || initialCategory || 'all');
+  const [selectedCategory, setSelectedCategory] = useState<string>(activeCategory || initialCategory || 'heart');
   const [isAlphabetOpen, setIsAlphabetOpen] = useState(false);
   const [isHiraganaOpen, setIsHiraganaOpen] = useState(false);
   const [isKatakanaOpen, setIsKatakanaOpen] = useState(false);
-  const [customText, setCustomText] = useState<string>('LOVE');
+  const [customText, setCustomText] = useState<string>('');
   const [customTextColor, setCustomTextColor] = useState<string>('#ff6584');
 
   // Sync external category changes from left navigation tabs
@@ -49,20 +53,19 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
   }, [activeCategory]);
 
   const categories = [
-    { id: 'all', label: 'すべて' },
-    { id: 'insert', label: '中身' },
-    { id: 'handle', label: '持ち手アクセ' },
-    { id: 'ribbon', label: 'リボン' },
     { id: 'heart', label: 'ハート' },
     { id: 'star', label: '星' },
     { id: 'rhinestone', label: 'ストーン' },
+    { id: 'charm', label: 'クローバー' },
   ];
 
-  const filteredStickers = selectedCategory === 'all'
-    ? STICKER_CATALOG
-    : STICKER_CATALOG.filter((s) => s.category === selectedCategory);
+  const partsOnly = STICKER_CATALOG.filter((s) => s.category !== 'insert' && s.category !== 'handle' && s.category !== 'ribbon');
 
-  const popularStickers = STICKER_CATALOG.filter((s) => s.popular);
+  const filteredStickers = selectedCategory === 'all'
+    ? partsOnly
+    : partsOnly.filter((s) => s.category === selectedCategory);
+
+  const popularStickers = partsOnly.filter((s) => s.popular);
 
   const handleAddPresetSticker = (def: StickerDef) => {
     const isInsert = def.category === 'insert';
@@ -98,6 +101,11 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
       textBorderColor: '#ffffff',
       opacity: 1,
     });
+    if (onAddedTextsChange && !addedTexts.some((t) => t.text === text && t.color === color)) {
+      const MAX_TEXTS = 8;
+      const updated = [...addedTexts, { text, color }];
+      onAddedTextsChange(updated.length > MAX_TEXTS ? updated.slice(1) : updated);
+    }
   };
 
   const handleAddPhotoSticker = (url: string, name: string) => {
@@ -269,13 +277,13 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
         <div className="space-y-4 text-xs">
           {/* Custom Text Generator */}
           <div className="bg-pink-50/70 p-3 rounded-2xl border border-pink-100 space-y-2">
-            <label className="font-bold text-slate-700 block">好きな文字・推しの名前</label>
+            <label className="font-bold text-slate-700 block">好きな文字・推しの名前を入力してね♡</label>
             <div className="flex gap-1.5">
               <input
                 type="text"
                 value={customText}
                 onChange={(e) => setCustomText(e.target.value)}
-                placeholder="推しの名前や一言"
+                placeholder=""
                 className="flex-1 px-3 py-1.5 rounded-xl border border-pink-200 text-xs focus:outline-pink-400 bg-white"
                 maxLength={15}
               />
@@ -304,22 +312,30 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
                 ))}
               </div>
             </div>
-          </div>
 
-          {/* Preset Words */}
-          <div>
-            <h4 className="font-bold text-slate-700 mb-2">定番の推し活ワード</h4>
-            <div className="flex flex-wrap gap-1.5">
-              {PRESET_WORDS.map((w) => (
-                <button
-                  key={w.text}
-                  onClick={() => handleAddTextSticker(w.text, w.color)}
-                  className="px-3 py-1.5 rounded-xl bg-white border border-pink-100 hover:border-pink-300 font-extrabold hover:shadow-xs transition hover:scale-105 active:scale-95"
-                  style={{ color: w.color }}
-                >
-                  {w.text}
-                </button>
-              ))}
+            {/* Recently Used Texts */}
+            <div className="pt-1">
+              <h4 className="font-bold text-slate-700 mb-2">文字候補</h4>
+              <div className="border border-pink-200 rounded-xl px-2 py-2 min-h-[40px] flex items-center">
+                {addedTexts.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5 w-full">
+                    {addedTexts.map((w, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleAddTextSticker(w.text, w.color)}
+                        className="px-3 py-1 rounded-xl bg-white border border-pink-100 hover:border-pink-300 font-extrabold text-xs whitespace-nowrap shrink-0 hover:shadow-xs transition hover:scale-105 active:scale-95"
+                        style={{ color: w.color }}
+                      >
+                        {w.text}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-slate-400 w-full text-center">
+                    文字を追加したらここに表示されます
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 

@@ -13,24 +13,20 @@ import { BaseSelectionModal } from '../modals/BaseSelectionModal';
 import { ColorCustomizationModal } from '../modals/ColorCustomizationModal';
 import { CompleteModal } from '../modals/CompleteModal';
 import { GalleryModal } from '../modals/GalleryModal';
-import { 
-  Home, 
-  PlusCircle, 
-  User, 
-  ChevronLeft, 
-  Undo2, 
-  Redo2, 
-  Save, 
-  Palette, 
-  Sparkles, 
-  Trash2, 
-  Type, 
+import {
+  Home,
+  PlusCircle,
+  User,
+  ChevronLeft,
+  Undo2,
+  Redo2,
+  Palette,
+  Sparkles,
+  Trash2,
+  Type,
   Image as ImageIcon,
   Check,
-  Music,
-  Share2,
-  FolderHeart,
-  CircleDot,
+  Gem,
   Gift
 } from 'lucide-react';
 
@@ -56,6 +52,7 @@ interface MobileAppViewProps {
   onDeleteProject: (id: string) => void;
   onRenameProject: (id: string, newName: string) => void;
   onExportImage: () => void;
+  onNewDeco: () => void;
 }
 
 export const MobileAppView: React.FC<MobileAppViewProps> = ({
@@ -80,20 +77,30 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
   onDeleteProject,
   onRenameProject,
   onExportImage,
+  onNewDeco,
 }) => {
   const [currentScreen, setCurrentScreen] = useState<MobileScreen>('home');
-  const [isPartsSheetOpen, setIsPartsSheetOpen] = useState(false);
-  const [partsInitialCategory, setPartsInitialCategory] = useState<string>('all');
-  const [selectedInsert, setSelectedInsert] = useState<'moon-star' | 'heart-note' | 'heart-note-music' | null>(null);
+  const [activePanel, setActivePanel] = useState<'insert' | 'ribbon' | 'parts' | null>(null);
+  const [partsInitialCategory, setPartsInitialCategory] = useState<string>('heart');
+  const [selectedInsert, setSelectedInsert] = useState<'moon-star' /* | 'heart-note' | 'heart-note-music' */ | null>(null);
 
-  const openPartsSheet = (category: string = 'all') => {
-    setPartsInitialCategory(category);
-    setIsPartsSheetOpen(true);
+  const togglePanel = (panel: 'insert' | 'ribbon' | 'parts', category?: string) => {
+    if (panel === 'parts') {
+      const cat = category || 'heart';
+      if (activePanel === 'parts' && partsInitialCategory === cat) {
+        setActivePanel(null);
+      } else {
+        setPartsInitialCategory(cat);
+        setActivePanel('parts');
+      }
+    } else {
+      setActivePanel(prev => prev === panel ? null : panel);
+    }
   };
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const [isCompleteOpen, setIsCompleteOpen] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const [isConcertMode, setIsConcertMode] = useState(false);
+  const [addedTexts, setAddedTexts] = useState<{ text: string; color: string }[]>([]);
 
   // Screen 1: Mobile Home Screen (Matches Mockup 1)
   if (currentScreen === 'home') {
@@ -217,19 +224,21 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
         imageUrl: '/assets/stickers/insert_moon_star.png',
         svgKey: 'insert-moon-star-3d',
       },
-      'heart-note': {
-        name: '雲とクローバー',
-        imageUrl: '/assets/stickers/heart_note_soft_sharp.png',
-        svgKey: 'insert-heart-note',
-      },
-      'heart-note-music': {
-        name: 'ハートと音符',
-        imageUrl: '/assets/stickers/insert_heart_note.png',
-        svgKey: 'insert-heart-note-music',
-      },
+      // 'heart-note': {
+      //   name: '雲とクローバー',
+      //   imageUrl: '/assets/stickers/heart_note_soft_sharp.png',
+      //   svgKey: 'insert-heart-note',
+      // },
+      // 'heart-note-music': {
+      //   name: 'ハートと音符',
+      //   imageUrl: '/assets/stickers/insert_heart_note.png',
+      //   svgKey: 'insert-heart-note-music',
+      // },
     };
 
     const handleNext = () => {
+      // 既存のパーツをすべてクリアしてから中身を追加
+      onNewDeco();
       if (selectedInsert) {
         const def = inserts[selectedInsert];
         onAddSticker({
@@ -273,8 +282,8 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
           <div className="grid grid-cols-2 gap-3 w-full">
             {([
               { key: 'moon-star' as const, label: 'クラシック月と星', src: '/assets/stickers/insert_moon_star.png', objPos: 'center 30%' },
-              { key: 'heart-note' as const, label: '雲とクローバー', src: '/assets/stickers/heart_note_soft_sharp.png', objPos: 'center center' },
-              { key: 'heart-note-music' as const, label: 'ハートと音符', src: '/assets/stickers/insert_heart_note.png', objPos: 'center center' },
+              // { key: 'heart-note' as const, label: '雲とクローバー', src: '/assets/stickers/heart_note_soft_sharp.png', objPos: 'center center' },
+              // { key: 'heart-note-music' as const, label: 'ハートと音符', src: '/assets/stickers/insert_heart_note.png', objPos: 'center center' },
             ]).map((item) => {
               const isSelected = selectedInsert === item.key;
               return (
@@ -320,14 +329,14 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
     );
   }
 
-  // Screen 3: Mobile Editor Screen (Matches Mockup 3)
+  // Screen 3: Mobile Editor Screen
   return (
-    <div className="relative w-full max-w-[420px] sm:max-w-[440px] mx-auto h-[820px] sm:h-[850px] bg-slate-50 rounded-[48px] shadow-2xl border-[10px] border-slate-900 overflow-hidden flex flex-col justify-between select-none">
+    <div className="relative w-full max-w-[420px] sm:max-w-[440px] mx-auto h-[820px] sm:h-[850px] bg-slate-50 rounded-[48px] shadow-2xl border-[10px] border-slate-900 overflow-hidden flex flex-col select-none">
       {/* Dynamic Island */}
       <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-6 bg-slate-900 rounded-full z-40" />
 
       {/* Top Bar */}
-      <div className="relative px-4 pt-11 pb-5 bg-white border-b border-pink-100 flex items-center justify-between z-30">
+      <div className="relative px-4 pt-11 pb-5 bg-white border-b border-pink-100 flex items-center justify-between z-30 shrink-0">
         {/* Left: Back */}
         <button
           onClick={() => setCurrentScreen('home')}
@@ -354,17 +363,8 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
           </button>
         </div>
 
-        {/* Right: Concert mode + Save */}
+        {/* Right: Save */}
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsConcertMode(!isConcertMode)}
-            className={`p-3 rounded-full font-bold ${
-              isConcertMode ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-600'
-            }`}
-            title="暗闇モード"
-          >
-            <Music className="w-6 h-6" />
-          </button>
           <button
             onClick={() => {
               onSaveCurrentDesign();
@@ -377,8 +377,11 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
         </div>
       </div>
 
-      {/* Center Interactive Canvas */}
-      <div className="flex-1 relative overflow-hidden flex items-center justify-center p-1">
+      {/* Center Interactive Canvas — tap to close open panel */}
+      <div
+        className="flex-1 relative overflow-hidden flex items-center justify-center p-1 min-h-0"
+        onClick={() => setActivePanel(null)}
+      >
         <InteractiveCanvas
           config={config}
           stickers={stickers}
@@ -389,75 +392,152 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
           onDuplicateSticker={onDuplicateSticker}
           onBringForward={onBringForward}
           onSendBackward={onSendBackward}
-          isConcertMode={isConcertMode}
+          isConcertMode={false}
         />
       </div>
 
-      {/* Quick Stickers Strip */}
-      <div className="bg-white/95 px-3 py-2 border-t border-pink-100 flex items-center gap-2.5 overflow-x-auto scrollbar-none z-20">
-        {STICKER_CATALOG.filter((s) => s.popular).slice(0, 8).map((st) => (
-          <button
-            key={`quick-${st.key}`}
-            onClick={() =>
-              onAddSticker({
-                name: st.name,
-                category: st.category as any,
-                x: 50,
-                y: 40,
-                scale: st.defaultScale || 1,
-                rotation: 0,
-                type: st.is3d ? '3d-png' : 'preset',
-                imageUrl: st.imagePath,
-                svgKey: st.key,
-                opacity: 1,
-              })
-            }
-            className="w-16 h-16 p-1.5 rounded-2xl bg-pink-50/60 hover:bg-pink-100 border border-pink-100 shrink-0 flex items-center justify-center transition active:scale-90"
-          >
-            <div className="w-12 h-12 p-0.5 flex items-center justify-center">
-              <StickerSVG svgKey={st.key} imagePath={st.imagePath} />
-            </div>
-          </button>
-        ))}
-      </div>
+      {/* Inline Panel — appears above bottom dock when a menu button is active */}
+      {activePanel && (
+        <div className="bg-white border-t border-pink-100 shrink-0 flex flex-col overflow-hidden" style={{ maxHeight: '52%' }}>
+          <div className="px-4 py-2.5 border-b border-pink-100 flex items-center justify-between shrink-0">
+            <h3 className="font-extrabold text-sm text-slate-800">
+              {activePanel === 'insert' ? 'ドームの中身を選ぶ'
+                : activePanel === 'ribbon' ? 'リボンを選ぶ'
+                : ''}
+            </h3>
+            <button
+              onClick={() => setActivePanel(null)}
+              className="text-xs font-bold text-pink-500 px-3 py-1.5 rounded-lg hover:bg-pink-50"
+            >
+              閉じる
+            </button>
+          </div>
+          <div className="overflow-y-auto">
+            {activePanel === 'insert' && (
+              <div className="p-4 grid grid-cols-2 gap-3">
+                {([
+                  { key: 'moon-star', name: 'クラシック月と星', imageUrl: '/assets/stickers/insert_moon_star.png', svgKey: 'insert-moon-star-3d', objPos: 'center 30%' },
+                ] as const).map((item) => (
+                  <button
+                    key={item.key}
+                    onClick={() => {
+                      onAddSticker({
+                        name: item.name,
+                        category: 'insert',
+                        layer: 'insert',
+                        x: 50,
+                        y: 33.4,
+                        scale: 1.05,
+                        rotation: 0,
+                        type: '3d-png',
+                        imageUrl: item.imageUrl,
+                        svgKey: item.svgKey,
+                        opacity: 1,
+                      });
+                      setActivePanel(null);
+                    }}
+                    className="flex flex-col items-center px-3 py-4 rounded-3xl border-2 border-slate-100 hover:border-pink-300 bg-white hover:bg-pink-50/40 transition-all active:scale-95"
+                  >
+                    <div className="w-28 h-20 overflow-hidden rounded-2xl flex items-center justify-center">
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                        style={{ objectPosition: item.objPos }}
+                      />
+                    </div>
+                    <span className="font-bold text-xs text-slate-600 mt-2 text-center">{item.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {activePanel === 'ribbon' && (
+              <div className="p-4 grid grid-cols-2 gap-3">
+                {STICKER_CATALOG.filter((s) => s.category === 'handle').map((item) => (
+                  <button
+                    key={item.key}
+                    onClick={() => {
+                      onAddSticker({
+                        name: item.name,
+                        category: item.category as any,
+                        layer: 'handle',
+                        x: 50,
+                        y: 62,
+                        scale: item.defaultScale || 1.0,
+                        rotation: 0,
+                        type: item.is3d ? '3d-png' : 'preset',
+                        imageUrl: item.imagePath,
+                        svgKey: item.key,
+                        opacity: 1,
+                      });
+                      setActivePanel(null);
+                    }}
+                    className="flex flex-col items-center px-3 py-4 rounded-3xl border-2 border-slate-100 hover:border-pink-300 bg-white hover:bg-pink-50/40 transition-all active:scale-95"
+                  >
+                    <div className="w-28 h-20 flex items-center justify-center overflow-hidden">
+                      <img src={item.imagePath} alt={item.name} className="w-full h-full object-contain" />
+                    </div>
+                    <span className="font-bold text-xs text-slate-600 mt-2 text-center">
+                      {item.name.replace('（持ち手用）', '')}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {activePanel === 'parts' && (
+              <PartsPickerPanel
+                onAddSticker={(st) => {
+                  onAddSticker(st);
+                  setActivePanel(null);
+                }}
+                onSetInsidePhoto={(url) => onUpdateConfig({ insidePhotoUrl: url })}
+                insidePhotoUrl={config.insidePhotoUrl}
+                initialCategory={partsInitialCategory}
+                addedTexts={addedTexts}
+                onAddedTextsChange={setAddedTexts}
+              />
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Bottom Tool Dock */}
-      <div className="bg-white px-2 py-3 border-t border-pink-100 flex items-center justify-between gap-1 z-30 overflow-x-auto">
+      <div className="bg-white px-2 pt-4 pb-8 border-t border-pink-100 flex items-center justify-between gap-1 z-30 shrink-0">
         <button
-          onClick={() => openPartsSheet('insert')}
-          className="flex flex-col items-center text-pink-500 hover:text-pink-600 min-w-[50px]"
+          onClick={() => togglePanel('insert')}
+          className={`flex flex-col items-center min-w-[50px] transition-colors ${activePanel === 'insert' ? 'text-pink-600' : 'text-pink-400 hover:text-pink-600'}`}
         >
-          <CircleDot className="w-6 h-6" />
+          <Gem className="w-6 h-6" />
           <span className="text-[10px] font-bold mt-1">中身</span>
         </button>
 
         <button
-          onClick={() => openPartsSheet('handle')}
-          className="flex flex-col items-center text-rose-500 hover:text-rose-600 min-w-[50px]"
+          onClick={() => togglePanel('ribbon')}
+          className={`flex flex-col items-center min-w-[50px] transition-colors ${activePanel === 'ribbon' ? 'text-rose-600' : 'text-rose-400 hover:text-rose-600'}`}
         >
           <Gift className="w-6 h-6" />
           <span className="text-[10px] font-bold mt-1">持ち手</span>
         </button>
 
         <button
-          onClick={() => openPartsSheet('all')}
-          className="flex flex-col items-center text-purple-500 hover:text-purple-600 min-w-[50px]"
+          onClick={() => togglePanel('parts', 'heart')}
+          className={`flex flex-col items-center min-w-[50px] transition-colors ${activePanel === 'parts' && !['text', 'photo'].includes(partsInitialCategory) ? 'text-purple-600' : 'text-purple-400 hover:text-purple-600'}`}
         >
           <Sparkles className="w-6 h-6" />
           <span className="text-[10px] font-bold mt-1">パーツ</span>
         </button>
 
         <button
-          onClick={() => openPartsSheet('text')}
-          className="flex flex-col items-center text-slate-500 hover:text-pink-500 min-w-[50px]"
+          onClick={() => togglePanel('parts', 'text')}
+          className={`flex flex-col items-center min-w-[50px] transition-colors ${activePanel === 'parts' && partsInitialCategory === 'text' ? 'text-pink-600' : 'text-slate-400 hover:text-pink-500'}`}
         >
           <Type className="w-6 h-6" />
           <span className="text-[10px] font-bold mt-1">文字</span>
         </button>
 
         <button
-          onClick={() => openPartsSheet('photo')}
-          className="flex flex-col items-center text-slate-500 hover:text-pink-500 min-w-[50px]"
+          onClick={() => togglePanel('parts', 'photo')}
+          className={`flex flex-col items-center min-w-[50px] transition-colors ${activePanel === 'parts' && partsInitialCategory === 'photo' ? 'text-pink-600' : 'text-slate-400 hover:text-pink-500'}`}
         >
           <ImageIcon className="w-6 h-6" />
           <span className="text-[10px] font-bold mt-1">写真</span>
@@ -465,7 +545,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
 
         <button
           onClick={() => setIsColorModalOpen(true)}
-          className="flex flex-col items-center text-blue-500 hover:text-blue-600 min-w-[50px]"
+          className="flex flex-col items-center text-blue-400 hover:text-blue-600 min-w-[50px] transition-colors"
         >
           <Palette className="w-6 h-6" />
           <span className="text-[10px] font-bold mt-1">色</span>
@@ -489,39 +569,6 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
           </button>
         )}
       </div>
-
-      {/* Modals & Sheets */}
-      {isPartsSheetOpen && (
-        <div
-          className="absolute inset-0 z-50 bg-slate-900/40 flex flex-col justify-end"
-          onClick={() => setIsPartsSheetOpen(false)}
-        >
-          <div
-            className="h-[82%] bg-white rounded-t-3xl shadow-2xl flex flex-col overflow-hidden animate-slide-up"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="px-4 py-2 border-b border-pink-100 flex items-center justify-end">
-              <button
-                onClick={() => setIsPartsSheetOpen(false)}
-                className="text-xs font-bold text-pink-500 px-3 py-1.5 rounded-lg hover:bg-pink-50"
-              >
-                閉じる
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto">
-              <PartsPickerPanel
-                onAddSticker={(st) => {
-                  onAddSticker(st);
-                  setIsPartsSheetOpen(false);
-                }}
-                onSetInsidePhoto={(url) => onUpdateConfig({ insidePhotoUrl: url })}
-                insidePhotoUrl={config.insidePhotoUrl}
-                initialCategory={partsInitialCategory}
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Color Customization Modal — inline so it stays inside the phone frame */}
       <ColorCustomizationModal

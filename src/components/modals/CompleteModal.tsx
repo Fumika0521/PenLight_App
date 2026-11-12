@@ -150,7 +150,7 @@ export const CompleteModal: React.FC<CompleteModalProps> = ({
                           className="text-center font-bold px-1 py-0.5 leading-none whitespace-nowrap"
                           style={{
                             color: s.textColor || '#ff6584',
-                            textShadow: `0 0 3px ${s.textBorderColor || '#ffffff'}, 0 0 6px #ffffff`,
+                            textShadow: `0 2px 4px rgba(255, 101, 132, 0.3)`,
                             fontSize: `${15 * s.scale}px`,
                           }}
                         >

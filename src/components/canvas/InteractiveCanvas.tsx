@@ -1,6 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { StickerItem, PenlightConfig } from '../../types';
-import { PenlightBase } from '../penlight/PenlightBase';
+import { PenlightBase, HEAD_SCALE } from '../penlight/PenlightBase';
+
+// ヘッドスケール後のドーム位置
+// p-2パディング + H≈564pxのとき、スケール後もドーム中心はcanvas33.4%のまま維持される
+const HEAD_ORIGIN = '50% 45%';
+const DOME_Y = 33.4;  // canvas座標でのドーム中心Y（スケール前後で不変）
+const DOME_R = 13.8;  // 12% * 1.15
 import { StickerSVG } from '../stickers/StickerSVG';
 import { 
   RotateCw, 
@@ -192,10 +198,8 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
     }
   };
 
-  const handleCanvasClick = (e: React.MouseEvent) => {
-    if (e.target === containerRef.current || (e.target as HTMLElement).id === 'canvas-bg-layer') {
-      onSelectSticker(null);
-    }
+  const handleCanvasClick = () => {
+    onSelectSticker(null);
   };
 
   return (
@@ -231,32 +235,37 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
           </button>
         )}
 
-        {selectedId && (
-          <>
-            <div className="w-[1px] h-4 bg-slate-200 mx-1" />
-            <button
-              onClick={() => onBringForward(selectedId)}
-              className="p-1.5 rounded-full hover:bg-pink-50 text-slate-700 active:scale-95 transition"
-              title="前面へ"
-            >
-              <Layers className="w-4 h-4 text-pink-500" />
-            </button>
-            <button
-              onClick={() => onDuplicateSticker(selectedId)}
-              className="p-1.5 rounded-full hover:bg-pink-50 text-slate-700 active:scale-95 transition"
-              title="複製する"
-            >
-              <Copy className="w-4 h-4 text-blue-500" />
-            </button>
-            <button
-              onClick={() => onDeleteSticker(selectedId)}
-              className="p-1.5 rounded-full hover:bg-rose-50 text-rose-500 active:scale-95 transition"
-              title="削除"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </>
-        )}
+        {selectedId && (() => {
+          const sel = stickers.find((s) => s.id === selectedId);
+          const isInsertSel = sel && (sel.category === 'insert' || sel.layer === 'insert');
+          if (isInsertSel) return null;
+          return (
+            <>
+              <div className="w-[1px] h-4 bg-slate-200 mx-1" />
+              <button
+                onClick={() => onBringForward(selectedId)}
+                className="p-1.5 rounded-full hover:bg-pink-50 text-slate-700 active:scale-95 transition"
+                title="前面へ"
+              >
+                <Layers className="w-4 h-4 text-pink-500" />
+              </button>
+              <button
+                onClick={() => onDuplicateSticker(selectedId)}
+                className="p-1.5 rounded-full hover:bg-pink-50 text-slate-700 active:scale-95 transition"
+                title="複製する"
+              >
+                <Copy className="w-4 h-4 text-blue-500" />
+              </button>
+              <button
+                onClick={() => onDeleteSticker(selectedId)}
+                className="p-1.5 rounded-full hover:bg-rose-50 text-rose-500 active:scale-95 transition"
+                title="削除"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </>
+          );
+        })()}
       </div>
 
       {/* Main Interactive Stage Container */}
@@ -299,8 +308,9 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
           style={{
             // Circular clip-path matching the visible glass dome sphere.
             // 12% of sqrt((w²+h²)/2) ≈ dome radius for the 36:53 aspect penlight.
-            clipPath: 'circle(12% at 50% 33.4%)',
-            WebkitClipPath: 'circle(12% at 50% 33.4%)',
+            // ヘッド1.15倍後のドーム位置: 中心Y=31.7%, 半径=13.8%
+            clipPath: `circle(${DOME_R}% at 50% ${DOME_Y}%)`,
+            WebkitClipPath: `circle(${DOME_R}% at 50% ${DOME_Y}%)`,
           }}
         >
           {stickers
@@ -316,6 +326,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                 <div
                   key={sticker.id}
                   onPointerDown={(e) => handlePointerDown(e, sticker.id, 'move')}
+                  onClick={(e) => e.stopPropagation()}
                   className={`absolute cursor-move select-none transition-shadow ${
                     isSelected ? 'z-40' : ''
                   }`}
@@ -348,7 +359,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                         className="text-center font-extrabold px-2 py-1 leading-none select-none tracking-widest whitespace-nowrap"
                         style={{
                           color: sticker.textColor || '#ff6584',
-                          textShadow: `0 0 6px #ffffff, 0 0 10px #ffffff, 0 2px 6px rgba(255, 101, 132, 0.4), 0 3px 0 #ffffff`,
+                          textShadow: `0 2px 6px rgba(255, 101, 132, 0.4)`,
                           fontFamily: sticker.fontFamily || '"M PLUS Rounded 1c", sans-serif',
                           fontSize: `${28 * sticker.scale}px`,
                           letterSpacing: '0.1em',
@@ -373,7 +384,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
             })}
         </div>
 
-        {/* 3. Glass Reflection Layer (Dome Gloss — On top of inserts, below handle accessories) */}
+        {/* 3. Glass Reflection Layer (Dome Gloss — scaled with head) */}
         {config.baseType === 'classic' && (
           <div className="absolute inset-0 flex items-center justify-center p-2 sm:p-3 pointer-events-none z-20">
             <div className="w-[340px] h-[510px] sm:w-[390px] sm:h-[570px] md:w-[430px] md:h-[620px]">
@@ -381,6 +392,10 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                 src="/assets/hires/dome_gloss.png"
                 alt="Glass Dome Gloss"
                 className="w-full h-full object-contain pointer-events-none select-none drop-shadow-[0_4px_12px_rgba(255,255,255,0.4)]"
+                style={{
+                  transform: `scale(${HEAD_SCALE})`,
+                  transformOrigin: HEAD_ORIGIN,
+                }}
               />
             </div>
           </div>
@@ -400,6 +415,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                 <div
                   key={sticker.id}
                   onPointerDown={(e) => handlePointerDown(e, sticker.id, 'move')}
+                  onClick={(e) => e.stopPropagation()}
                   className={`absolute cursor-move select-none transition-shadow ${
                     isSelected ? 'z-40' : ''
                   }`}
@@ -430,7 +446,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                         className="text-center font-extrabold px-2 py-1 leading-none select-none tracking-widest whitespace-nowrap"
                         style={{
                           color: sticker.textColor || '#ff6584',
-                          textShadow: `0 0 6px #ffffff, 0 0 10px #ffffff, 0 2px 6px rgba(255, 101, 132, 0.4), 0 3px 0 #ffffff`,
+                          textShadow: `0 2px 6px rgba(255, 101, 132, 0.4)`,
                           fontFamily: sticker.fontFamily || '"M PLUS Rounded 1c", sans-serif',
                           fontSize: `${28 * sticker.scale}px`,
                           letterSpacing: '0.1em',
@@ -468,6 +484,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
           const sticker = stickers.find((s) => s.id === selectedId);
           if (!sticker) return null;
           const isInsert = sticker.category === 'insert' || sticker.layer === 'insert';
+          if (isInsert) return null;
           const isHandle = sticker.category === 'handle' || sticker.layer === 'handle';
 
           const sizeStyle = isInsert
@@ -477,6 +494,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
           return (
             <div
               className="absolute pointer-events-auto z-50 select-none"
+              onClick={(e) => e.stopPropagation()}
               style={{
                 left: `${sticker.x}%`,
                 top: `${sticker.y}%`,
@@ -486,7 +504,10 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                 }`,
               }}
             >
-              <div className="absolute -inset-1.5 border-2 border-dashed border-[#4facfe] rounded-xl pointer-events-auto shadow-sm">
+              <div
+                className="absolute -inset-1.5 border-2 border-dashed border-[#4facfe] rounded-xl pointer-events-auto shadow-sm cursor-move"
+                onPointerDown={(e) => handlePointerDown(e, sticker.id, 'move')}
+              >
                 {/* Top Rotation Handle */}
                 <div
                   onPointerDown={(e) => handlePointerDown(e, sticker.id, 'rotate')}
