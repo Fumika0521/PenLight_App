@@ -1,12 +1,42 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { StickerItem, PenlightConfig } from '../../types';
 import { PenlightBase, HEAD_SCALE } from '../penlight/PenlightBase';
+import { myPartFilterStyle } from '../modals/PhotoPartCreatorModal';
 
 // ヘッドスケール後のドーム位置
 // p-2パディング + H≈564pxのとき、スケール後もドーム中心はcanvas33.4%のまま維持される
 const HEAD_ORIGIN = '50% 45%';
 const DOME_Y = 33.4;  // canvas座標でのドーム中心Y（スケール前後で不変）
-const DOME_R = 13.8;  // 12% * 1.15
+const DOME_R = 13.3;  // glass inner radius in canvas coords
+const INSERT_OFFSET_Y = -4;  // insert縦位置オフセット（%、マイナスで上に移動）
+
+const PENLIGHT_BASE_IMAGES: Record<string, string> = {
+  classic: '/assets/hires/penlight_empty.png',
+  heart2:  '/assets/hires/penlight_heart2_realistic.png',
+  panel:   '/assets/hires/penlight_panel_realistic.png',
+  wand:    '/assets/hires/penlight_wand.svg',
+};
+
+// Masks that show only the collar/handle area (below the dome head).
+// Values match PenlightBase.tsx headCutoff/headFade per base type.
+const COLLAR_MASK: Record<string, string> = {
+  classic: 'linear-gradient(to bottom, transparent 0%, transparent 43%, black 46%)',
+  heart2:  'linear-gradient(to bottom, transparent 0%, transparent 43%, black 46%)',
+  panel:   'linear-gradient(to bottom, transparent 0%, transparent 45%, black 48%)',
+  wand:    'linear-gradient(to bottom, transparent 0%, transparent 38%, black 42%)',
+};
+
+// 推しの名前フォントサイズ（文字数に応じてドーム内に収まるよう調整）
+function oshiNameFontPx(len: number): number {
+  if (len <= 1) return 50;
+  if (len <= 2) return 42;
+  if (len <= 3) return 28;
+  if (len <= 4) return 22;
+  if (len <= 5) return 18;
+  if (len <= 6) return 15;
+  if (len <= 7) return 13;
+  return 11;
+}
 import { StickerSVG } from '../stickers/StickerSVG';
 import { 
   RotateCw, 
@@ -295,20 +325,29 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
           </div>
         )}
 
-        {/* 1. Base 3D Penlight Layer (Empty Dome Base) */}
+        {/* 1. Base 3D Penlight — z-0: glass dome visual behind everything */}
         <div className="absolute inset-0 flex items-center justify-center p-2 sm:p-3 pointer-events-none z-0">
           <div className="w-[340px] h-[510px] sm:w-[390px] sm:h-[570px] md:w-[430px] md:h-[620px]">
             <PenlightBase config={config} showGloss={false} />
           </div>
         </div>
 
-        {/* 2. Inserts Layer (Inside Dome — Clipped in the circular dome sphere) */}
+        {/* 2. Dome Radial Glow — z-[5]: inside glass, behind insert */}
+        {config.isLightOn && (
+          <div
+            className="absolute inset-0 z-[5] pointer-events-none"
+            style={{
+              clipPath: `circle(${DOME_R}% at 50% ${DOME_Y}%)`,
+              WebkitClipPath: `circle(${DOME_R}% at 50% ${DOME_Y}%)`,
+              background: `radial-gradient(circle at 50% ${DOME_Y}%, ${config.glowColor}40 0%, ${config.glowColor}18 60%, transparent 88%)`,
+            }}
+          />
+        )}
+
+        {/* 3. Inserts Layer — z-10: above glass dome, below collar overlay */}
         <div
           className="absolute inset-0 pointer-events-auto z-10"
           style={{
-            // Circular clip-path matching the visible glass dome sphere.
-            // 12% of sqrt((w²+h²)/2) ≈ dome radius for the 36:53 aspect penlight.
-            // ヘッド1.15倍後のドーム位置: 中心Y=31.7%, 半径=13.8%
             clipPath: `circle(${DOME_R}% at 50% ${DOME_Y}%)`,
             WebkitClipPath: `circle(${DOME_R}% at 50% ${DOME_Y}%)`,
           }}
@@ -317,8 +356,6 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
             .filter((s) => s.category === 'insert' || s.layer === 'insert')
             .map((sticker) => {
               const isSelected = sticker.id === selectedId;
-              // Sized to fill the dome circle (diameter ≈ 30% of container width).
-              // Height % = 30 * (36/53) ≈ 20.4% to keep square in pixels.
               const wPct = 31 * sticker.scale;
               const hPct = 21 * sticker.scale;
 
@@ -332,7 +369,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                   }`}
                   style={{
                     left: `${sticker.x}%`,
-                    top: `${sticker.y}%`,
+                    top: `${sticker.y + INSERT_OFFSET_Y}%`,
                     width: `${wPct}%`,
                     height: `${hPct}%`,
                     transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) ${
@@ -342,16 +379,34 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                     opacity: sticker.opacity ?? 1,
                   }}
                 >
-                  <div className="w-full h-full relative flex items-center justify-center pointer-events-none overflow-hidden rounded-full">
+                  <div className="w-full h-full relative flex items-center justify-center pointer-events-none">
                     {(sticker.type === '3d-png' || sticker.type === 'preset') && sticker.imageUrl && (
-                      <>
-                        <img
-                          src={sticker.imageUrl}
-                          alt={sticker.svgKey || ''}
-                          className="w-full h-full object-cover pointer-events-none select-none"
-                          style={{ objectPosition: 'center center' }}
-                        />
-                      </>
+                      <img
+                        src={sticker.imageUrl}
+                        alt={sticker.svgKey || ''}
+                        className="w-full h-full object-contain pointer-events-none select-none"
+                        style={{ filter: sticker.cssFilter || undefined }}
+                      />
+                    )}
+
+                    {/* 推しの名前 — engraved glass text overlay */}
+                    {sticker.svgKey === 'insert-oshi-name' && sticker.text && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span
+                          className="pointer-events-none select-none"
+                          style={{
+                            fontFamily: '"M PLUS Rounded 1c", sans-serif',
+                            fontWeight: 800,
+                            fontSize: `${oshiNameFontPx(sticker.text.length)}px`,
+                            color: 'rgba(255, 255, 255, 0.45)',
+                            textShadow: '-1px -1px 0 rgba(255,255,255,0.78), 1.5px 1.5px 2px rgba(100,80,160,0.45)',
+                            letterSpacing: '0.05em',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {sticker.text}
+                        </span>
+                      </div>
                     )}
 
                     {sticker.type === 'text' && (
@@ -384,9 +439,25 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
             })}
         </div>
 
-        {/* 3. Glass Reflection Layer (Dome Gloss — scaled with head) */}
+        {/* 4. Collar Overlay — z-[20]: penlight body image masked to collar/handle area only,
+            covers any insert image that bleeds below the dome circle boundary */}
+        <div className="absolute inset-0 flex items-center justify-center p-2 sm:p-3 pointer-events-none z-[20]">
+          <div className="w-[340px] h-[510px] sm:w-[390px] sm:h-[570px] md:w-[430px] md:h-[620px]">
+            <img
+              src={PENLIGHT_BASE_IMAGES[config.baseType] || PENLIGHT_BASE_IMAGES.classic}
+              alt=""
+              className="w-full h-full object-contain pointer-events-none select-none"
+              style={{
+                WebkitMaskImage: COLLAR_MASK[config.baseType] || COLLAR_MASK.classic,
+                maskImage: COLLAR_MASK[config.baseType] || COLLAR_MASK.classic,
+              }}
+            />
+          </div>
+        </div>
+
+        {/* 5. Glass Reflection Layer — z-[25]: dome gloss on top of insert */}
         {config.baseType === 'classic' && (
-          <div className="absolute inset-0 flex items-center justify-center p-2 sm:p-3 pointer-events-none z-20">
+          <div className="absolute inset-0 flex items-center justify-center p-2 sm:p-3 pointer-events-none z-[25]">
             <div className="w-[340px] h-[510px] sm:w-[390px] sm:h-[570px] md:w-[430px] md:h-[620px]">
               <img
                 src="/assets/hires/dome_gloss.png"
@@ -456,7 +527,16 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                       </div>
                     )}
 
-                    {sticker.type === 'photo' && sticker.imageUrl && (
+                    {sticker.type === 'photo' && sticker.category === 'mypart' && sticker.imageUrl && (
+                      <img
+                        src={sticker.imageUrl}
+                        alt={sticker.name}
+                        className="w-full h-full object-contain pointer-events-none"
+                        style={{ filter: myPartFilterStyle(sticker.borderSize, sticker.hasShadow) || undefined }}
+                      />
+                    )}
+
+                    {sticker.type === 'photo' && sticker.category !== 'mypart' && sticker.imageUrl && (
                       <div
                         className={`w-full h-full overflow-hidden border-2 border-white shadow-md bg-white ${
                           sticker.imageShape === 'circle'

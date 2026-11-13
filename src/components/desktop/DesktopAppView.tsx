@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { 
-  PenlightConfig, 
-  StickerItem, 
-  PenlightBaseType, 
-  SavedProject 
+import {
+  PenlightConfig,
+  StickerItem,
+  PenlightBaseType,
+  SavedProject,
+  MyPart
 } from '../../types';
+import { PhotoPartCreatorModal } from '../modals/PhotoPartCreatorModal';
 import { InteractiveCanvas } from '../canvas/InteractiveCanvas';
 import { PartsPickerPanel } from '../panels/PartsPickerPanel';
 import { PropertiesPanel } from '../panels/PropertiesPanel';
@@ -53,6 +55,9 @@ interface DesktopAppViewProps {
   onDeleteProject: (id: string) => void;
   onExportImage: () => void;
   canvasRef?: React.RefObject<HTMLDivElement>;
+  myParts: MyPart[];
+  onAddMyPart: (part: MyPart) => void;
+  onDeleteMyPart: (id: string) => void;
 }
 
 export const DesktopAppView: React.FC<DesktopAppViewProps> = ({
@@ -77,8 +82,12 @@ export const DesktopAppView: React.FC<DesktopAppViewProps> = ({
   onDeleteProject,
   onExportImage,
   canvasRef,
+  myParts,
+  onAddMyPart,
+  onDeleteMyPart,
 }) => {
   const [isBaseModalOpen, setIsBaseModalOpen] = useState(false);
+  const [isPhotoPartCreatorOpen, setIsPhotoPartCreatorOpen] = useState(false);
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isCompleteOpen, setIsCompleteOpen] = useState(false);
@@ -237,12 +246,15 @@ export const DesktopAppView: React.FC<DesktopAppViewProps> = ({
       </aside>
 
       {/* 2. Parts Picker Panel (Left-Center) */}
-      <div className="w-80 shrink-0 h-full border-r border-pink-100">
+      <div className="w-80 shrink-0 h-full border-r border-pink-100 overflow-y-auto">
         <PartsPickerPanel
           onAddSticker={onAddSticker}
           onSetInsidePhoto={(url) => onUpdateConfig({ insidePhotoUrl: url })}
           insidePhotoUrl={config.insidePhotoUrl}
           activeCategory={activeNav}
+          myParts={myParts}
+          onOpenPhotoPartCreator={() => setIsPhotoPartCreatorOpen(true)}
+          onDeleteMyPart={onDeleteMyPart}
         />
       </div>
 
@@ -319,6 +331,15 @@ export const DesktopAppView: React.FC<DesktopAppViewProps> = ({
         config={config}
         stickers={stickers}
         onExportImage={onExportImage}
+      />
+
+      <PhotoPartCreatorModal
+        isOpen={isPhotoPartCreatorOpen}
+        onClose={() => setIsPhotoPartCreatorOpen(false)}
+        onPartCreated={(part) => {
+          onAddMyPart(part);
+          setIsPhotoPartCreatorOpen(false);
+        }}
       />
     </div>
   );

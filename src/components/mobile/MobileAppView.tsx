@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { 
+import {
   PenlightConfig,
   StickerItem,
   MobileScreen,
-  SavedProject
+  SavedProject,
+  MyPart
 } from '../../types';
+import { PhotoPartCreatorModal } from '../modals/PhotoPartCreatorModal';
 import { PenlightBase } from '../penlight/PenlightBase';
 import { StickerSVG, STICKER_CATALOG, StickerDef } from '../stickers/StickerSVG';
 import { InteractiveCanvas } from '../canvas/InteractiveCanvas';
@@ -53,6 +55,9 @@ interface MobileAppViewProps {
   onRenameProject: (id: string, newName: string) => void;
   onExportImage: () => void;
   onNewDeco: () => void;
+  myParts: MyPart[];
+  onAddMyPart: (part: MyPart) => void;
+  onDeleteMyPart: (id: string) => void;
 }
 
 export const MobileAppView: React.FC<MobileAppViewProps> = ({
@@ -78,11 +83,15 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
   onRenameProject,
   onExportImage,
   onNewDeco,
+  myParts,
+  onAddMyPart,
+  onDeleteMyPart,
 }) => {
   const [currentScreen, setCurrentScreen] = useState<MobileScreen>('home');
   const [activePanel, setActivePanel] = useState<'insert' | 'ribbon' | 'parts' | null>(null);
   const [partsInitialCategory, setPartsInitialCategory] = useState<string>('heart');
-  const [selectedInsert, setSelectedInsert] = useState<'moon-star' /* | 'heart-note' | 'heart-note-music' */ | null>(null);
+  const [selectedInsert, setSelectedInsert] = useState<'moon-star' | 'double-heart' | 'oshi-name' | null>(null);
+  const [oshiName, setOshiName] = useState('');
 
   const togglePanel = (panel: 'insert' | 'ribbon' | 'parts', category?: string) => {
     if (panel === 'parts') {
@@ -100,6 +109,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const [isCompleteOpen, setIsCompleteOpen] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isPhotoPartCreatorOpen, setIsPhotoPartCreatorOpen] = useState(false);
   const [addedTexts, setAddedTexts] = useState<{ text: string; color: string }[]>([]);
 
   // Screen 1: Mobile Home Screen (Matches Mockup 1)
@@ -153,7 +163,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
             <span className="absolute text-pink-300  text-xl  animate-float   pointer-events-none select-none" style={{ top: '91%', right: '22%', animationDelay: '0.5s' }}>✦</span>
 
             <div className="relative w-full h-full pointer-events-none">
-              <PenlightBase config={config} />
+              <PenlightBase config={config} showEmptyGlass />
             </div>
           </div>
         </div>
@@ -219,11 +229,9 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
   // Screen 2: Select Base Screen
   if (currentScreen === 'select-base') {
     const inserts = {
-      'moon-star': {
-        name: 'クラシック月と星',
-        imageUrl: '/assets/stickers/insert_moon_star.png',
-        svgKey: 'insert-moon-star-3d',
-      },
+      'moon-star':    { name: 'クラシック月と星', imageUrl: '/assets/stickers/insert_moon_star.png',            svgKey: 'insert-moon-star-3d',  cssFilter: undefined,                        text: undefined },
+      'double-heart': { name: '2重ハート',       imageUrl: '/assets/stickers/insert_double_heart_clear.png',  svgKey: 'insert-double-heart',  cssFilter: undefined,                        text: undefined },
+      'oshi-name':    { name: '推しの名前',       imageUrl: '/assets/stickers/insert_empty_glass.png',         svgKey: 'insert-oshi-name',     cssFilter: undefined,                        text: oshiName.trim() },
       // 'heart-note': {
       //   name: '雲とクローバー',
       //   imageUrl: '/assets/stickers/heart_note_soft_sharp.png',
@@ -246,12 +254,14 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
           category: 'insert',
           layer: 'insert',
           x: 50,
-          y: 33.4,
-          scale: 1.05,
+          y: 37.7,
+          scale: 1.2,
           rotation: 0,
           type: '3d-png',
           imageUrl: def.imageUrl,
           svgKey: def.svgKey,
+          cssFilter: def.cssFilter,
+          text: def.text || undefined,
           opacity: 1,
         });
       }
@@ -279,21 +289,44 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
           <p className="text-sm text-slate-600 font-semibold text-center">
             ドームの中身を選んでください♡
           </p>
-          <div className="grid grid-cols-2 gap-3 w-full">
-            {([
-              { key: 'moon-star' as const, label: 'クラシック月と星', src: '/assets/stickers/insert_moon_star.png', objPos: 'center 30%' },
-              // { key: 'heart-note' as const, label: '雲とクローバー', src: '/assets/stickers/heart_note_soft_sharp.png', objPos: 'center center' },
-              // { key: 'heart-note-music' as const, label: 'ハートと音符', src: '/assets/stickers/insert_heart_note.png', objPos: 'center center' },
-            ]).map((item) => {
-              const isSelected = selectedInsert === item.key;
+          <div className="flex flex-col gap-3 w-full">
+            {/* 月と星 / 2重ハート */}
+            <div className="grid grid-cols-2 gap-3">
+              {([
+                { key: 'moon-star' as const,    label: 'クラシック月と星', src: '/assets/stickers/insert_moon_star.png',           objPos: 'center 30%', cssFilter: undefined },
+                { key: 'double-heart' as const, label: '2重ハート',       src: '/assets/stickers/insert_double_heart_clear.png', objPos: 'center center', cssFilter: undefined },
+              ]).map((item) => {
+                const isSelected = selectedInsert === item.key;
+                return (
+                  <div
+                    key={item.key}
+                    onClick={() => setSelectedInsert(isSelected ? null : item.key)}
+                    className={`relative flex flex-col items-center px-3 py-4 rounded-3xl border-2 cursor-pointer transition-all ${
+                      isSelected ? 'border-pink-400 bg-pink-50/60 shadow-cute' : 'border-slate-100 hover:border-pink-200'
+                    }`}
+                  >
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-pink-500 text-white flex items-center justify-center">
+                        <Check className="w-3 h-3 stroke-[3]" />
+                      </div>
+                    )}
+                    <div className="w-28 h-28 rounded-full overflow-hidden shadow-md">
+                      <img src={item.src} alt={item.label} className="w-full h-full object-cover pointer-events-none" style={{ objectPosition: item.objPos, filter: item.cssFilter }} />
+                    </div>
+                    <span className="font-bold text-xs text-slate-600 mt-2 text-center">{item.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* 推しの名前 */}
+            {(() => {
+              const isSelected = selectedInsert === 'oshi-name';
               return (
                 <div
-                  key={item.key}
-                  onClick={() => setSelectedInsert(isSelected ? null : item.key)}
-                  className={`relative flex flex-col items-center px-3 py-4 rounded-3xl border-2 cursor-pointer transition-all ${
-                    isSelected
-                      ? 'border-pink-400 bg-pink-50/60 shadow-cute'
-                      : 'border-slate-100 hover:border-pink-200'
+                  onClick={() => setSelectedInsert(isSelected ? null : 'oshi-name')}
+                  className={`relative flex items-center gap-4 px-4 py-3 rounded-3xl border-2 cursor-pointer transition-all ${
+                    isSelected ? 'border-pink-400 bg-pink-50/60 shadow-cute' : 'border-slate-100 hover:border-pink-200'
                   }`}
                 >
                   {isSelected && (
@@ -301,18 +334,42 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
                       <Check className="w-3 h-3 stroke-[3]" />
                     </div>
                   )}
-                  <div className="w-28 h-28 rounded-full overflow-hidden shadow-md">
-                    <img
-                      src={item.src}
-                      alt={item.label}
-                      className="w-full h-full object-cover pointer-events-none"
-                      style={{ objectPosition: item.objPos }}
-                    />
+                  {/* ガラス球プレビュー */}
+                  <div className="w-20 h-20 rounded-full overflow-hidden shadow-md shrink-0 relative bg-white/40">
+                    <img src="/assets/stickers/insert_empty_glass.png" className="w-full h-full object-cover" />
+                    {oshiName.trim() && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span style={{
+                          fontFamily: '"M PLUS Rounded 1c", sans-serif',
+                          fontWeight: 800,
+                          fontSize: `${Math.max(8, Math.min(18, 56 / Math.max(oshiName.trim().length, 1)))}px`,
+                          color: 'rgba(255,255,255,0.45)',
+                          textShadow: '-1px -1px 0 rgba(255,255,255,0.78), 1.5px 1.5px 2px rgba(100,80,160,0.45)',
+                          whiteSpace: 'nowrap',
+                        }}>
+                          {oshiName.trim()}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                  <span className="font-bold text-xs text-slate-600 mt-2 text-center">{item.label}</span>
+                  <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                    <span className="font-bold text-sm text-slate-700">推しの名前</span>
+                    {isSelected && (
+                      <input
+                        type="text"
+                        value={oshiName}
+                        onChange={(e) => setOshiName(e.target.value.slice(0, 8))}
+                        onClick={(e) => e.stopPropagation()}
+                        placeholder="名前を入力（8文字まで）"
+                        maxLength={8}
+                        className="w-full px-3 py-1.5 text-sm rounded-xl border border-pink-200 bg-white focus:outline-none focus:border-pink-400 font-bold text-slate-700"
+                        autoFocus
+                      />
+                    )}
+                  </div>
                 </div>
               );
-            })}
+            })()}
           </div>
         </div>
 
@@ -414,41 +471,54 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
           </div>
           <div className="overflow-y-auto">
             {activePanel === 'insert' && (
-              <div className="p-4 grid grid-cols-2 gap-3">
-                {([
-                  { key: 'moon-star', name: 'クラシック月と星', imageUrl: '/assets/stickers/insert_moon_star.png', svgKey: 'insert-moon-star-3d', objPos: 'center 30%' },
-                ] as const).map((item) => (
-                  <button
-                    key={item.key}
-                    onClick={() => {
-                      onAddSticker({
-                        name: item.name,
-                        category: 'insert',
-                        layer: 'insert',
-                        x: 50,
-                        y: 33.4,
-                        scale: 1.05,
-                        rotation: 0,
-                        type: '3d-png',
-                        imageUrl: item.imageUrl,
-                        svgKey: item.svgKey,
-                        opacity: 1,
-                      });
-                      setActivePanel(null);
-                    }}
-                    className="flex flex-col items-center px-3 py-4 rounded-3xl border-2 border-slate-100 hover:border-pink-300 bg-white hover:bg-pink-50/40 transition-all active:scale-95"
-                  >
-                    <div className="w-28 h-20 overflow-hidden rounded-2xl flex items-center justify-center">
-                      <img
-                        src={item.imageUrl}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                        style={{ objectPosition: item.objPos }}
-                      />
-                    </div>
-                    <span className="font-bold text-xs text-slate-600 mt-2 text-center">{item.name}</span>
-                  </button>
-                ))}
+              <div className="p-4 space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  {([
+                    { key: 'moon-star',    name: 'クラシック月と星', imageUrl: '/assets/stickers/insert_moon_star.png',           svgKey: 'insert-moon-star-3d', objPos: 'center 30%',    cssFilter: undefined },
+                    { key: 'double-heart', name: '2重ハート',       imageUrl: '/assets/stickers/insert_double_heart_clear.png', svgKey: 'insert-double-heart', objPos: 'center center', cssFilter: undefined },
+                  ] as const).map((item) => (
+                    <button
+                      key={item.key}
+                      onClick={() => {
+                        onAddSticker({ name: item.name, category: 'insert', layer: 'insert', x: 50, y: 37.7, scale: 1.2, rotation: 0, type: '3d-png', imageUrl: item.imageUrl, svgKey: item.svgKey, cssFilter: item.cssFilter, opacity: 1 });
+                        setActivePanel(null);
+                      }}
+                      className="flex flex-col items-center px-3 py-4 rounded-3xl border-2 border-slate-100 hover:border-pink-300 bg-white hover:bg-pink-50/40 transition-all active:scale-95"
+                    >
+                      <div className="w-28 h-20 overflow-hidden rounded-2xl flex items-center justify-center">
+                        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" style={{ objectPosition: item.objPos, filter: item.cssFilter }} />
+                      </div>
+                      <span className="font-bold text-xs text-slate-600 mt-2 text-center">{item.name}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* 推しの名前 */}
+                <div className="flex flex-col gap-2 p-3 rounded-2xl border-2 border-slate-100 bg-white">
+                  <span className="font-bold text-xs text-slate-600">推しの名前</span>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={oshiName}
+                      onChange={(e) => setOshiName(e.target.value.slice(0, 8))}
+                      onClick={(e) => e.stopPropagation()}
+                      placeholder="名前を入力（8文字まで）"
+                      maxLength={8}
+                      className="flex-1 px-3 py-1.5 text-sm rounded-xl border border-pink-200 bg-pink-50/30 focus:outline-none focus:border-pink-400 font-bold text-slate-700"
+                    />
+                    <button
+                      onClick={() => {
+                        if (!oshiName.trim()) return;
+                        onAddSticker({ name: `推しの名前「${oshiName.trim()}」`, category: 'insert', layer: 'insert', x: 50, y: 37.7, scale: 1.2, rotation: 0, type: '3d-png', imageUrl: '/assets/stickers/insert_empty_glass.png', svgKey: 'insert-oshi-name', text: oshiName.trim(), opacity: 1 });
+                        setActivePanel(null);
+                      }}
+                      className="px-4 py-1.5 bg-gradient-to-r from-pink-400 to-rose-400 text-white font-bold text-xs rounded-xl active:scale-95 transition disabled:opacity-40"
+                      disabled={!oshiName.trim()}
+                    >
+                      追加
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
             {activePanel === 'ribbon' && (
@@ -488,13 +558,16 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
               <PartsPickerPanel
                 onAddSticker={(st) => {
                   onAddSticker(st);
-                  setActivePanel(null);
+                  if (st.category !== 'mypart') setActivePanel(null);
                 }}
                 onSetInsidePhoto={(url) => onUpdateConfig({ insidePhotoUrl: url })}
                 insidePhotoUrl={config.insidePhotoUrl}
                 initialCategory={partsInitialCategory}
                 addedTexts={addedTexts}
                 onAddedTextsChange={setAddedTexts}
+                myParts={myParts}
+                onOpenPhotoPartCreator={() => setIsPhotoPartCreatorOpen(true)}
+                onDeleteMyPart={onDeleteMyPart}
               />
             )}
           </div>
@@ -587,6 +660,16 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
         stickers={stickers}
         onExportImage={onExportImage}
         inline
+      />
+
+      {/* Photo Part Creator Modal — inline inside phone frame */}
+      <PhotoPartCreatorModal
+        isOpen={isPhotoPartCreatorOpen}
+        onClose={() => setIsPhotoPartCreatorOpen(false)}
+        onPartCreated={(part) => {
+          onAddMyPart(part);
+          setIsPhotoPartCreatorOpen(false);
+        }}
       />
     </div>
   );

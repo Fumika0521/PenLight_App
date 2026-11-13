@@ -6,6 +6,7 @@ interface PenlightBaseProps {
   className?: string;
   showInsidePhoto?: boolean;
   showGloss?: boolean;
+  showEmptyGlass?: boolean;
 }
 
 // ドームヘッド部分の拡大率と変換基準点（首元 = コンテナ高さの45%）
@@ -24,6 +25,7 @@ export const PenlightBase: React.FC<PenlightBaseProps> = ({
   className = 'w-full h-full',
   showInsidePhoto = true,
   showGloss = false,
+  showEmptyGlass = false,
 }) => {
   const {
     baseType,
@@ -141,6 +143,33 @@ export const PenlightBase: React.FC<PenlightBaseProps> = ({
             alt="inside oshi avatar"
             className="w-full h-full object-cover"
           />
+        </div>
+      )}
+
+      {/* 4.5. Empty Glass Insert — shown on home screen when no insert is selected */}
+      {/* Uses a 1:1 coordinate layer matching the penlight image so position is
+          container-aspect-ratio independent (works on home screen & editor alike) */}
+      {baseType === 'classic' && showEmptyGlass && (
+        <div className="absolute inset-0 z-[23] pointer-events-none flex items-center justify-center">
+          <div className="relative" style={{ width: '100%', aspectRatio: '1 / 1', maxHeight: '100%' }}>
+            <div
+              className="absolute overflow-hidden rounded-full"
+              style={{
+                top: '25.4%',
+                left: '50%',
+                width: '33%',
+                aspectRatio: '1',
+                transform: `translate(-50%, -50%) ${headTransform}`,
+                transformOrigin: HEAD_ORIGIN,
+              }}
+            >
+              <img
+                src="/assets/stickers/insert_empty_glass.png"
+                alt=""
+                className="w-full h-full object-cover pointer-events-none select-none"
+              />
+            </div>
+          </div>
         </div>
       )}
 

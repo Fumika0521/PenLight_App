@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   STICKER_CATALOG,
   StickerDef,
@@ -8,15 +8,17 @@ import {
   PRESET_KATAKANA,
   StickerSVG
 } from '../stickers/StickerSVG';
-import { StickerCategory, StickerItem } from '../../types';
-import { 
-  Sparkles, 
-  Heart, 
-  Star, 
+import { MyPart, StickerCategory, StickerItem } from '../../types';
+import {
+  Sparkles,
+  Heart,
+  Star,
   Type,
   Image as ImageIcon,
   Upload,
-  Plus
+  Plus,
+  Camera,
+  Trash2
 } from 'lucide-react';
 
 interface PartsPickerPanelProps {
@@ -27,6 +29,9 @@ interface PartsPickerPanelProps {
   activeCategory?: string;
   addedTexts?: { text: string; color: string }[];
   onAddedTextsChange?: (texts: { text: string; color: string }[]) => void;
+  myParts?: MyPart[];
+  onOpenPhotoPartCreator?: () => void;
+  onDeleteMyPart?: (id: string) => void;
 }
 
 export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
@@ -37,6 +42,9 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
   activeCategory,
   addedTexts = [],
   onAddedTextsChange,
+  myParts = [],
+  onOpenPhotoPartCreator,
+  onDeleteMyPart,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>(activeCategory || initialCategory || 'heart');
   const [isAlphabetOpen, setIsAlphabetOpen] = useState(false);
@@ -52,7 +60,11 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
     }
   }, [activeCategory]);
 
+  const [longPressId, setLongPressId] = useState<string | null>(null);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const categories = [
+    { id: 'mypart', label: 'マイパーツ' },
     { id: 'heart', label: 'ハート' },
     { id: 'star', label: '星' },
     { id: 'rhinestone', label: 'ストーン' },
@@ -76,8 +88,8 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
       category: def.category as StickerCategory,
       layer: isInsert ? 'insert' : isHandle ? 'handle' : 'sticker',
       x: isInsert ? 50 : isHandle ? 50 : 50 + (Math.random() * 6 - 3),
-      y: isInsert ? 33.4 : isHandle ? 62 : 42 + (Math.random() * 6 - 3),
-      scale: def.defaultScale || 1.0,
+      y: isInsert ? 37 : isHandle ? 62 : 42 + (Math.random() * 6 - 3),
+      scale: isInsert ? 1.4 : (def.defaultScale || 1.0),
       rotation: 0,
       type: def.is3d ? '3d-png' : 'preset',
       imageUrl: def.imagePath,
@@ -192,8 +204,8 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
                           category: 'insert',
                           layer: 'insert',
                           x: 50,
-                          y: 33.4,
-                          scale: 0.9,
+                          y: 37.7,
+                          scale: 1.2,
                           rotation: 0,
                           type: 'photo',
                           imageUrl: url,
@@ -206,6 +218,36 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
                   }}
                 />
               </label>
+
+              {/* Preset Insert Grid */}
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                {([
+                  { key: 'insert-moon-star',    name: 'クラシック月と星', imageUrl: '/assets/stickers/insert_moon_star.png',           cssFilter: undefined },
+                  { key: 'insert-double-heart', name: '2重ハート',       imageUrl: '/assets/stickers/insert_double_heart_clear.png', cssFilter: undefined },
+                ] as const).map((item) => (
+                  <button
+                    key={item.key}
+                    onClick={() => onAddSticker({
+                      name: item.name,
+                      category: 'insert',
+                      layer: 'insert',
+                      x: 50,
+                      y: 37.7,
+                      scale: 1.2,
+                      rotation: 0,
+                      type: '3d-png',
+                      imageUrl: item.imageUrl,
+                      svgKey: item.key,
+                      cssFilter: item.cssFilter,
+                      opacity: 1,
+                    })}
+                    className="flex flex-col items-center gap-1 p-2 rounded-xl border border-pink-100 bg-white hover:bg-pink-50 hover:border-pink-300 transition active:scale-95"
+                  >
+                    <img src={item.imageUrl} className="w-12 h-12 object-contain" style={{ filter: item.cssFilter }} />
+                    <span className="text-[10px] text-slate-600 font-bold">{item.name}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
@@ -246,7 +288,94 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
             </div>
           )}
 
+          {/* My Parts Section */}
+          {selectedCategory === 'mypart' && (
+            <div className="space-y-3">
+              <button
+                onClick={onOpenPhotoPartCreator}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-gradient-to-r from-pink-400 to-rose-400 text-white font-bold text-xs shadow-xs active:scale-95 transition"
+              >
+                <Camera className="w-4 h-4" />
+                ＋ 写真からパーツを作る
+              </button>
+              {myParts.length === 0 ? (
+                <div className="text-center py-8 text-slate-400 text-xs">
+                  <p className="font-bold mb-1">まだマイパーツがありません</p>
+                  <p>上のボタンから写真を切り抜いて<br />オリジナルパーツを作ろう♡</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-2">
+                  {myParts.map((part) => (
+                    <div key={part.id} className="relative">
+                      <button
+                        onPointerDown={() => {
+                          longPressTimer.current = setTimeout(() => {
+                            setLongPressId(part.id);
+                          }, 600);
+                        }}
+                        onPointerUp={() => {
+                          if (longPressTimer.current) {
+                            clearTimeout(longPressTimer.current);
+                            longPressTimer.current = null;
+                          }
+                        }}
+                        onPointerLeave={() => {
+                          if (longPressTimer.current) {
+                            clearTimeout(longPressTimer.current);
+                            longPressTimer.current = null;
+                          }
+                        }}
+                        onClick={() => {
+                          if (longPressId) { setLongPressId(null); return; }
+                          onAddSticker({
+                            name: part.name,
+                            category: 'mypart',
+                            layer: 'sticker',
+                            x: 50 + (Math.random() * 6 - 3),
+                            y: 42 + (Math.random() * 6 - 3),
+                            scale: 0.85,
+                            rotation: 0,
+                            type: 'photo',
+                            imageUrl: part.dataUrl,
+                            opacity: 1,
+                            myPartId: part.id,
+                          });
+                        }}
+                        className="w-full aspect-square rounded-xl border border-pink-100 hover:border-pink-300 overflow-hidden flex items-center justify-center transition hover:scale-105 active:scale-95"
+                        style={{
+                          backgroundImage: 'linear-gradient(45deg,#e5e7eb 25%,transparent 25%),linear-gradient(-45deg,#e5e7eb 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e5e7eb 75%),linear-gradient(-45deg,transparent 75%,#e5e7eb 75%)',
+                          backgroundSize: '12px 12px',
+                          backgroundPosition: '0 0,0 6px,6px -6px,-6px 0',
+                        }}
+                      >
+                        <img src={part.dataUrl} alt={part.name} className="w-full h-full object-contain p-1" />
+                      </button>
+                      {longPressId === part.id && (
+                        <div className="absolute inset-0 rounded-xl bg-black/60 flex flex-col items-center justify-center gap-1 z-10">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onDeleteMyPart?.(part.id); setLongPressId(null); }}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-rose-500 text-white text-xs font-bold rounded-xl"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            削除
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setLongPressId(null); }}
+                            className="text-white/70 text-[10px]"
+                          >
+                            キャンセル
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Full sticker list */}
+          {selectedCategory !== 'mypart' && (
           <div className={selectedCategory === 'all' ? 'pt-2 border-t border-pink-50' : ''}>
             {selectedCategory === 'all' && (
               <h4 className="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1">
@@ -269,6 +398,7 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
               ))}
             </div>
           </div>
+          )}
         </div>
       )}
 

@@ -4,7 +4,7 @@ export type PenlightBaseType =
   | 'panel'
   | 'wand';
 
-export type StickerCategory = 
+export type StickerCategory =
   | 'all'
   | 'insert'
   | 'handle'
@@ -15,13 +15,17 @@ export type StickerCategory =
   | 'rhinestone'
   | 'text'
   | 'photo'
-  | 'charm';
+  | 'charm'
+  | 'mypart';
+
+export type StickerLayer = 'insert' | 'handle' | 'sticker' | 'back';
+export type BorderSize = 'none' | 'thin' | 'normal' | 'thick';
 
 export interface StickerItem {
   id: string;
   name: string;
   category: StickerCategory;
-  layer?: 'insert' | 'handle' | 'sticker';
+  layer?: StickerLayer;
   x: number; // percentage from center (0 to 100, where 50 is center)
   y: number; // percentage from top (0 to 100, where 50 is center)
   scale: number; // 0.2 to 2.5 (1.0 default)
@@ -38,6 +42,19 @@ export interface StickerItem {
   textBorderColor?: string;
   fontFamily?: string;
   imageShape?: 'circle' | 'heart' | 'square';
+  // insert color tint (CSS filter string)
+  cssFilter?: string;
+  // mypart-specific
+  borderSize?: BorderSize;
+  hasShadow?: boolean;
+  myPartId?: string;
+}
+
+export interface MyPart {
+  id: string;
+  name: string;
+  dataUrl: string; // WebP data URL (transparent)
+  createdAt: number;
 }
 
 export interface PenlightConfig {

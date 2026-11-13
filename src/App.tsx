@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  PenlightConfig, 
-  StickerItem, 
-  SavedProject 
+import {
+  PenlightConfig,
+  StickerItem,
+  SavedProject,
+  MyPart
 } from './types';
+import { getAllMyParts, deleteMyPart } from './lib/myPartsDB';
 import { DesktopAppView } from './components/desktop/DesktopAppView';
 import { MobileAppView } from './components/mobile/MobileAppView';
 import { toPng } from 'html-to-image';
@@ -167,6 +169,8 @@ export const App: React.FC = () => {
     ];
   });
 
+  const [myParts, setMyParts] = useState<MyPart[]>([]);
+
   const canvasRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -174,6 +178,19 @@ export const App: React.FC = () => {
       setViewMode('mobile');
     }
   }, []);
+
+  useEffect(() => {
+    getAllMyParts().then(setMyParts).catch(console.error);
+  }, []);
+
+  const handleAddMyPart = (part: MyPart) => {
+    setMyParts((prev) => [part, ...prev]);
+  };
+
+  const handleDeleteMyPart = async (id: string) => {
+    await deleteMyPart(id);
+    setMyParts((prev) => prev.filter((p) => p.id !== id));
+  };
 
   const pushHistory = (newConfig: PenlightConfig, newStickers: StickerItem[]) => {
     const nextHistory = history.slice(0, historyIndex + 1);
@@ -297,9 +314,15 @@ export const App: React.FC = () => {
 
   const handleLoadProject = (project: SavedProject) => {
     setConfig({ ...project.config });
-    setStickers([...project.stickers]);
+    // Migrate insert stickers to current dome-center position/scale
+    const migratedStickers = project.stickers.map((s) =>
+      (s.category === 'insert' || s.layer === 'insert')
+        ? { ...s, y: 37.7, scale: 1.2 }
+        : s
+    );
+    setStickers(migratedStickers);
     setSelectedId(null);
-    pushHistory(project.config, project.stickers);
+    pushHistory(project.config, migratedStickers);
   };
 
   const handleDeleteProject = (id: string) => {
@@ -471,6 +494,9 @@ export const App: React.FC = () => {
             onDeleteProject={handleDeleteProject}
             onExportImage={handleExportImage}
             canvasRef={canvasRef}
+            myParts={myParts}
+            onAddMyPart={handleAddMyPart}
+            onDeleteMyPart={handleDeleteMyPart}
           />
         ) : (
           <div className="flex-1 flex items-center justify-center p-3 sm:p-6 bg-gradient-to-br from-pink-100/30 via-purple-100/20 to-blue-100/30">
@@ -497,6 +523,9 @@ export const App: React.FC = () => {
               onRenameProject={handleRenameProject}
               onExportImage={handleExportImage}
               onNewDeco={handleNewDeco}
+              myParts={myParts}
+              onAddMyPart={handleAddMyPart}
+              onDeleteMyPart={handleDeleteMyPart}
             />
           </div>
         )}
