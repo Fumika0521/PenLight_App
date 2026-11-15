@@ -246,15 +246,6 @@ export const STICKER_CATALOG: StickerDef[] = [
     defaultScale: 0.75,
   },
   {
-    key: 'heart-crystal-pink-3d',
-    name: 'クリスタルハート（ペールピンク）',
-    category: 'heart',
-    popular: true,
-    is3d: true,
-    imagePath: '/assets/stickers/heart_crystal_pink.png',
-    defaultScale: 0.75,
-  },
-  {
     key: 'heart-glossy-pink-3d',
     name: 'ぷっくりジュエルハート',
     category: 'heart',
@@ -276,14 +267,6 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'heart',
     is3d: true,
     imagePath: '/assets/stickers/heart_silver_pearl.png',
-    defaultScale: 0.75,
-  },
-  {
-    key: 'heart-gem-ruby-3d',
-    name: 'ルビークリスタルハート',
-    category: 'heart',
-    is3d: true,
-    imagePath: '/assets/stickers/heart_gem_ruby.png',
     defaultScale: 0.75,
   },
 

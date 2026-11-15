@@ -9,16 +9,14 @@ import {
   StickerSVG
 } from '../stickers/StickerSVG';
 import { MyPart, StickerCategory, StickerItem } from '../../types';
+import { INSERT_DEFAULTS } from '../../lib/insertDefaults';
 import {
   Sparkles,
   Heart,
-  Star,
   Type,
   Image as ImageIcon,
   Upload,
   Plus,
-  Camera,
-  Trash2
 } from 'lucide-react';
 
 interface PartsPickerPanelProps {
@@ -64,14 +62,14 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const categories = [
-    { id: 'mypart', label: 'マイパーツ' },
-    { id: 'heart', label: 'ハート' },
-    { id: 'star', label: '星' },
+    { id: 'heart',      label: 'ハート' },
+    { id: 'star',       label: '星' },
     { id: 'rhinestone', label: 'ストーン' },
-    { id: 'charm', label: 'クローバー' },
+    { id: 'ribbon',     label: 'リボン' },
   ];
 
   const partsOnly = STICKER_CATALOG.filter((s) => s.category !== 'insert' && s.category !== 'handle' && s.category !== 'ribbon');
+  const handleItems = STICKER_CATALOG.filter((s) => s.category === 'handle');
 
   const filteredStickers = selectedCategory === 'all'
     ? partsOnly
@@ -154,8 +152,8 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
   return (
     <div className="flex flex-col bg-white/95 backdrop-blur-md border-r border-pink-100 p-4">
 
-      {/* Category Filter Chips — hidden in text/photo tabs */}
-      {selectedCategory !== 'text' && selectedCategory !== 'photo' && (
+      {/* Category Filter Chips — hidden in text/photo/insert tabs */}
+      {selectedCategory !== 'text' && selectedCategory !== 'photo' && selectedCategory !== 'insert' && (
         <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-none mb-3">
           {categories.map((cat) => (
             <button
@@ -203,14 +201,10 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
                           name: 'ドーム内推し写真',
                           category: 'insert',
                           layer: 'insert',
-                          x: 50,
-                          y: 37.7,
-                          scale: 1.2,
-                          rotation: 0,
+                          ...INSERT_DEFAULTS,
                           type: 'photo',
                           imageUrl: url,
                           imageShape: 'circle',
-                          opacity: 1,
                         });
                       };
                       reader.readAsDataURL(file);
@@ -231,15 +225,11 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
                       name: item.name,
                       category: 'insert',
                       layer: 'insert',
-                      x: 50,
-                      y: 37.7,
-                      scale: 1.2,
-                      rotation: 0,
+                      ...INSERT_DEFAULTS,
                       type: '3d-png',
                       imageUrl: item.imageUrl,
                       svgKey: item.key,
                       cssFilter: item.cssFilter,
-                      opacity: 1,
                     })}
                     className="flex flex-col items-center gap-1 p-2 rounded-xl border border-pink-100 bg-white hover:bg-pink-50 hover:border-pink-300 transition active:scale-95"
                   >
@@ -251,18 +241,6 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
             </div>
           )}
 
-          {/* Handle Specific Guide */}
-          {selectedCategory === 'handle' && (
-            <div className="bg-gradient-to-r from-pink-50 to-rose-50 p-3 rounded-2xl border border-pink-100 mb-3 space-y-1">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-pink-600">
-                <Heart className="w-3.5 h-3.5 fill-pink-500 text-pink-500" />
-                持ち手アクセサリー
-              </div>
-              <p className="text-[11px] text-slate-500 leading-tight">
-                持ち手に結ぶリボンやチャームです。ガラス反射の前面に美しく重ねられます♡
-              </p>
-            </div>
-          )}
 
           {/* Popular Parts (人気のパーツ) — shown first */}
           {selectedCategory === 'all' && (
@@ -288,94 +266,39 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
             </div>
           )}
 
-          {/* My Parts Section */}
-          {selectedCategory === 'mypart' && (
-            <div className="space-y-3">
-              <button
-                onClick={onOpenPhotoPartCreator}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-gradient-to-r from-pink-400 to-rose-400 text-white font-bold text-xs shadow-xs active:scale-95 transition"
-              >
-                <Camera className="w-4 h-4" />
-                ＋ 写真からパーツを作る
-              </button>
-              {myParts.length === 0 ? (
-                <div className="text-center py-8 text-slate-400 text-xs">
-                  <p className="font-bold mb-1">まだマイパーツがありません</p>
-                  <p>上のボタンから写真を切り抜いて<br />オリジナルパーツを作ろう♡</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-3 gap-2">
-                  {myParts.map((part) => (
-                    <div key={part.id} className="relative">
-                      <button
-                        onPointerDown={() => {
-                          longPressTimer.current = setTimeout(() => {
-                            setLongPressId(part.id);
-                          }, 600);
-                        }}
-                        onPointerUp={() => {
-                          if (longPressTimer.current) {
-                            clearTimeout(longPressTimer.current);
-                            longPressTimer.current = null;
-                          }
-                        }}
-                        onPointerLeave={() => {
-                          if (longPressTimer.current) {
-                            clearTimeout(longPressTimer.current);
-                            longPressTimer.current = null;
-                          }
-                        }}
-                        onClick={() => {
-                          if (longPressId) { setLongPressId(null); return; }
-                          onAddSticker({
-                            name: part.name,
-                            category: 'mypart',
-                            layer: 'sticker',
-                            x: 50 + (Math.random() * 6 - 3),
-                            y: 42 + (Math.random() * 6 - 3),
-                            scale: 0.85,
-                            rotation: 0,
-                            type: 'photo',
-                            imageUrl: part.dataUrl,
-                            opacity: 1,
-                            myPartId: part.id,
-                          });
-                        }}
-                        className="w-full aspect-square rounded-xl border border-pink-100 hover:border-pink-300 overflow-hidden flex items-center justify-center transition hover:scale-105 active:scale-95"
-                        style={{
-                          backgroundImage: 'linear-gradient(45deg,#e5e7eb 25%,transparent 25%),linear-gradient(-45deg,#e5e7eb 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e5e7eb 75%),linear-gradient(-45deg,transparent 75%,#e5e7eb 75%)',
-                          backgroundSize: '12px 12px',
-                          backgroundPosition: '0 0,0 6px,6px -6px,-6px 0',
-                        }}
-                      >
-                        <img src={part.dataUrl} alt={part.name} className="w-full h-full object-contain p-1" />
-                      </button>
-                      {longPressId === part.id && (
-                        <div className="absolute inset-0 rounded-xl bg-black/60 flex flex-col items-center justify-center gap-1 z-10">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); onDeleteMyPart?.(part.id); setLongPressId(null); }}
-                            className="flex items-center gap-1 px-3 py-1.5 bg-rose-500 text-white text-xs font-bold rounded-xl"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                            削除
-                          </button>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); setLongPressId(null); }}
-                            className="text-white/70 text-[10px]"
-                          >
-                            キャンセル
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+          {/* Ribbon Section */}
+          {selectedCategory === 'ribbon' && (
+            <div className="grid grid-cols-2 gap-3 min-h-[280px] content-start">
+              {handleItems.map((item) => (
+                <button
+                  key={item.key}
+                  title={item.name.replace('（持ち手用）', '')}
+                  onClick={() => onAddSticker({
+                    name: item.name,
+                    category: item.category as any,
+                    layer: 'handle',
+                    x: 50,
+                    y: 62,
+                    scale: item.defaultScale || 1.0,
+                    rotation: 0,
+                    type: item.is3d ? '3d-png' : 'preset',
+                    imageUrl: item.imagePath,
+                    svgKey: item.key,
+                    opacity: 1,
+                  })}
+                  className="group relative aspect-square p-2 rounded-2xl border-2 border-slate-100 hover:border-pink-300 bg-white hover:bg-pink-50/40 transition-all active:scale-95 flex items-center justify-center overflow-hidden"
+                >
+                  <img src={item.imagePath} alt={item.name} className="w-full h-full object-contain transition-transform group-hover:scale-105" />
+                  <span className="absolute bottom-0 left-0 right-0 text-center text-[10px] font-bold text-white bg-black/40 py-1 rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity">
+                    {item.name.replace('（持ち手用）', '')}
+                  </span>
+                </button>
+              ))}
             </div>
           )}
 
           {/* Full sticker list */}
-          {selectedCategory !== 'mypart' && (
+          {selectedCategory !== 'ribbon' && (
           <div className={selectedCategory === 'all' ? 'pt-2 border-t border-pink-50' : ''}>
             {selectedCategory === 'all' && (
               <h4 className="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1">
@@ -383,7 +306,7 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
                 パーツ一覧
               </h4>
             )}
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-4 gap-2 min-h-[280px] content-start">
               {filteredStickers.map((item) => (
                 <button
                   key={item.key}
@@ -556,46 +479,19 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
               好きな写真をアップロード
             </h4>
             <p className="text-[11px] text-slate-500">
-              好きな写真をペンライトのドーム内に入れたり、ステッカーとして飾れます♡
+              好きな写真をペンライトに飾ってね♡
             </p>
 
-            <div className="grid grid-cols-2 gap-2 pt-1">
-              <label className="cursor-pointer py-2 px-3 bg-white hover:bg-pink-50 border border-pink-200 text-pink-600 rounded-xl font-bold flex flex-col items-center justify-center gap-1 shadow-xs transition hover:scale-102">
-                <ImageIcon className="w-4 h-4" />
-                <span>ステッカーにする</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleFileUpload(e, false)}
-                  className="hidden"
-                />
-              </label>
-
-              {onSetInsidePhoto && (
-                <label className="cursor-pointer py-2 px-3 bg-gradient-to-r from-pink-400 to-rose-400 hover:from-pink-500 hover:to-rose-500 text-white rounded-xl font-bold flex flex-col items-center justify-center gap-1 shadow-xs transition hover:scale-102">
-                  <Heart className="w-4 h-4 fill-white" />
-                  <span>ドーム内に入れる</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleFileUpload(e, true)}
-                    className="hidden"
-                  />
-                </label>
-              )}
-            </div>
-
-            {insidePhotoUrl && (
-              <div className="flex items-center justify-between pt-1">
-                <span className="text-[10px] text-pink-600 font-bold">✓ ドーム内写真設定中</span>
-                <button
-                  onClick={() => onSetInsidePhoto && onSetInsidePhoto(null)}
-                  className="text-[10px] text-slate-400 hover:text-rose-500 underline"
-                >
-                  解除する
-                </button>
-              </div>
-            )}
+            <label className="cursor-pointer py-2 px-3 bg-white hover:bg-pink-50 border border-pink-200 text-pink-600 rounded-xl font-bold flex items-center justify-center gap-2 shadow-xs transition hover:scale-102">
+              <ImageIcon className="w-4 h-4" />
+              <span>ステッカーにする</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileUpload(e, false)}
+                className="hidden"
+              />
+            </label>
           </div>
 
         </div>

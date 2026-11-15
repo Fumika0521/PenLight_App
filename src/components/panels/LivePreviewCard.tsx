@@ -83,7 +83,10 @@ export const LivePreviewCard: React.FC<LivePreviewCardProps> = ({
         <div className="relative w-[180px] h-[280px] pointer-events-none select-none">
           {/* Base */}
           <div className="absolute inset-0">
-            <PenlightBase config={config} />
+            <PenlightBase
+              config={config}
+              showEmptyGlass={!stickers.some(s => s.category === 'insert' || s.layer === 'insert')}
+            />
           </div>
 
           {/* Stickers */}

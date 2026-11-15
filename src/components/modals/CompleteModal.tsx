@@ -79,7 +79,7 @@ export const CompleteModal: React.FC<CompleteModalProps> = ({
           className="absolute inset-0 w-full h-full pointer-events-none z-10"
         />
       )}
-      <div className="relative z-20 w-full max-w-sm bg-gradient-to-b from-[#fff5f8] via-white to-[#f0f7ff] rounded-3xl shadow-2xl border border-pink-200 overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="relative z-20 w-full max-w-sm bg-gradient-to-b from-[#FFF7FA] via-white to-[#f0f7ff] rounded-3xl shadow-2xl border border-pink-200 overflow-hidden flex flex-col max-h-[92vh]">
         {/* Close Button */}
         <button
           onClick={onClose}

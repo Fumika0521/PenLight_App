@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { SavedProject } from '../../types';
 import { PenlightBase } from '../penlight/PenlightBase';
-import { X, FolderHeart, Trash2, ArrowUpRight, Sparkles, Pencil, Check } from 'lucide-react';
+import { X, FolderHeart, Trash2, Sparkles, Pencil, Check } from 'lucide-react';
 
 interface GalleryModalProps {
   isOpen: boolean;
@@ -24,6 +24,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
 }) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -41,7 +42,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
   };
 
   const inner = (
-    <div className={inline ? 'h-full w-full bg-white flex flex-col' : 'w-full max-w-lg bg-white rounded-3xl shadow-cute-lg border border-pink-100 overflow-hidden flex flex-col max-h-[85vh]'}>
+    <div className={inline ? 'relative h-full w-full bg-white flex flex-col' : 'relative w-full max-w-lg bg-white rounded-3xl shadow-cute-lg border border-pink-100 overflow-hidden flex flex-col max-h-[85vh]'}>
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-3.5 border-b border-pink-100 bg-gradient-to-r from-pink-50/60 via-white to-purple-50/60 shrink-0">
         <div className="flex items-center gap-2">
@@ -76,15 +77,13 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                 {/* Penlight preview */}
                 <div
                   onClick={() => { onLoadProject(p); onClose(); }}
-                  className="aspect-[3/4] bg-white rounded-xl border border-pink-100 overflow-hidden cursor-pointer mb-2 relative"
+                  className="aspect-[3/4] rounded-xl overflow-hidden cursor-pointer mb-2 relative"
                 >
                   <div className="w-full h-full pointer-events-none">
-                    <PenlightBase config={p.config} />
-                  </div>
-                  <div className="absolute inset-0 bg-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="bg-white/90 text-pink-600 font-bold text-[10px] px-2 py-1 rounded-full shadow-xs flex items-center gap-0.5">
-                      開く <ArrowUpRight className="w-3 h-3" />
-                    </span>
+                    <PenlightBase
+                      config={p.config}
+                      showEmptyGlass={!p.stickers.some(s => s.category === 'insert' || s.layer === 'insert')}
+                    />
                   </div>
                 </div>
 
@@ -109,7 +108,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                         {p.name}
                       </h4>
                     )}
-                    <p className="text-[10px] text-slate-400 mt-0.5">{p.date}</p>
+                    <p className="text-[10px] text-slate-600 mt-0.5">{p.date}</p>
                   </div>
                   <div className="flex items-center gap-0.5 shrink-0">
                     {editingId === p.id ? (
@@ -122,20 +121,15 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                     ) : (
                       <button
                         onClick={() => startEdit(p)}
-                        className="p-1 rounded-lg text-slate-300 hover:text-pink-400 hover:bg-pink-50 transition"
+                        className="p-1 rounded-lg text-slate-600 hover:text-pink-500 hover:bg-pink-50 transition"
                         title="名前を変更"
                       >
                         <Pencil className="w-3 h-3" />
                       </button>
                     )}
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (confirm(`「${p.name}」を削除しますか？`)) {
-                          onDeleteProject(p.id);
-                        }
-                      }}
-                      className="p-1 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition"
+                      onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(p.id); }}
+                      className="p-1 rounded-lg text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition"
                       title="削除"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -147,6 +141,35 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
           </div>
         )}
       </div>
+
+      {/* In-app delete confirmation dialog */}
+      {deleteConfirmId && (() => {
+        const proj = savedProjects.find(p => p.id === deleteConfirmId);
+        return (
+          <div className="absolute inset-0 z-[60] flex items-center justify-center bg-slate-900/30 backdrop-blur-sm rounded-3xl">
+            <div className="bg-white rounded-3xl shadow-cute-lg border border-pink-100 p-6 mx-4 max-w-xs w-full">
+              <p className="font-extrabold text-sm text-slate-800 text-center mb-1">デザインを削除</p>
+              <p className="text-xs text-slate-500 text-center mb-5">
+                「{proj?.name}」を削除しますか？<br />この操作は元に戻せません
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeleteConfirmId(null)}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition"
+                >
+                  キャンセル
+                </button>
+                <button
+                  onClick={() => { onDeleteProject(deleteConfirmId); setDeleteConfirmId(null); }}
+                  className="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold transition"
+                >
+                  削除
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Footer — only for non-inline */}
       {!inline && (

@@ -1,11 +1,11 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { StickerItem, PenlightConfig } from '../../types';
-import { PenlightBase, HEAD_SCALE } from '../penlight/PenlightBase';
+import { PenlightBase, HEAD_SCALE, HEAD_ORIGIN } from '../penlight/PenlightBase';
 import { myPartFilterStyle } from '../modals/PhotoPartCreatorModal';
 
 // ヘッドスケール後のドーム位置
 // p-2パディング + H≈564pxのとき、スケール後もドーム中心はcanvas33.4%のまま維持される
-const HEAD_ORIGIN = '50% 45%';
+// HEAD_ORIGIN は PenlightBase.tsx からインポートして共有
 const DOME_Y = 33.4;  // canvas座標でのドーム中心Y（スケール前後で不変）
 const DOME_R = 13.3;  // glass inner radius in canvas coords
 const INSERT_OFFSET_Y = -4;  // insert縦位置オフセット（%、マイナスで上に移動）
@@ -20,8 +20,8 @@ const PENLIGHT_BASE_IMAGES: Record<string, string> = {
 // Masks that show only the collar/handle area (below the dome head).
 // Values match PenlightBase.tsx headCutoff/headFade per base type.
 const COLLAR_MASK: Record<string, string> = {
-  classic: 'linear-gradient(to bottom, transparent 0%, transparent 43%, black 46%)',
-  heart2:  'linear-gradient(to bottom, transparent 0%, transparent 43%, black 46%)',
+  classic: 'linear-gradient(to bottom, transparent 0%, transparent 43.8%, black 44.1%)',
+  heart2:  'linear-gradient(to bottom, transparent 0%, transparent 43.8%, black 44.1%)',
   panel:   'linear-gradient(to bottom, transparent 0%, transparent 45%, black 48%)',
   wand:    'linear-gradient(to bottom, transparent 0%, transparent 38%, black 42%)',
 };
@@ -65,6 +65,7 @@ interface InteractiveCanvasProps {
   canRedo?: boolean;
   canvasRef?: React.RefObject<HTMLDivElement>;
   isConcertMode?: boolean;
+  panelOpen?: boolean;
 }
 
 export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
@@ -83,9 +84,42 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
   canRedo = false,
   canvasRef: externalCanvasRef,
   isConcertMode = false,
+  panelOpen = false,
 }) => {
   const internalCanvasRef = useRef<HTMLDivElement>(null);
   const containerRef = externalCanvasRef || internalCanvasRef;
+
+  // Measured canvas W/H → compute the same boundary% as PenlightBase does internally
+  const [canvasAspect, setCanvasAspect] = useState<number | null>(null);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      if (height > 0) setCanvasAspect(width / height);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  // containerRef is stable (ref object); exhaustive-deps lint warning is intentional here
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Recompute collar mask when canvas size changes
+  const collarCutoff = (() => {
+    if (canvasAspect !== null) {
+      const topOffset = canvasAspect < 1 ? (1 - canvasAspect) / 2 : 0;
+      const pct = (topOffset + (408 / 1024) * Math.min(canvasAspect, 1)) * 100;
+      return { pct: pct.toFixed(1), fade: (pct + 0.3).toFixed(1), originY: (pct + 0.15).toFixed(2) };
+    }
+    return { pct: '43.8', fade: '44.1', originY: '43.95' }; // fallback until measured
+  })();
+  const classicCollarMask = `linear-gradient(to bottom, transparent 0%, transparent ${collarCutoff.pct}%, black ${collarCutoff.fade}%)`;
+  const dynamicCollarMask: Record<string, string> = {
+    ...COLLAR_MASK,
+    classic: classicCollarMask,
+    heart2:  classicCollarMask,
+  };
+  const dynamicHeadOrigin = `50% ${collarCutoff.originY}%`;
 
   const [zoom, setZoom] = useState<number>(1);
   const [activeDrag, setActiveDrag] = useState<{
@@ -287,7 +321,9 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                 <Copy className="w-4 h-4 text-blue-500" />
               </button>
               <button
-                onClick={() => onDeleteSticker(selectedId)}
+                onClick={() => {
+                  if (confirm('選択中のパーツを削除しますか？')) onDeleteSticker(selectedId);
+                }}
                 className="p-1.5 rounded-full hover:bg-rose-50 text-rose-500 active:scale-95 transition"
                 title="削除"
               >
@@ -326,10 +362,12 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
         )}
 
         {/* 1. Base 3D Penlight — z-0: glass dome visual behind everything */}
-        <div className="absolute inset-0 flex items-center justify-center p-2 sm:p-3 pointer-events-none z-0">
-          <div className="w-[340px] h-[510px] sm:w-[390px] sm:h-[570px] md:w-[430px] md:h-[620px]">
-            <PenlightBase config={config} showGloss={false} />
-          </div>
+        <div className="absolute inset-0 pointer-events-none z-0">
+          <PenlightBase
+            config={config}
+            showGloss={false}
+            showEmptyGlass={!stickers.some(s => s.category === 'insert' || s.layer === 'insert')}
+          />
         </div>
 
         {/* 2. Dome Radial Glow — z-[5]: inside glass, behind insert */}
@@ -339,7 +377,9 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
             style={{
               clipPath: `circle(${DOME_R}% at 50% ${DOME_Y}%)`,
               WebkitClipPath: `circle(${DOME_R}% at 50% ${DOME_Y}%)`,
-              background: `radial-gradient(circle at 50% ${DOME_Y}%, ${config.glowColor}40 0%, ${config.glowColor}18 60%, transparent 88%)`,
+              background: config.glowColor === '#F4F8FF'
+                ? `radial-gradient(circle at 50% ${DOME_Y}%, rgba(255,255,255,0.6) 0%, rgba(220,235,255,0.25) 60%, transparent 88%)`
+                : `radial-gradient(circle at 50% ${DOME_Y}%, ${config.glowColor}40 0%, ${config.glowColor}18 60%, transparent 88%)`,
             }}
           />
         )}
@@ -357,7 +397,6 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
             .map((sticker) => {
               const isSelected = sticker.id === selectedId;
               const wPct = 31 * sticker.scale;
-              const hPct = 21 * sticker.scale;
 
               return (
                 <div
@@ -371,7 +410,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                     left: `${sticker.x}%`,
                     top: `${sticker.y + INSERT_OFFSET_Y}%`,
                     width: `${wPct}%`,
-                    height: `${hPct}%`,
+                    aspectRatio: '304 / 260',
                     transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) ${
                       sticker.flipX ? 'scaleX(-1)' : ''
                     }`,
@@ -385,7 +424,10 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                         src={sticker.imageUrl}
                         alt={sticker.svgKey || ''}
                         className="w-full h-full object-contain pointer-events-none select-none"
-                        style={{ filter: sticker.cssFilter || undefined }}
+                        style={{
+                          filter: sticker.cssFilter || undefined,
+                          clipPath: 'ellipse(48% 56% at 50% 49%)',
+                        }}
                       />
                     )}
 
@@ -441,34 +483,30 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
 
         {/* 4. Collar Overlay — z-[20]: penlight body image masked to collar/handle area only,
             covers any insert image that bleeds below the dome circle boundary */}
-        <div className="absolute inset-0 flex items-center justify-center p-2 sm:p-3 pointer-events-none z-[20]">
-          <div className="w-[340px] h-[510px] sm:w-[390px] sm:h-[570px] md:w-[430px] md:h-[620px]">
-            <img
-              src={PENLIGHT_BASE_IMAGES[config.baseType] || PENLIGHT_BASE_IMAGES.classic}
-              alt=""
-              className="w-full h-full object-contain pointer-events-none select-none"
-              style={{
-                WebkitMaskImage: COLLAR_MASK[config.baseType] || COLLAR_MASK.classic,
-                maskImage: COLLAR_MASK[config.baseType] || COLLAR_MASK.classic,
-              }}
-            />
-          </div>
+        <div className="absolute inset-0 pointer-events-none z-[20]">
+          <img
+            src={PENLIGHT_BASE_IMAGES[config.baseType] || PENLIGHT_BASE_IMAGES.classic}
+            alt=""
+            className="w-full h-full object-contain pointer-events-none select-none"
+            style={{
+              WebkitMaskImage: dynamicCollarMask[config.baseType] || dynamicCollarMask.classic,
+              maskImage: dynamicCollarMask[config.baseType] || dynamicCollarMask.classic,
+            }}
+          />
         </div>
 
         {/* 5. Glass Reflection Layer — z-[25]: dome gloss on top of insert */}
         {config.baseType === 'classic' && (
-          <div className="absolute inset-0 flex items-center justify-center p-2 sm:p-3 pointer-events-none z-[25]">
-            <div className="w-[340px] h-[510px] sm:w-[390px] sm:h-[570px] md:w-[430px] md:h-[620px]">
-              <img
-                src="/assets/hires/dome_gloss.png"
-                alt="Glass Dome Gloss"
-                className="w-full h-full object-contain pointer-events-none select-none drop-shadow-[0_4px_12px_rgba(255,255,255,0.4)]"
-                style={{
-                  transform: `scale(${HEAD_SCALE})`,
-                  transformOrigin: HEAD_ORIGIN,
-                }}
-              />
-            </div>
+          <div className="absolute inset-0 pointer-events-none z-[25]">
+            <img
+              src="/assets/hires/dome_gloss.png"
+              alt="Glass Dome Gloss"
+              className="w-full h-full object-contain pointer-events-none select-none drop-shadow-[0_4px_12px_rgba(255,255,255,0.4)]"
+              style={{
+                transform: `scale(${HEAD_SCALE})`,
+                transformOrigin: dynamicHeadOrigin,
+              }}
+            />
           </div>
         )}
 
@@ -568,7 +606,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
           const isHandle = sticker.category === 'handle' || sticker.layer === 'handle';
 
           const sizeStyle = isInsert
-            ? { width: `${31 * sticker.scale}%`, height: `${21 * sticker.scale}%` }
+            ? { width: `${31 * sticker.scale}%`, aspectRatio: '304 / 260' }
             : { width: `${(isHandle ? 88 : 72) * sticker.scale}px`, height: `${(isHandle ? 88 : 72) * sticker.scale}px` };
 
           return (
@@ -615,7 +653,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onDeleteSticker(sticker.id);
+                    if (confirm('選択中のパーツを削除しますか？')) onDeleteSticker(sticker.id);
                   }}
                   className="absolute -top-3 -right-3 w-5 h-5 bg-rose-500 text-white rounded-full shadow flex items-center justify-center hover:scale-110 transition font-bold text-xs"
                   title="削除"
@@ -628,10 +666,10 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
         })()}
       </div>
 
-      {/* Bottom Floating Zoom Controls */}
-      <div className="absolute bottom-3 right-4 z-30 flex items-center gap-2 px-3.5 py-2 bg-white/95 backdrop-blur-md border border-pink-100 rounded-full shadow-cute text-sm text-slate-600">
+      {/* Bottom Floating Zoom Controls — hidden when any panel is open */}
+      {!panelOpen && <div className="absolute bottom-3 right-4 z-30 flex items-center gap-2 px-3.5 py-2 bg-white/95 backdrop-blur-md border border-pink-100 rounded-full shadow-cute text-sm text-slate-600">
         <button
-          onClick={() => setZoom((prev) => Math.max(0.7, prev - 0.1))}
+          onClick={() => setZoom((prev) => Math.max(1.0, prev - 0.1))}
           className="p-2.5 rounded-full hover:bg-pink-50 hover:text-pink-600 transition"
           title="縮小"
         >
@@ -651,7 +689,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
         >
           <ZoomIn className="w-6 h-6" />
         </button>
-      </div>
+      </div>}
     </div>
   );
 };

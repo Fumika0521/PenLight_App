@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MENU_COLORS, menuActiveBg, APP_BG_CLASS } from '../../lib/uiConstants';
 import {
   PenlightConfig,
   StickerItem,
@@ -97,7 +98,7 @@ export const DesktopAppView: React.FC<DesktopAppViewProps> = ({
   const selectedSticker = stickers.find((s) => s.id === selectedId) || null;
 
   return (
-    <div className="flex w-full h-[calc(100vh-68px)] min-h-[640px] bg-pink-50/20 overflow-hidden select-none">
+    <div className={`flex w-full h-[calc(100vh-68px)] min-h-[640px] ${APP_BG_CLASS} overflow-hidden select-none`}>
       {/* 1. Leftmost Navigation Sidebar */}
       <aside className="w-48 bg-white border-r border-pink-100 flex flex-col justify-between p-3.5 shrink-0 z-20">
         <div>
@@ -129,83 +130,33 @@ export const DesktopAppView: React.FC<DesktopAppViewProps> = ({
             <div className="h-[1px] bg-pink-100 my-2" />
 
             {/* Editing Category Selectors */}
-            <button
-              onClick={() => setActiveNav('insert')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold transition ${
-                activeNav === 'insert'
-                  ? 'bg-gradient-to-r from-pink-400 to-rose-400 text-white shadow-xs'
-                  : 'text-slate-600 hover:bg-pink-50'
-              }`}
-            >
-              <CircleDot className={`w-4 h-4 ${activeNav === 'insert' ? 'text-white' : 'text-pink-500'}`} />
-              中身
-            </button>
-
-            <button
-              onClick={() => setActiveNav('handle')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold transition ${
-                activeNav === 'handle'
-                  ? 'bg-gradient-to-r from-pink-400 to-rose-400 text-white shadow-xs'
-                  : 'text-slate-600 hover:bg-pink-50'
-              }`}
-            >
-              <Gift className={`w-4 h-4 ${activeNav === 'handle' ? 'text-white' : 'text-rose-500'}`} />
-              持ち手アクセ
-            </button>
-
-            <button
-              onClick={() => setActiveNav('parts')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold transition ${
-                activeNav === 'parts'
-                  ? 'bg-pink-100 text-pink-600 shadow-xs'
-                  : 'text-slate-600 hover:bg-pink-50'
-              }`}
-            >
-              <Sparkles className="w-4 h-4 text-pink-500" />
-              パーツ
-            </button>
-
-            <button
-              onClick={() => setActiveNav('rhinestone')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold transition ${
-                activeNav === 'rhinestone'
-                  ? 'bg-pink-100 text-pink-600 shadow-xs'
-                  : 'text-slate-600 hover:bg-pink-50'
-              }`}
-            >
-              <Heart className="w-4 h-4 text-rose-500" />
-              ラインストーン
-            </button>
-
-            <button
-              onClick={() => setActiveNav('text')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold transition ${
-                activeNav === 'text'
-                  ? 'bg-pink-100 text-pink-600 shadow-xs'
-                  : 'text-slate-600 hover:bg-pink-50'
-              }`}
-            >
-              <Type className="w-4 h-4 text-amber-500" />
-              文字
-            </button>
-
-            <button
-              onClick={() => setActiveNav('photo')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold transition ${
-                activeNav === 'photo'
-                  ? 'bg-pink-100 text-pink-600 shadow-xs'
-                  : 'text-slate-600 hover:bg-pink-50'
-              }`}
-            >
-              <ImageIcon className="w-4 h-4 text-blue-500" />
-              写真
-            </button>
+            {([
+              { key: 'insert',  Icon: CircleDot, label: '中身' },
+              { key: 'ribbon',  Icon: Gift,      label: 'リボン' },
+              { key: 'parts',   Icon: Sparkles,  label: 'パーツ' },
+              { key: 'rhinestone', Icon: Heart,     label: 'ラインストーン' },
+              { key: 'text',       Icon: Type,      label: '文字' },
+              { key: 'photo',      Icon: ImageIcon, label: '写真' },
+            ] as const).map(({ key, Icon, label }) => (
+              <button
+                key={key}
+                onClick={() => setActiveNav(key)}
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold transition"
+                style={activeNav === key
+                  ? { color: MENU_COLORS[key], backgroundColor: menuActiveBg(MENU_COLORS[key]) }
+                  : { color: MENU_COLORS[key] }}
+              >
+                <Icon className="w-4 h-4" />
+                {label}
+              </button>
+            ))}
 
             <button
               onClick={() => setIsColorModalOpen(true)}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:bg-pink-50 hover:text-blue-500 font-bold transition"
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold transition"
+              style={{ color: MENU_COLORS.color }}
             >
-              <Palette className="w-4 h-4 text-sky-500" />
+              <Palette className="w-4 h-4" />
               カラー設定
             </button>
 

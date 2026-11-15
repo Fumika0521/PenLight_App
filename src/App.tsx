@@ -6,6 +6,8 @@ import {
   MyPart
 } from './types';
 import { getAllMyParts, deleteMyPart } from './lib/myPartsDB';
+import { INSERT_DEFAULTS } from './lib/insertDefaults';
+import { APP_BG_CLASS } from './lib/uiConstants';
 import { DesktopAppView } from './components/desktop/DesktopAppView';
 import { MobileAppView } from './components/mobile/MobileAppView';
 import { toPng } from 'html-to-image';
@@ -172,12 +174,43 @@ export const App: React.FC = () => {
   const [myParts, setMyParts] = useState<MyPart[]>([]);
 
   const canvasRef = useRef<HTMLDivElement>(null);
+  const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMountedRef = useRef(false);
+
+  // Draft prompt: set on init if a saved draft with stickers exists
+  const [draftPrompt, setDraftPrompt] = useState<{ config: PenlightConfig; stickers: StickerItem[] } | null>(() => {
+    try {
+      const stored = localStorage.getItem('lightdeco_draft_v1');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed?.stickers?.length > 0) return parsed;
+      }
+    } catch { /* ignore */ }
+    return null;
+  });
 
   useEffect(() => {
     if (window.innerWidth < 768) {
       setViewMode('mobile');
     }
   }, []);
+
+  // Auto-save draft 2 seconds after any change (skip initial mount)
+  useEffect(() => {
+    if (!isMountedRef.current) {
+      isMountedRef.current = true;
+      return;
+    }
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    draftTimerRef.current = setTimeout(() => {
+      try {
+        localStorage.setItem('lightdeco_draft_v1', JSON.stringify({ config, stickers }));
+      } catch { /* ignore */ }
+    }, 2000);
+    return () => {
+      if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    };
+  }, [config, stickers]);
 
   useEffect(() => {
     getAllMyParts().then(setMyParts).catch(console.error);
@@ -232,13 +265,18 @@ export const App: React.FC = () => {
   };
 
   const handleAddSticker = (newSticker: Omit<StickerItem, 'id' | 'zIndex'>) => {
-    const maxZ = stickers.length > 0 ? Math.max(...stickers.map((s) => s.zIndex)) : 10;
+    // Replace existing insert when adding a new one (dome accepts only 1 insert)
+    const isInsert = newSticker.layer === 'insert' || newSticker.category === 'insert';
+    const base = isInsert
+      ? stickers.filter((s) => s.layer !== 'insert' && s.category !== 'insert')
+      : stickers;
+    const maxZ = base.length > 0 ? Math.max(...base.map((s) => s.zIndex)) : 10;
     const item: StickerItem = {
       ...newSticker,
       id: `sticker-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
       zIndex: maxZ + 1,
     };
-    const updated = [...stickers, item];
+    const updated = [...base, item];
     setStickers(updated);
     setSelectedId(item.id);
     pushHistory(config, updated);
@@ -310,19 +348,27 @@ export const App: React.FC = () => {
     const updated = [newProject, ...savedProjects];
     setSavedProjects(updated);
     localStorage.setItem('lightdeco_saved_projects_v3', JSON.stringify(updated));
+    // Clear draft when explicitly saved
+    localStorage.removeItem('lightdeco_draft_v1');
   };
 
   const handleLoadProject = (project: SavedProject) => {
     setConfig({ ...project.config });
     // Migrate insert stickers to current dome-center position/scale
-    const migratedStickers = project.stickers.map((s) =>
+    const migrated = project.stickers.map((s) =>
       (s.category === 'insert' || s.layer === 'insert')
-        ? { ...s, y: 37.7, scale: 1.2 }
+        ? { ...s, x: INSERT_DEFAULTS.x, y: INSERT_DEFAULTS.y, scale: INSERT_DEFAULTS.scale }
         : s
     );
-    setStickers(migratedStickers);
+    // Deduplicate: keep only the last insert sticker
+    const inserts = migrated.filter((s) => s.category === 'insert' || s.layer === 'insert');
+    const nonInserts = migrated.filter((s) => s.category !== 'insert' && s.layer !== 'insert');
+    const finalStickers = inserts.length > 1
+      ? [...nonInserts, inserts[inserts.length - 1]]
+      : migrated;
+    setStickers(finalStickers);
     setSelectedId(null);
-    pushHistory(project.config, migratedStickers);
+    pushHistory(project.config, finalStickers);
   };
 
   const handleDeleteProject = (id: string) => {
@@ -345,7 +391,7 @@ export const App: React.FC = () => {
   };
 
   const handleClearAllDecorations = () => {
-    if (confirm('配置したすべてのデコレーションを消去して、まっさらなペンライトにしますか？')) {
+    if (confirm('すべてのパーツを削除しますか？\nこの操作は元に戻せません。')) {
       setStickers([]);
       setConfig(prev => ({ ...prev, insidePhotoUrl: null }));
       setSelectedId(null);
@@ -391,8 +437,47 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleLoadDraft = (draft: { config: PenlightConfig; stickers: StickerItem[] }) => {
+    const migrated = draft.stickers.map((s) =>
+      (s.category === 'insert' || s.layer === 'insert')
+        ? { ...s, x: INSERT_DEFAULTS.x, y: INSERT_DEFAULTS.y, scale: INSERT_DEFAULTS.scale }
+        : s
+    );
+    const inserts = migrated.filter((s) => s.category === 'insert' || s.layer === 'insert');
+    const nonInserts = migrated.filter((s) => s.category !== 'insert' && s.layer !== 'insert');
+    const finalStickers = inserts.length > 1 ? [...nonInserts, inserts[inserts.length - 1]] : migrated;
+    setConfig(draft.config);
+    setStickers(finalStickers);
+    setSelectedId(null);
+    pushHistory(draft.config, finalStickers);
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#fcf9fb] text-slate-700">
+    <div className={`min-h-screen flex flex-col ${APP_BG_CLASS} text-slate-700`}>
+      {/* Draft resume prompt */}
+      {draftPrompt && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl p-7 mx-4 max-w-sm w-full shadow-2xl text-center">
+            <div className="text-3xl mb-3">✨</div>
+            <h3 className="font-extrabold text-lg text-slate-800 mb-1.5">前回の続きがあります</h3>
+            <p className="text-sm text-slate-500 mb-6">前回の作業を続けますか？</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => { handleLoadDraft(draftPrompt); setDraftPrompt(null); }}
+                className="flex-1 py-3 bg-gradient-to-r from-pink-400 to-rose-400 text-white font-extrabold rounded-full shadow-cute transition active:scale-95"
+              >
+                続きから
+              </button>
+              <button
+                onClick={() => { localStorage.removeItem('lightdeco_draft_v1'); setDraftPrompt(null); }}
+                className="flex-1 py-3 border border-slate-200 text-slate-600 font-bold rounded-full transition hover:bg-slate-50 active:scale-95"
+              >
+                新しく作る
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Top Header */}
       <header className="h-[68px] bg-white/95 backdrop-blur-md border-b border-pink-100 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-40 shadow-xs">
         {/* Left Title Logo */}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { PenlightConfig } from '../../types';
 import { PenlightBase } from '../penlight/PenlightBase';
-import { X, Check, Palette, Sparkles, Sun } from 'lucide-react';
+import { X, Check, Sparkles, Sun } from 'lucide-react';
 
 interface ColorCustomizationModalProps {
   isOpen: boolean;
@@ -23,16 +23,14 @@ const COVER_COLORS = [
 ];
 
 const GLOW_COLORS = [
-  { name: 'ストロベリーピンク', hex: '#ff4b72' },
-  { name: 'チェリーピンク', hex: '#ff6584' },
-  { name: 'スカイブルー', hex: '#38bdf8' },
-  { name: 'サイバーブルー', hex: '#0284c7' },
-  { name: 'ラベンダーパープル', hex: '#a855f7' },
-  { name: 'ミントグリーン', hex: '#10b981' },
-  { name: 'サンシャインイエロー', hex: '#f59e0b' },
-  { name: 'ピュアホワイト', hex: '#ffffff' },
-  { name: 'パッションレッド', hex: '#ef4444' },
-  { name: 'エメラルド', hex: '#059669' },
+  { name: '赤',      hex: '#ef4444', displayHex: '#fca5a5' },
+  { name: 'オレンジ', hex: '#f97316', displayHex: '#fed7aa' },
+  { name: '黄色',    hex: '#eab308', displayHex: '#fde68a' },
+  { name: '緑',      hex: '#10b981', displayHex: '#a7f3d0' },
+  { name: '青',      hex: '#38bdf8', displayHex: '#bae6fd' },
+  { name: '紫',      hex: '#a855f7', displayHex: '#d8b4fe' },
+  { name: 'ピンク',  hex: '#ff4b72', displayHex: '#ffb3c1' },
+  { name: '白',      hex: '#F4F8FF', displayHex: '#F4F8FF' },
 ];
 
 export const ColorCustomizationModal: React.FC<ColorCustomizationModalProps> = ({
@@ -57,8 +55,7 @@ export const ColorCustomizationModal: React.FC<ColorCustomizationModalProps> = (
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-pink-100 bg-gradient-to-r from-blue-50/50 via-white to-pink-50/50">
           <div className="flex items-center gap-2">
-            <Palette className="w-4 h-4 text-blue-500" />
-            <h3 className="font-extrabold text-slate-800 text-sm">カラー変更</h3>
+            <h3 className="font-extrabold text-slate-800 text-sm">好きな色で光らせよう♡</h3>
           </div>
           <button
             onClick={onClose}
@@ -71,20 +68,17 @@ export const ColorCustomizationModal: React.FC<ColorCustomizationModalProps> = (
         {/* Content */}
         <div className="p-4 overflow-y-auto space-y-4">
           {/* Live Mini Preview */}
-          <div className="w-36 h-48 mx-auto p-2 bg-gradient-to-b from-slate-900/5 via-pink-50/30 to-blue-50/20 rounded-2xl flex items-center justify-center border border-pink-100">
-            <PenlightBase config={tempConfig} />
+          <div className="w-36 h-48 mx-auto p-2 bg-white rounded-2xl flex items-center justify-center border border-pink-100">
+            <PenlightBase config={tempConfig} showGloss />
           </div>
 
           {/* Glow / Light Color */}
           <div>
-            <div className="flex items-center justify-between mb-1.5">
+            <div className="mb-1.5">
               <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
                 <Sun className="w-3.5 h-3.5 text-amber-500" />
                 ペンライトの発光カラー
               </label>
-              <span className="text-[10px] text-pink-500 font-bold">
-                {tempConfig.isLightOn ? '点灯中' : '消灯中'}
-              </span>
             </div>
             <div className="grid grid-cols-5 gap-1.5">
               {GLOW_COLORS.map((g) => (
@@ -93,22 +87,45 @@ export const ColorCustomizationModal: React.FC<ColorCustomizationModalProps> = (
                   onClick={() =>
                     setTempConfig((prev) => ({ ...prev, glowColor: g.hex, isLightOn: true }))
                   }
-                  className={`h-7 rounded-xl border flex items-center justify-center transition-all ${
+                  className={`h-7 rounded-xl border-2 transition-all ${
                     tempConfig.glowColor === g.hex
                       ? 'border-blue-500 scale-105 shadow-sm ring-2 ring-blue-300'
                       : 'border-slate-200 hover:scale-105'
                   }`}
-                  style={{ backgroundColor: g.hex }}
+                  style={{
+                    backgroundColor: g.displayHex,
+                    ...(g.name === '白' ? { boxShadow: 'inset 0 0 0 1px #E5E7EB' } : {}),
+                  }}
                   title={g.name}
                 />
               ))}
+              {/* Custom color picker */}
+              <label
+                className={`h-7 rounded-xl border-2 cursor-pointer overflow-hidden transition-all hover:scale-105 ${
+                  !GLOW_COLORS.some(g => g.hex === tempConfig.glowColor)
+                    ? 'border-blue-500 scale-105 ring-2 ring-blue-300'
+                    : 'border-slate-200'
+                }`}
+                style={{ background: 'conic-gradient(from 0deg, #fca5a5, #fed7aa, #fde68a, #a7f3d0, #bae6fd, #d8b4fe, #ffb3c1, #fca5a5)' }}
+                title="カスタムカラー"
+              >
+                <input
+                  type="color"
+                  className="opacity-0 w-0 h-0 absolute"
+                  value={tempConfig.glowColor}
+                  onChange={(e) =>
+                    setTempConfig((prev) => ({ ...prev, glowColor: e.target.value, isLightOn: true }))
+                  }
+                />
+              </label>
             </div>
           </div>
 
 
           {/* Glow Animation Mode */}
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1.5">
+            <label className="text-xs font-bold text-slate-700 flex items-center gap-1 mb-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
               ライトのアニメーション
             </label>
             <div className="grid grid-cols-2 gap-2 text-xs">
@@ -120,18 +137,17 @@ export const ColorCustomizationModal: React.FC<ColorCustomizationModalProps> = (
                     : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                 }`}
               >
-                通常点灯
+                ずっと光る
               </button>
               <button
                 onClick={() => setTempConfig((prev) => ({ ...prev, glowMode: 'pulse' }))}
-                className={`py-2 px-3 rounded-xl border font-bold transition flex items-center justify-center gap-1 ${
+                className={`py-2 px-3 rounded-xl border font-bold transition ${
                   tempConfig.glowMode === 'pulse'
                     ? 'border-pink-400 bg-pink-50 text-pink-600'
                     : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                 }`}
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                パルス発光
+                ふわっと光る
               </button>
             </div>
           </div>
