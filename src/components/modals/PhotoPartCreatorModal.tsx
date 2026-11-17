@@ -164,8 +164,8 @@ export const PhotoPartCreatorModal: React.FC<Props> = ({ isOpen, onClose, onPart
 
       if (shape === 'auto') {
         const { removeBackground } = await import('@imgly/background-removal');
+        // No publicPath → library uses default staticimgly.com CDN
         sourceBlob = await removeBackground(file, {
-          publicPath: 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/',
           output: { format: 'image/png', quality: 1 },
         });
         localStorage.setItem('mypart_used', '1');

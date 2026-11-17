@@ -66,6 +66,7 @@ interface InteractiveCanvasProps {
   canvasRef?: React.RefObject<HTMLDivElement>;
   isConcertMode?: boolean;
   panelOpen?: boolean;
+  onRequestDelete?: (id: string) => void;
 }
 
 export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
@@ -85,6 +86,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
   canvasRef: externalCanvasRef,
   isConcertMode = false,
   panelOpen = false,
+  onRequestDelete,
 }) => {
   const internalCanvasRef = useRef<HTMLDivElement>(null);
   const containerRef = externalCanvasRef || internalCanvasRef;
@@ -318,13 +320,11 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                 className="p-1.5 rounded-full hover:bg-pink-50 text-slate-700 active:scale-95 transition"
                 title="複製する"
               >
-                <Copy className="w-4 h-4 text-blue-500" />
+                <Copy className="w-4 h-4 text-[#F87171]" />
               </button>
               <button
-                onClick={() => {
-                  if (confirm('選択中のパーツを削除しますか？')) onDeleteSticker(selectedId);
-                }}
-                className="p-1.5 rounded-full hover:bg-rose-50 text-rose-500 active:scale-95 transition"
+                onClick={() => onRequestDelete ? onRequestDelete(selectedId) : (confirm('選択中のパーツを削除しますか？') && onDeleteSticker(selectedId))}
+                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-700 active:scale-95 transition"
                 title="削除"
               >
                 <Trash2 className="w-4 h-4" />
@@ -348,7 +348,8 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
         style={{
           transform: `scale(${zoom})`,
           transformOrigin: 'center center',
-        }}
+          containerType: 'inline-size',
+        } as React.CSSProperties}
       >
         {/* Floating Sparkles removed — keeps canvas clean for editing */}
 
@@ -458,7 +459,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                           color: sticker.textColor || '#ff6584',
                           textShadow: `0 2px 6px rgba(255, 101, 132, 0.4)`,
                           fontFamily: sticker.fontFamily || '"M PLUS Rounded 1c", sans-serif',
-                          fontSize: `${28 * sticker.scale}px`,
+                          fontSize: `${7.37 * sticker.scale}cqw`,
                           letterSpacing: '0.1em',
                         }}
                       >
@@ -517,8 +518,9 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
             .map((sticker) => {
               const isSelected = sticker.id === selectedId;
               const isHandleAcc = sticker.category === 'handle' || sticker.layer === 'handle';
-              const baseSize = isHandleAcc ? 88 : 72;
-              const itemSize = baseSize * sticker.scale;
+              // Size as % of canvas width: 72px/380px≈18.95%, 88px/380px≈23.16%
+              const basePct = isHandleAcc ? 23.16 : 18.95;
+              const itemWidthPct = basePct * sticker.scale;
 
               return (
                 <div
@@ -531,8 +533,8 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                   style={{
                     left: `${sticker.x}%`,
                     top: `${sticker.y}%`,
-                    width: `${itemSize}px`,
-                    height: `${itemSize}px`,
+                    width: `${itemWidthPct}%`,
+                    aspectRatio: '1 / 1',
                     transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) ${
                       sticker.flipX ? 'scaleX(-1)' : ''
                     }`,
@@ -557,7 +559,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                           color: sticker.textColor || '#ff6584',
                           textShadow: `0 2px 6px rgba(255, 101, 132, 0.4)`,
                           fontFamily: sticker.fontFamily || '"M PLUS Rounded 1c", sans-serif',
-                          fontSize: `${28 * sticker.scale}px`,
+                          fontSize: `${7.37 * sticker.scale}cqw`,
                           letterSpacing: '0.1em',
                         }}
                       >
@@ -607,7 +609,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
 
           const sizeStyle = isInsert
             ? { width: `${31 * sticker.scale}%`, aspectRatio: '304 / 260' }
-            : { width: `${(isHandle ? 88 : 72) * sticker.scale}px`, height: `${(isHandle ? 88 : 72) * sticker.scale}px` };
+            : { width: `${(isHandle ? 23.16 : 18.95) * sticker.scale}%`, aspectRatio: '1 / 1' };
 
           return (
             <div
@@ -653,9 +655,10 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (confirm('選択中のパーツを削除しますか？')) onDeleteSticker(sticker.id);
+                    if (onRequestDelete) onRequestDelete(sticker.id);
+                    else if (confirm('選択中のパーツを削除しますか？')) onDeleteSticker(sticker.id);
                   }}
-                  className="absolute -top-3 -right-3 w-5 h-5 bg-rose-500 text-white rounded-full shadow flex items-center justify-center hover:scale-110 transition font-bold text-xs"
+                  className="absolute -top-3 -right-3 w-5 h-5 bg-pink-400 text-white rounded-full shadow flex items-center justify-center hover:scale-110 transition font-bold text-xs"
                   title="削除"
                 >
                   ×

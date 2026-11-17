@@ -30,6 +30,7 @@ interface PartsPickerPanelProps {
   myParts?: MyPart[];
   onOpenPhotoPartCreator?: () => void;
   onDeleteMyPart?: (id: string) => void;
+  onOpenPhotoSticker?: (file: File) => void;
 }
 
 export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
@@ -43,6 +44,7 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
   myParts = [],
   onOpenPhotoPartCreator,
   onDeleteMyPart,
+  onOpenPhotoSticker,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>(activeCategory || initialCategory || 'heart');
   const [isAlphabetOpen, setIsAlphabetOpen] = useState(false);
@@ -60,6 +62,74 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
 
   const [longPressId, setLongPressId] = useState<string | null>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Photo sticker file input
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+
+  const handlePhotoFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    // Clear value so the same file can be selected again next time
+    e.target.value = '';
+    if (!file) return;
+    setPhotoError(null);
+
+    const reader = new FileReader();
+    reader.onerror = () => {
+      setPhotoError('この写真は読み込めませんでした。別の写真を選んでね');
+    };
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      if (!dataUrl) {
+        setPhotoError('この写真は読み込めませんでした。別の写真を選んでね');
+        return;
+      }
+      // Resize to max 1600px on the longer side (handles large JPEGs and HEIC converted by browser)
+      const img = new Image();
+      img.onerror = () => {
+        setPhotoError('この写真は読み込めませんでした。別の写真を選んでね');
+      };
+      img.onload = () => {
+        const MAX = 1600;
+        let { width, height } = img;
+        if (width === 0 || height === 0) {
+          setPhotoError('この写真は読み込めませんでした。別の写真を選んでね');
+          return;
+        }
+        if (width > MAX || height > MAX) {
+          if (width >= height) { height = Math.round(height * MAX / width); width = MAX; }
+          else { width = Math.round(width * MAX / height); height = MAX; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          setPhotoError('この写真は読み込めませんでした。別の写真を選んでね');
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => {
+          if (blob && onOpenPhotoSticker) {
+            onOpenPhotoSticker(new File([blob], 'photo.jpg', { type: 'image/jpeg' }));
+          }
+        }, 'image/jpeg', 0.9);
+      };
+      img.src = dataUrl;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Panel thumbnail display scale per category.
+  // Baseline = スワロフスキーハート (heart_*.png, geomean fill 88.9%).
+  // star: 88.8% fill → 1.00 (identical to heart)
+  // rhinestone: 92.7% fill → 0.96 (88.9/92.7) to match heart visual size
+  // Add new categories here to control their thumbnail size.
+  const PART_DISPLAY_SCALE: Record<string, number> = {
+    heart:      0.75,
+    star:       0.75,
+    rhinestone: 0.63,
+  };
 
   const categories = [
     { id: 'heart',      label: 'ハート' },
@@ -268,7 +338,7 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
 
           {/* Ribbon Section */}
           {selectedCategory === 'ribbon' && (
-            <div className="grid grid-cols-2 gap-3 min-h-[280px] content-start">
+            <div className="grid grid-cols-3 gap-2 min-h-[280px] content-start">
               {handleItems.map((item) => (
                 <button
                   key={item.key}
@@ -286,7 +356,7 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
                     svgKey: item.key,
                     opacity: 1,
                   })}
-                  className="group relative aspect-square p-2 rounded-2xl border-2 border-slate-100 hover:border-pink-300 bg-white hover:bg-pink-50/40 transition-all active:scale-95 flex items-center justify-center overflow-hidden"
+                  className="group relative aspect-square p-1.5 rounded-xl border-2 border-slate-100 hover:border-pink-300 bg-white hover:bg-pink-50/40 transition-all active:scale-95 flex items-center justify-center overflow-hidden"
                 >
                   <img src={item.imagePath} alt={item.name} className="w-full h-full object-contain transition-transform group-hover:scale-105" />
                   <span className="absolute bottom-0 left-0 right-0 text-center text-[10px] font-bold text-white bg-black/40 py-1 rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity">
@@ -314,8 +384,10 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
                   className="group relative aspect-square p-1 rounded-xl bg-gradient-to-b from-white to-pink-50/40 border border-pink-100 hover:border-pink-300 hover:shadow-cute hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center"
                   title={item.name}
                 >
-                  <div className="w-11 h-11 p-1 flex items-center justify-center transition-transform group-hover:scale-105">
-                    <StickerSVG svgKey={item.key} imagePath={item.imagePath} />
+                  <div style={{ transform: `scale(${PART_DISPLAY_SCALE[item.category] ?? 1})`, transformOrigin: 'center' }}>
+                    <div className="w-11 h-11 p-1 flex items-center justify-center transition-transform group-hover:scale-105">
+                      <StickerSVG svgKey={item.key} imagePath={item.imagePath} />
+                    </div>
                   </div>
                 </button>
               ))}
@@ -351,7 +423,7 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
 
             {/* Color choices for text */}
             <div className="flex items-center gap-2 pt-1">
-              <span className="text-[11px] text-slate-500">文字色:</span>
+              <span className="text-[11px] text-slate-600">文字色:</span>
               <div className="flex gap-1.5">
                 {['#ff6584', '#38bdf8', '#c084fc', '#f59e0b', '#10b981', '#334155'].map((c) => (
                   <button
@@ -384,7 +456,7 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
                     ))}
                   </div>
                 ) : (
-                  <p className="text-[11px] text-slate-400 w-full text-center">
+                  <p className="text-[11px] text-slate-600 w-full text-center">
                     文字を追加したらここに表示されます
                   </p>
                 )}
@@ -465,7 +537,7 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
           </div>
 
           {/* Korean — text input only, preset grid removed */}
-          <p className="text-[11px] text-slate-400">韓国語はテキスト入力欄に直接入力できます（スマホキーボード対応）</p>
+          <p className="text-[11px] text-slate-600">韓国語はテキスト入力欄に直接入力できます（スマホキーボード対応）</p>
         </div>
       )}
 
@@ -481,19 +553,28 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
             <p className="text-[11px] text-slate-500">
               好きな写真をペンライトに飾ってね♡
             </p>
+            {/* Hidden file input — value cleared after each selection so same file re-triggers */}
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoFileSelect}
+            />
 
-            <label className="cursor-pointer py-2 px-3 bg-white hover:bg-pink-50 border border-pink-200 text-pink-600 rounded-xl font-bold flex items-center justify-center gap-2 shadow-xs transition hover:scale-102">
+            {/* Button calls click() synchronously so iOS photo library sheet opens */}
+            <button
+              onClick={() => photoInputRef.current?.click()}
+              className="w-full py-2 px-3 bg-white hover:bg-pink-50 border border-pink-200 text-pink-600 rounded-xl font-bold flex items-center justify-center gap-2 shadow-xs transition active:scale-95"
+            >
               <ImageIcon className="w-4 h-4" />
-              <span>ステッカーにする</span>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleFileUpload(e, false)}
-                className="hidden"
-              />
-            </label>
-          </div>
+              ステッカーにする
+            </button>
 
+            {photoError && (
+              <p className="text-[11px] text-rose-500 font-bold text-center">{photoError}</p>
+            )}
+          </div>
         </div>
       )}
     </div>

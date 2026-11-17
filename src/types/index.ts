@@ -77,6 +77,7 @@ export interface SavedProject {
   config: PenlightConfig;
   stickers: StickerItem[];
   thumbnail?: string;
+  isDraft?: boolean;
 }
 
 export type MobileScreen = 

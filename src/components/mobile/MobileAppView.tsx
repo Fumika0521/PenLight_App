@@ -7,6 +7,7 @@ import {
   MyPart
 } from '../../types';
 import { PhotoPartCreatorModal } from '../modals/PhotoPartCreatorModal';
+import { PhotoStickerModal } from '../modals/PhotoStickerModal';
 import { PenlightBase } from '../penlight/PenlightBase';
 import { INSERT_DEFAULTS } from '../../lib/insertDefaults';
 import { MENU_COLORS, menuActiveBg, PHONE_BG_GRADIENT, APP_BG_CLASS } from '../../lib/uiConstants';
@@ -24,12 +25,11 @@ import {
   Redo2,
   Palette,
   Sparkles,
-  Trash2,
+  Bookmark,
   Type,
   Image as ImageIcon,
   Check,
-  Gem,
-  Copy
+  Gem
 } from 'lucide-react';
 
 interface MobileAppViewProps {
@@ -55,6 +55,7 @@ interface MobileAppViewProps {
   onRenameProject: (id: string, newName: string) => void;
   onExportImage: () => void;
   onNewDeco: () => void;
+  onSaveCompleteDesign?: () => void;
   myParts: MyPart[];
   onAddMyPart: (part: MyPart) => void;
   onDeleteMyPart: (id: string) => void;
@@ -83,6 +84,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
   onRenameProject,
   onExportImage,
   onNewDeco,
+  onSaveCompleteDesign,
   myParts,
   onAddMyPart,
   onDeleteMyPart,
@@ -92,6 +94,16 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
   const [partsInitialCategory, setPartsInitialCategory] = useState<string>('heart');
   const [selectedInsert, setSelectedInsert] = useState<'moon-star' | 'double-heart' | 'empty-glass' | null>(null);
   const [hoveredInsert, setHoveredInsert] = useState<string | null>(null);
+  const [hoveredEditorInsert, setHoveredEditorInsert] = useState<string | null>(null);
+
+  // Glow color → rgb string for insert hover radial-gradient
+  const glowRgb = (() => {
+    const c = config.glowColor || '#ff6584';
+    const r = parseInt(c.slice(1, 3), 16) || 251;
+    const g = parseInt(c.slice(3, 5), 16) || 113;
+    const b = parseInt(c.slice(5, 7), 16) || 133;
+    return `${r},${g},${b}`;
+  })();
 
   const togglePanel = (panel: 'insert' | 'parts', category?: string) => {
     if (panel === 'parts') {
@@ -109,7 +121,10 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const [isCompleteOpen, setIsCompleteOpen] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isEditorGalleryOpen, setIsEditorGalleryOpen] = useState(false);
+  const [showSaveToast, setShowSaveToast] = useState(false);
   const [isPhotoPartCreatorOpen, setIsPhotoPartCreatorOpen] = useState(false);
+  const [photoStickerFile, setPhotoStickerFile] = useState<File | null>(null);
   const [addedTexts, setAddedTexts] = useState<{ text: string; color: string }[]>([]);
   const [showBackConfirm, setShowBackConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -175,7 +190,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
         {/* CTA Buttons */}
         <div className="px-6 space-y-2.5 pb-4">
           <button
-            onClick={() => setCurrentScreen('select-base')}
+            onClick={() => { onNewDeco(); setCurrentScreen('select-base'); }}
             className="w-full py-3.5 bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 hover:from-pink-500 hover:to-rose-600 text-white font-extrabold text-sm rounded-full shadow-cute hover:shadow-cute-lg transition-all active:scale-98 shimmer-btn"
           >
             新しくデコる
@@ -287,8 +302,8 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
             {/* 中身の選択肢 — 2 col grid */}
             <div className="grid grid-cols-2 gap-3">
               {([
-                { key: 'moon-star' as const,    label: 'ムーンスター',   src: '/assets/stickers/insert_moon_star.png',           objPos: 'center 30%',    cssFilter: undefined },
-                { key: 'double-heart' as const, label: 'ダブルハート',   src: '/assets/stickers/insert_double_heart_clear.png', objPos: 'center center', cssFilter: undefined },
+                { key: 'moon-star' as const,    label: 'ムーンスター',   src: '/assets/stickers/insert_moon_star.png',           cssFilter: undefined },
+                { key: 'double-heart' as const, label: 'ダブルハート',   src: '/assets/stickers/insert_double_heart_clear.png', cssFilter: undefined },
               ] as const).map((item) => {
                 const isSelected = selectedInsert === item.key;
                 return (
@@ -307,14 +322,14 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
                       </div>
                     )}
                     <div
-                      className="w-28 h-28 rounded-full overflow-hidden shadow-md transition-all duration-300"
+                      className="w-28 h-20 overflow-hidden rounded-2xl flex items-center justify-center shadow-md transition-all duration-300"
                       style={{
                         background: (isSelected || hoveredInsert === item.key)
-                          ? 'radial-gradient(circle, rgba(251,113,133,0.5) 0%, rgba(251,113,133,0.18) 65%, transparent 100%)'
+                          ? `radial-gradient(circle, rgba(${glowRgb},0.5) 0%, rgba(${glowRgb},0.18) 65%, transparent 100%)`
                           : 'white',
                       }}
                     >
-                      <img src={item.src} alt={item.label} className="w-full h-full object-cover pointer-events-none" style={{ objectPosition: item.objPos, filter: item.cssFilter }} />
+                      <img src={item.src} alt={item.label} className="w-full h-full object-cover pointer-events-none" style={{ objectPosition: 'center 30%', filter: item.cssFilter }} />
                     </div>
                     <span className="font-bold text-xs text-slate-600 mt-2 text-center">{item.label}</span>
                   </div>
@@ -324,7 +339,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
             {/* ガラスのみ — centered below (inverted triangle) */}
             <div className="flex justify-center">
               {(() => {
-                const item = { key: 'empty-glass' as const, label: 'クリアガラス', src: '/assets/stickers/insert_empty_glass.png', objPos: 'center center' };
+                const item = { key: 'empty-glass' as const, label: 'クリアガラス', src: '/assets/stickers/insert_empty_glass.png' };
                 const isSelected = selectedInsert === item.key;
                 return (
                   <div
@@ -341,14 +356,14 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
                       </div>
                     )}
                     <div
-                      className="w-28 h-28 rounded-full overflow-hidden shadow-md transition-all duration-300"
+                      className="w-28 h-20 overflow-hidden rounded-2xl flex items-center justify-center shadow-md transition-all duration-300"
                       style={{
                         background: (isSelected || hoveredInsert === item.key)
-                          ? 'radial-gradient(circle, rgba(251,113,133,0.5) 0%, rgba(251,113,133,0.18) 65%, transparent 100%)'
+                          ? `radial-gradient(circle, rgba(${glowRgb},0.5) 0%, rgba(${glowRgb},0.18) 65%, transparent 100%)`
                           : 'white',
                       }}
                     >
-                      <img src={item.src} alt={item.label} className="w-full h-full object-cover pointer-events-none" style={{ objectPosition: item.objPos }} />
+                      <img src={item.src} alt={item.label} className="w-full h-full object-cover pointer-events-none" style={{ objectPosition: 'center 30%' }} />
                     </div>
                     <span className="font-bold text-xs text-slate-600 mt-2 text-center">{item.label}</span>
                   </div>
@@ -410,16 +425,13 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
           </button>
         </div>
 
-        {/* Right: Save */}
+        {/* Right: Complete */}
         <div className="flex items-center gap-2">
           <button
-            onClick={() => {
-              onSaveCurrentDesign();
-              alert('デザインを保存しました！♡');
-            }}
-            className="px-5 py-2.5 bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 hover:from-pink-500 hover:to-rose-600 text-white font-extrabold text-base rounded-full shadow-xs active:scale-95 transition-all"
+            onClick={() => setIsCompleteOpen(true)}
+            className="px-7 py-3 bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 hover:from-pink-500 hover:to-rose-600 text-white font-extrabold text-base rounded-full shadow-xs active:scale-95 transition-all"
           >
-            保存
+            完成
           </button>
         </div>
       </div>
@@ -441,6 +453,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
           onSendBackward={onSendBackward}
           isConcertMode={false}
           panelOpen={activePanel !== null}
+          onRequestDelete={(id) => { onSelectSticker(id); setShowDeleteConfirm(true); }}
         />
       </div>
 
@@ -448,7 +461,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
       {activePanel && (
         <div className="bg-white border-t border-pink-100 shrink-0 flex flex-col overflow-hidden" style={{ maxHeight: '38%' }}>
           <div className="px-4 py-2.5 border-b border-pink-100 flex items-center justify-between shrink-0">
-            <h3 className="font-extrabold text-sm text-slate-800">
+            <h3 className="font-extrabold text-sm text-slate-700">
               {activePanel === 'insert' ? 'ドームの中身を選ぼう♡' :
                activePanel === 'parts' && partsInitialCategory === 'text' ? '好きな言葉を飾ろう♡' :
                activePanel === 'parts' && partsInitialCategory === 'photo' ? 'お気に入りの写真でデコろう♡' :
@@ -466,8 +479,8 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
               <div className="p-4 space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   {([
-                    { key: 'moon-star',    name: 'ムーンスター',   imageUrl: '/assets/stickers/insert_moon_star.png',           svgKey: 'insert-moon-star-3d', objPos: 'center 30%',    cssFilter: undefined },
-                    { key: 'double-heart', name: 'ダブルハート',   imageUrl: '/assets/stickers/insert_double_heart_clear.png', svgKey: 'insert-double-heart', objPos: 'center center', cssFilter: undefined },
+                    { key: 'moon-star',    name: 'ムーンスター',   imageUrl: '/assets/stickers/insert_moon_star.png',           svgKey: 'insert-moon-star-3d', cssFilter: undefined },
+                    { key: 'double-heart', name: 'ダブルハート',   imageUrl: '/assets/stickers/insert_double_heart_clear.png', svgKey: 'insert-double-heart', cssFilter: undefined },
                   ] as const).map((item) => (
                     <button
                       key={item.key}
@@ -475,10 +488,19 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
                         onAddSticker({ name: item.name, category: 'insert', layer: 'insert', ...INSERT_DEFAULTS, type: '3d-png', imageUrl: item.imageUrl, svgKey: item.svgKey as string, cssFilter: item.cssFilter });
                         setActivePanel(null);
                       }}
-                      className="flex flex-col items-center px-3 py-4 rounded-3xl border-2 border-slate-100 hover:border-pink-300 bg-white hover:bg-pink-50/40 transition-all active:scale-95"
+                      onMouseEnter={() => setHoveredEditorInsert(item.key)}
+                      onMouseLeave={() => setHoveredEditorInsert(null)}
+                      className="flex flex-col items-center px-3 py-4 rounded-3xl border-2 border-slate-100 hover:border-pink-300 bg-white transition-all active:scale-95"
                     >
-                      <div className="w-28 h-20 overflow-hidden rounded-2xl flex items-center justify-center">
-                        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" style={{ objectPosition: item.objPos, filter: item.cssFilter }} />
+                      <div
+                        className="w-28 h-20 overflow-hidden rounded-2xl flex items-center justify-center transition-all duration-300"
+                        style={{
+                          background: hoveredEditorInsert === item.key
+                            ? `radial-gradient(circle, rgba(${glowRgb},0.5) 0%, rgba(${glowRgb},0.18) 65%, transparent 100%)`
+                            : 'white',
+                        }}
+                      >
+                        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" style={{ objectPosition: 'center 30%', filter: item.cssFilter }} />
                       </div>
                       <span className="font-bold text-xs text-slate-600 mt-2 text-center">{item.name}</span>
                     </button>
@@ -491,10 +513,19 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
                       onAddSticker({ name: 'クリアガラス', category: 'insert', layer: 'insert', ...INSERT_DEFAULTS, type: '3d-png', imageUrl: '/assets/stickers/insert_empty_glass.png', svgKey: 'insert-oshi-name', cssFilter: undefined });
                       setActivePanel(null);
                     }}
-                    className="flex flex-col items-center px-3 py-4 rounded-3xl border-2 border-slate-100 hover:border-pink-300 bg-white hover:bg-pink-50/40 transition-all active:scale-95 w-[calc(50%-6px)]"
+                    onMouseEnter={() => setHoveredEditorInsert('empty-glass')}
+                    onMouseLeave={() => setHoveredEditorInsert(null)}
+                    className="flex flex-col items-center px-3 py-4 rounded-3xl border-2 border-slate-100 hover:border-pink-300 bg-white transition-all active:scale-95 w-[calc(50%-6px)]"
                   >
-                    <div className="w-28 h-20 overflow-hidden rounded-2xl flex items-center justify-center">
-                      <img src="/assets/stickers/insert_empty_glass.png" alt="クリアガラス" className="w-full h-full object-cover" style={{ objectPosition: 'center center' }} />
+                    <div
+                      className="w-28 h-20 overflow-hidden rounded-2xl flex items-center justify-center transition-all duration-300"
+                      style={{
+                        background: hoveredEditorInsert === 'empty-glass'
+                          ? `radial-gradient(circle, rgba(${glowRgb},0.5) 0%, rgba(${glowRgb},0.18) 65%, transparent 100%)`
+                          : 'white',
+                      }}
+                    >
+                      <img src="/assets/stickers/insert_empty_glass.png" alt="クリアガラス" className="w-full h-full object-cover" style={{ objectPosition: 'center 30%' }} />
                     </div>
                     <span className="font-bold text-xs text-slate-600 mt-2 text-center">クリアガラス</span>
                   </button>
@@ -504,6 +535,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
             )}
             {activePanel === 'parts' && (
               <PartsPickerPanel
+                key={partsInitialCategory}
                 onAddSticker={(st) => {
                   onAddSticker(st);
                   if (st.category !== 'mypart') setActivePanel(null);
@@ -516,36 +548,13 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
                 myParts={myParts}
                 onOpenPhotoPartCreator={() => setIsPhotoPartCreatorOpen(true)}
                 onDeleteMyPart={onDeleteMyPart}
+                onOpenPhotoSticker={(file) => setPhotoStickerFile(file)}
               />
             )}
           </div>
         </div>
       )}
 
-      {/* Copy+Delete action bar — appears above dock when a sticker is selected */}
-      {selectedId && (() => {
-        const sel = stickers.find((s) => s.id === selectedId);
-        const isInsert = sel && (sel.category === 'insert' || sel.layer === 'insert');
-        if (isInsert) return null;
-        return (
-          <div className="bg-slate-100 border-t border-slate-200 px-6 py-2.5 flex items-center justify-center gap-4 shrink-0">
-            <button
-              onClick={() => { onDuplicateSticker(selectedId); onSelectSticker(null); }}
-              className="flex items-center gap-2 px-6 py-2 bg-white rounded-full text-slate-700 font-bold text-sm border border-slate-200 shadow-xs active:scale-95 transition"
-            >
-              <Copy className="w-4 h-4 text-blue-500" />
-              コピー
-            </button>
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="flex items-center gap-2 px-6 py-2 bg-white rounded-full text-rose-500 font-bold text-sm border border-rose-200 shadow-xs active:scale-95 transition"
-            >
-              <Trash2 className="w-4 h-4" />
-              削除
-            </button>
-          </div>
-        );
-      })()}
 
       {/* Bottom Tool Dock */}
       <div className="bg-white px-2 pt-4 pb-8 border-t border-pink-100 flex items-center justify-between gap-1 z-30 shrink-0">
@@ -579,11 +588,15 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
         </button>
 
         <button
-          onClick={() => setIsCompleteOpen(true)}
-          className="flex flex-col items-center text-pink-600 font-bold min-w-[50px]"
+          onClick={() => {
+            onSaveCurrentDesign();
+            setShowSaveToast(true);
+            setTimeout(() => setShowSaveToast(false), 4000);
+          }}
+          className="flex flex-col items-center min-w-[50px] px-2 py-1 rounded-xl transition-all"
         >
-          <Sparkles className="w-6 h-6 text-amber-400" />
-          <span className="text-[10px] font-bold mt-1">完成！</span>
+          <Bookmark className="w-6 h-6" style={{ color: MENU_COLORS.insert }} />
+          <span className="text-[10px] font-bold mt-1" style={{ color: MENU_COLORS.insert }}>下書き保存</span>
         </button>
       </div>
 
@@ -592,6 +605,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
         isOpen={isColorModalOpen}
         onClose={() => setIsColorModalOpen(false)}
         config={config}
+        stickers={stickers}
         onSaveConfig={onUpdateConfig}
         inline
       />
@@ -603,7 +617,31 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
         config={config}
         stickers={stickers}
         onExportImage={onExportImage}
+        onSaveToGallery={onSaveCompleteDesign}
         inline
+      />
+
+      {/* Photo Sticker Modal — inline inside phone frame */}
+      <PhotoStickerModal
+        file={photoStickerFile}
+        onClose={() => setPhotoStickerFile(null)}
+        onAdd={(dataUrl, borderSize, hasShadow) => {
+          onAddSticker({
+            name: '写真ステッカー',
+            category: 'mypart',
+            x: 50,
+            y: 38,
+            scale: 0.85,
+            rotation: 0,
+            type: 'photo',
+            imageUrl: dataUrl,
+            borderSize,
+            hasShadow,
+            opacity: 1,
+          });
+          setPhotoStickerFile(null);
+          setActivePanel(null);
+        }}
       />
 
       {/* Photo Part Creator Modal — inline inside phone frame */}
@@ -616,12 +654,40 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
         }}
       />
 
+      {/* Editor Gallery Modal — opened from "マイページへ" in save toast */}
+      <GalleryModal
+        isOpen={isEditorGalleryOpen}
+        onClose={() => setIsEditorGalleryOpen(false)}
+        savedProjects={savedProjects}
+        onLoadProject={(p) => { onLoadProject(p); setIsEditorGalleryOpen(false); }}
+        onDeleteProject={onDeleteProject}
+        onRenameProject={onRenameProject}
+        inline
+      />
+
+      {/* Draft save toast */}
+      {showSaveToast && (
+        <div className="absolute top-24 left-3 right-3 z-[75] animate-fade-in">
+          <div className="bg-slate-800/92 text-white rounded-2xl px-4 py-3 flex items-center justify-between shadow-lg backdrop-blur-sm">
+            <div className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-green-400 shrink-0" />
+              <span className="text-xs font-bold">下書き保存しました</span>
+            </div>
+            <button
+              onClick={() => { setShowSaveToast(false); setIsEditorGalleryOpen(true); }}
+              className="text-xs font-extrabold text-pink-300 hover:text-pink-200 ml-3 shrink-0 underline underline-offset-2"
+            >
+              マイページへ
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Back Confirmation Dialog */}
       {showBackConfirm && (
         <div className="absolute inset-0 z-[70] bg-black/40 flex items-center justify-center px-5">
           <div className="bg-white rounded-3xl p-5 shadow-2xl w-full">
-            <p className="font-extrabold text-slate-800 text-sm text-center mb-1">ホームへ戻りますか？</p>
-            <p className="text-xs text-slate-500 text-center mb-4">編集中のデザインは下書きに保存されます</p>
+            <p className="font-extrabold text-slate-800 text-sm text-center mb-5">はじめの画面に戻りますか？</p>
             <div className="flex gap-2">
               <button
                 onClick={() => setShowBackConfirm(false)}
@@ -642,10 +708,9 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
 
       {/* Delete Confirmation Dialog */}
       {showDeleteConfirm && selectedId && (
-        <div className="absolute inset-0 z-[70] bg-black/40 flex items-end justify-center pb-10 px-5">
+        <div className="absolute inset-0 z-[70] bg-black/40 flex items-center justify-center px-5">
           <div className="bg-white rounded-3xl p-5 shadow-2xl w-full">
-            <p className="font-extrabold text-slate-800 text-sm text-center mb-1">パーツを削除しますか？</p>
-            <p className="text-xs text-slate-500 text-center mb-4">削除後はアンドゥで元に戻せます</p>
+            <p className="font-extrabold text-slate-800 text-sm text-center mb-4">パーツを削除しますか？</p>
             <div className="flex gap-2">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
@@ -655,7 +720,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
               </button>
               <button
                 onClick={() => { onDeleteSticker(selectedId); setShowDeleteConfirm(false); }}
-                className="flex-1 py-3 rounded-2xl bg-rose-500 text-white font-extrabold text-sm"
+                className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 text-white font-extrabold text-sm"
               >
                 削除する
               </button>

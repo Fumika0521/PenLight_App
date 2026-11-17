@@ -344,11 +344,25 @@ export const App: React.FC = () => {
       date: new Date().toLocaleDateString('ja-JP'),
       config: { ...config },
       stickers: [...stickers],
+      isDraft: true,
     };
     const updated = [newProject, ...savedProjects];
     setSavedProjects(updated);
     localStorage.setItem('lightdeco_saved_projects_v3', JSON.stringify(updated));
-    // Clear draft when explicitly saved
+  };
+
+  const handleSaveCompleteDesign = () => {
+    const newProject: SavedProject = {
+      id: `project-${Date.now()}`,
+      name: `推しデコ (${config.baseType})`,
+      date: new Date().toLocaleDateString('ja-JP'),
+      config: { ...config },
+      stickers: [...stickers],
+      isDraft: false,
+    };
+    const updated = [newProject, ...savedProjects];
+    setSavedProjects(updated);
+    localStorage.setItem('lightdeco_saved_projects_v3', JSON.stringify(updated));
     localStorage.removeItem('lightdeco_draft_v1');
   };
 
@@ -602,6 +616,7 @@ export const App: React.FC = () => {
               canUndo={historyIndex > 0}
               canRedo={historyIndex < history.length - 1}
               onSaveCurrentDesign={handleSaveCurrentDesign}
+              onSaveCompleteDesign={handleSaveCompleteDesign}
               savedProjects={savedProjects}
               onLoadProject={handleLoadProject}
               onDeleteProject={handleDeleteProject}
