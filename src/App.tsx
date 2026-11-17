@@ -8,6 +8,7 @@ import {
 import { getAllMyParts, deleteMyPart } from './lib/myPartsDB';
 import { INSERT_DEFAULTS } from './lib/insertDefaults';
 import { APP_BG_CLASS } from './lib/uiConstants';
+import { isNative } from './lib/platform';
 import { DesktopAppView } from './components/desktop/DesktopAppView';
 import { MobileAppView } from './components/mobile/MobileAppView';
 import { toPng } from 'html-to-image';
@@ -466,6 +467,42 @@ export const App: React.FC = () => {
     pushHistory(draft.config, finalStickers);
   };
 
+  // ---- Native (iPhone app) render ----
+  if (isNative) {
+    return (
+      <MobileAppView
+        config={config}
+        stickers={stickers}
+        selectedId={selectedId}
+        onSelectSticker={setSelectedId}
+        onUpdateSticker={handleUpdateSticker}
+        onDeleteSticker={handleDeleteSticker}
+        onDuplicateSticker={handleDuplicateSticker}
+        onBringForward={handleBringForward}
+        onSendBackward={handleSendBackward}
+        onAddSticker={handleAddSticker}
+        onUpdateConfig={handleUpdateConfig}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        canUndo={historyIndex > 0}
+        canRedo={historyIndex < history.length - 1}
+        onSaveCurrentDesign={handleSaveCurrentDesign}
+        onSaveCompleteDesign={handleSaveCompleteDesign}
+        savedProjects={savedProjects}
+        onLoadProject={handleLoadProject}
+        onDeleteProject={handleDeleteProject}
+        onRenameProject={handleRenameProject}
+        onExportImage={handleExportImage}
+        onNewDeco={handleNewDeco}
+        myParts={myParts}
+        onAddMyPart={handleAddMyPart}
+        onDeleteMyPart={handleDeleteMyPart}
+        nativeMode
+      />
+    );
+  }
+
+  // ---- Browser (Web) render ----
   return (
     <div className={`min-h-screen flex flex-col ${APP_BG_CLASS} text-slate-700`}>
       {/* Draft resume prompt */}

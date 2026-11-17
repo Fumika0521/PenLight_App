@@ -265,6 +265,7 @@ export const DesktopAppView: React.FC<DesktopAppViewProps> = ({
         isOpen={isColorModalOpen}
         onClose={() => setIsColorModalOpen(false)}
         config={config}
+        stickers={stickers}
         onSaveConfig={onUpdateConfig}
       />
 

@@ -29,6 +29,7 @@ export const CompleteModal: React.FC<CompleteModalProps> = ({
 
   const handleSave = () => {
     onExportImage();
+    onSaveToGallery?.();
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2500);
   };
@@ -124,13 +125,22 @@ export const CompleteModal: React.FC<CompleteModalProps> = ({
               {/* Stickers */}
               <div className="absolute inset-0">
                 {stickers.map((s) => {
+                  const isInsert = s.layer === 'insert' || s.category === 'insert';
                   const baseSize = 54;
                   const itemSize = baseSize * s.scale;
                   return (
                     <div
                       key={`comp-${s.id}`}
                       className="absolute"
-                      style={{
+                      style={isInsert ? {
+                        left: `${s.x}%`,
+                        top: `${s.y - 4}%`,
+                        width: `${31 * s.scale}%`,
+                        aspectRatio: '304 / 260',
+                        transform: `translate(-50%, -50%) rotate(${s.rotation}deg)${s.flipX ? ' scaleX(-1)' : ''}`,
+                        zIndex: s.zIndex,
+                        opacity: s.opacity ?? 1,
+                      } : {
                         left: `${s.x}%`,
                         top: `${s.y}%`,
                         width: `${itemSize}px`,
@@ -142,10 +152,16 @@ export const CompleteModal: React.FC<CompleteModalProps> = ({
                         opacity: s.opacity ?? 1,
                       }}
                     >
-                      {s.type === 'preset' && s.svgKey && (
+                      {isInsert && s.imageUrl && (
+                        <img src={s.imageUrl} alt="" className="w-full h-full object-contain pointer-events-none select-none" style={{ filter: s.cssFilter }} />
+                      )}
+                      {!isInsert && s.type === '3d-png' && s.imageUrl && (
+                        <img src={s.imageUrl} alt="" className="w-full h-full object-contain pointer-events-none select-none" style={{ filter: s.cssFilter }} />
+                      )}
+                      {!isInsert && s.type === 'preset' && s.svgKey && (
                         <StickerSVG svgKey={s.svgKey} customColor={s.color} className="w-full h-full" />
                       )}
-                      {s.type === 'text' && (
+                      {!isInsert && s.type === 'text' && (
                         <div
                           className="text-center font-bold px-1 py-0.5 leading-none whitespace-nowrap"
                           style={{
@@ -157,7 +173,7 @@ export const CompleteModal: React.FC<CompleteModalProps> = ({
                           {s.text}
                         </div>
                       )}
-                      {s.type === 'photo' && s.imageUrl && (
+                      {!isInsert && s.type === 'photo' && s.imageUrl && (
                         <div
                           className={`w-full h-full overflow-hidden border border-white shadow-xs bg-white ${
                             s.imageShape === 'circle' ? 'rounded-full' : 'rounded-lg'
@@ -210,7 +226,7 @@ export const CompleteModal: React.FC<CompleteModalProps> = ({
           {/* Continue Editing */}
           <button
             onClick={onClose}
-            className="w-full py-1.5 text-center text-xs font-semibold text-slate-400 hover:text-slate-600 transition"
+            className="w-full py-1.5 text-center text-xs font-semibold text-slate-600 hover:text-slate-800 transition"
           >
             ← 編集画面に戻る
           </button>

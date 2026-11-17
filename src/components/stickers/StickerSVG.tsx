@@ -14,7 +14,7 @@ export const STICKER_CATALOG: StickerDef[] = [
   // ================= HANDLE ACCESSORIES (持ち手アクセ) =================
   {
     key: 'handle-ribbon-pink',
-    name: 'リボン（ピンク）',
+    name: 'ピンク',
     category: 'handle',
     popular: true,
     is3d: true,
@@ -23,7 +23,7 @@ export const STICKER_CATALOG: StickerDef[] = [
   },
   {
     key: 'handle-ribbon-mint',
-    name: 'リボン（ミント）',
+    name: 'ミント',
     category: 'handle',
     popular: true,
     is3d: true,
@@ -32,7 +32,7 @@ export const STICKER_CATALOG: StickerDef[] = [
   },
   {
     key: 'handle-ribbon-sky',
-    name: 'リボン（スカイ）',
+    name: 'スカイ',
     category: 'handle',
     popular: true,
     is3d: true,
@@ -41,7 +41,7 @@ export const STICKER_CATALOG: StickerDef[] = [
   },
   {
     key: 'handle-ribbon-lavender',
-    name: 'リボン（ラベンダー）',
+    name: 'ラベンダー',
     category: 'handle',
     popular: true,
     is3d: true,
@@ -50,7 +50,7 @@ export const STICKER_CATALOG: StickerDef[] = [
   },
   {
     key: 'handle-ribbon-peach',
-    name: 'リボン（ピーチ）',
+    name: 'ピーチ',
     category: 'handle',
     popular: true,
     is3d: true,
@@ -59,7 +59,7 @@ export const STICKER_CATALOG: StickerDef[] = [
   },
   {
     key: 'handle-ribbon-yellow',
-    name: 'リボン（イエロー）',
+    name: 'イエロー',
     category: 'handle',
     popular: true,
     is3d: true,
@@ -68,7 +68,7 @@ export const STICKER_CATALOG: StickerDef[] = [
   },
   {
     key: 'handle-ribbon-white',
-    name: 'リボン（ホワイト）',
+    name: 'ホワイト',
     category: 'handle',
     popular: true,
     is3d: true,
@@ -77,7 +77,7 @@ export const STICKER_CATALOG: StickerDef[] = [
   },
   {
     key: 'handle-ribbon-red',
-    name: 'リボン（レッド）',
+    name: 'レッド',
     category: 'handle',
     popular: true,
     is3d: true,
@@ -154,7 +154,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     popular: true,
     is3d: true,
     imagePath: '/assets/hires/gem_heart_pearl.png',
-    defaultScale: 0.85,
+    defaultScale: 0.35,
   },
   {
     key: 'heart-red',
@@ -162,7 +162,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'heart',
     is3d: true,
     imagePath: '/assets/stickers/heart_red.png',
-    defaultScale: 0.85,
+    defaultScale: 0.35,
   },
   {
     key: 'heart-blue',
@@ -170,7 +170,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'heart',
     is3d: true,
     imagePath: '/assets/stickers/heart_blue.png',
-    defaultScale: 0.85,
+    defaultScale: 0.35,
   },
   {
     key: 'heart-lightblue',
@@ -178,7 +178,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'heart',
     is3d: true,
     imagePath: '/assets/stickers/heart_lightblue.png',
-    defaultScale: 0.85,
+    defaultScale: 0.35,
   },
   {
     key: 'heart-purple',
@@ -186,7 +186,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'heart',
     is3d: true,
     imagePath: '/assets/stickers/heart_purple.png',
-    defaultScale: 0.85,
+    defaultScale: 0.35,
   },
   {
     key: 'heart-pink',
@@ -194,7 +194,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'heart',
     is3d: true,
     imagePath: '/assets/stickers/heart_pink.png',
-    defaultScale: 0.85,
+    defaultScale: 0.35,
   },
   {
     key: 'heart-yellow',
@@ -202,7 +202,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'heart',
     is3d: true,
     imagePath: '/assets/stickers/heart_yellow.png',
-    defaultScale: 0.85,
+    defaultScale: 0.35,
   },
   {
     key: 'heart-green',
@@ -210,7 +210,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'heart',
     is3d: true,
     imagePath: '/assets/stickers/heart_green.png',
-    defaultScale: 0.85,
+    defaultScale: 0.35,
   },
   {
     key: 'heart-white',
@@ -218,7 +218,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'heart',
     is3d: true,
     imagePath: '/assets/stickers/heart_white.png',
-    defaultScale: 0.85,
+    defaultScale: 0.35,
   },
   {
     key: 'heart-orange',
@@ -226,7 +226,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'heart',
     is3d: true,
     imagePath: '/assets/stickers/heart_orange.png',
-    defaultScale: 0.85,
+    defaultScale: 0.35,
   },
   {
     key: 'heart-black',
@@ -234,32 +234,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'heart',
     is3d: true,
     imagePath: '/assets/stickers/heart_black.png',
-    defaultScale: 0.85,
-  },
-  {
-    key: 'heart-faceted-pink-3d',
-    name: 'ラインストーンハート（ピンク）',
-    category: 'heart',
-    popular: true,
-    is3d: true,
-    imagePath: '/assets/stickers/heart_faceted_pink.png',
-    defaultScale: 0.75,
-  },
-  {
-    key: 'heart-glossy-pink-3d',
-    name: 'ぷっくりジュエルハート',
-    category: 'heart',
-    is3d: true,
-    imagePath: '/assets/stickers/heart_glossy_pink.png',
-    defaultScale: 0.75,
-  },
-  {
-    key: 'heart-hologram-purple-3d',
-    name: 'ホログラムハート（オーロラ）',
-    category: 'heart',
-    is3d: true,
-    imagePath: '/assets/stickers/heart_hologram_purple.png',
-    defaultScale: 0.75,
+    defaultScale: 0.35,
   },
   {
     key: 'heart-silver-pearl-3d',
@@ -267,7 +242,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'heart',
     is3d: true,
     imagePath: '/assets/stickers/heart_silver_pearl.png',
-    defaultScale: 0.75,
+    defaultScale: 0.35,
   },
 
   // ================= 3D STARS =================
@@ -278,7 +253,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     popular: true,
     is3d: true,
     imagePath: '/assets/stickers/star_cyan_gem.png',
-    defaultScale: 0.7,
+    defaultScale: 0.35,
   },
   {
     key: 'star-gold-twinkle-3d',
@@ -287,7 +262,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     popular: true,
     is3d: true,
     imagePath: '/assets/stickers/star_gold_twinkle.png',
-    defaultScale: 0.7,
+    defaultScale: 0.35,
   },
 
   // ================= 3D RHINESTONES & CHARMS =================
@@ -298,7 +273,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     popular: true,
     is3d: true,
     imagePath: '/assets/stickers/rhinestone_pink.png',
-    defaultScale: 0.45,
+    defaultScale: 0.34,
   },
   {
     key: 'stone-red',
@@ -306,7 +281,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'rhinestone',
     is3d: true,
     imagePath: '/assets/stickers/stone_red.png',
-    defaultScale: 0.45,
+    defaultScale: 0.34,
   },
   {
     key: 'stone-blue',
@@ -314,7 +289,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'rhinestone',
     is3d: true,
     imagePath: '/assets/stickers/stone_blue.png',
-    defaultScale: 0.45,
+    defaultScale: 0.34,
   },
   {
     key: 'stone-lightblue',
@@ -322,7 +297,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'rhinestone',
     is3d: true,
     imagePath: '/assets/stickers/stone_lightblue.png',
-    defaultScale: 0.45,
+    defaultScale: 0.34,
   },
   {
     key: 'stone-purple',
@@ -330,7 +305,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'rhinestone',
     is3d: true,
     imagePath: '/assets/stickers/stone_purple.png',
-    defaultScale: 0.45,
+    defaultScale: 0.34,
   },
   {
     key: 'stone-pink',
@@ -338,7 +313,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'rhinestone',
     is3d: true,
     imagePath: '/assets/stickers/stone_pink.png',
-    defaultScale: 0.45,
+    defaultScale: 0.34,
   },
   {
     key: 'stone-yellow',
@@ -346,7 +321,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'rhinestone',
     is3d: true,
     imagePath: '/assets/stickers/stone_yellow.png',
-    defaultScale: 0.45,
+    defaultScale: 0.34,
   },
   {
     key: 'stone-green',
@@ -354,7 +329,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'rhinestone',
     is3d: true,
     imagePath: '/assets/stickers/stone_green.png',
-    defaultScale: 0.45,
+    defaultScale: 0.34,
   },
   {
     key: 'stone-white',
@@ -362,7 +337,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'rhinestone',
     is3d: true,
     imagePath: '/assets/stickers/stone_white.png',
-    defaultScale: 0.45,
+    defaultScale: 0.34,
   },
   {
     key: 'stone-orange',
@@ -370,7 +345,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'rhinestone',
     is3d: true,
     imagePath: '/assets/stickers/stone_orange.png',
-    defaultScale: 0.45,
+    defaultScale: 0.34,
   },
   {
     key: 'stone-black',
@@ -378,7 +353,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'rhinestone',
     is3d: true,
     imagePath: '/assets/stickers/stone_black.png',
-    defaultScale: 0.45,
+    defaultScale: 0.34,
   },
   {
     key: 'rhinestone-rose-3d',
@@ -386,7 +361,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'rhinestone',
     is3d: true,
     imagePath: '/assets/stickers/rhinestone_rose.png',
-    defaultScale: 0.45,
+    defaultScale: 0.34,
   },
   {
     key: 'rhinestone-peach-3d',
@@ -394,7 +369,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'rhinestone',
     is3d: true,
     imagePath: '/assets/stickers/rhinestone_peach.png',
-    defaultScale: 0.45,
+    defaultScale: 0.34,
   },
   {
     key: 'rhinestone-diamond-3d',
@@ -403,7 +378,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     popular: true,
     is3d: true,
     imagePath: '/assets/stickers/rhinestone_diamond.png',
-    defaultScale: 0.45,
+    defaultScale: 0.34,
   },
   {
     key: 'rhinestone-violet-3d',
@@ -411,7 +386,7 @@ export const STICKER_CATALOG: StickerDef[] = [
     category: 'rhinestone',
     is3d: true,
     imagePath: '/assets/stickers/rhinestone_violet.png',
-    defaultScale: 0.45,
+    defaultScale: 0.34,
   },
   {
     key: 'crown-gold-3d',

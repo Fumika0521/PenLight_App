@@ -59,6 +59,7 @@ interface MobileAppViewProps {
   myParts: MyPart[];
   onAddMyPart: (part: MyPart) => void;
   onDeleteMyPart: (id: string) => void;
+  nativeMode?: boolean;
 }
 
 export const MobileAppView: React.FC<MobileAppViewProps> = ({
@@ -88,6 +89,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
   myParts,
   onAddMyPart,
   onDeleteMyPart,
+  nativeMode = false,
 }) => {
   const [currentScreen, setCurrentScreen] = useState<MobileScreen>('home');
   const [activePanel, setActivePanel] = useState<'insert' | 'parts' | null>(null);
@@ -131,22 +133,32 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
 
   // Screen 1: Mobile Home Screen (Matches Mockup 1)
   if (currentScreen === 'home') {
+    const frameClass = nativeMode
+      ? `relative w-full h-dvh ${PHONE_BG_GRADIENT} overflow-hidden flex flex-col justify-between select-none`
+      : `relative w-full max-w-[420px] sm:max-w-[440px] mx-auto h-[820px] sm:h-[850px] ${PHONE_BG_GRADIENT} rounded-[48px] shadow-2xl border-[10px] border-slate-900 overflow-hidden flex flex-col justify-between select-none`;
     return (
-      <div className={`relative w-full max-w-[420px] sm:max-w-[440px] mx-auto h-[820px] sm:h-[850px] ${PHONE_BG_GRADIENT} rounded-[48px] shadow-2xl border-[10px] border-slate-900 overflow-hidden flex flex-col justify-between select-none`}>
-        {/* Dynamic Island / Speaker cutout */}
-        <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-6 bg-slate-900 rounded-full z-40 flex items-center justify-end px-2.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-slate-950 border border-slate-800" />
-        </div>
-
-        {/* Status Bar */}
-        <div className="flex justify-between items-center px-6 pt-3 text-[11px] font-bold text-slate-800 z-30">
-          <span>9:41</span>
-          <div className="flex items-center gap-1.5 text-xs">
-            <span>●●●</span>
-            <span>WiFi</span>
-            <span>100%</span>
+      <div
+        className={frameClass}
+        style={nativeMode ? { paddingTop: 'env(safe-area-inset-top)' } : undefined}
+      >
+        {/* Dynamic Island / Speaker cutout — browser only */}
+        {!nativeMode && (
+          <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-6 bg-slate-900 rounded-full z-40 flex items-center justify-end px-2.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-950 border border-slate-800" />
           </div>
-        </div>
+        )}
+
+        {/* Status Bar — browser only */}
+        {!nativeMode && (
+          <div className="flex justify-between items-center px-6 pt-3 text-[11px] font-bold text-slate-800 z-30">
+            <span>9:41</span>
+            <div className="flex items-center gap-1.5 text-xs">
+              <span>●●●</span>
+              <span>WiFi</span>
+              <span>100%</span>
+            </div>
+          </div>
+        )}
 
         {/* Header Logo */}
         <div className="text-center pt-5">
@@ -188,7 +200,10 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
         </div>
 
         {/* CTA Buttons */}
-        <div className="px-6 space-y-2.5 pb-4">
+        <div
+          className="px-6 space-y-2.5 pb-4"
+          style={nativeMode ? { paddingBottom: 'max(env(safe-area-inset-bottom), 24px)' } : undefined}
+        >
           <button
             onClick={() => { onNewDeco(); setCurrentScreen('select-base'); }}
             className="w-full py-3.5 bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 hover:from-pink-500 hover:to-rose-600 text-white font-extrabold text-sm rounded-full shadow-cute hover:shadow-cute-lg transition-all active:scale-98 shimmer-btn"
@@ -277,13 +292,19 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
       setCurrentScreen('editor');
     };
 
+    const frameClass2 = nativeMode
+      ? `relative w-full h-dvh ${APP_BG_CLASS} overflow-hidden flex flex-col justify-between select-none`
+      : `relative w-full max-w-[420px] sm:max-w-[440px] mx-auto h-[820px] sm:h-[850px] ${APP_BG_CLASS} rounded-[48px] shadow-2xl border-[10px] border-slate-900 overflow-hidden flex flex-col justify-between select-none`;
     return (
-      <div className={`relative w-full max-w-[420px] sm:max-w-[440px] mx-auto h-[820px] sm:h-[850px] ${APP_BG_CLASS} rounded-[48px] shadow-2xl border-[10px] border-slate-900 overflow-hidden flex flex-col justify-between select-none`}>
-        {/* Dynamic Island */}
-        <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-6 bg-slate-900 rounded-full z-40" />
+      <div
+        className={frameClass2}
+        style={nativeMode ? { paddingTop: 'env(safe-area-inset-top)' } : undefined}
+      >
+        {/* Dynamic Island — browser only */}
+        {!nativeMode && <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-6 bg-slate-900 rounded-full z-40" />}
 
         {/* Top Bar */}
-        <div className="px-4 pt-11 pb-4 border-b border-pink-100 bg-white flex items-center justify-between">
+        <div className={`px-4 ${nativeMode ? 'pt-4' : 'pt-11'} pb-4 border-b border-pink-100 bg-white flex items-center justify-between`}>
           <button
             onClick={() => setCurrentScreen('home')}
             className="p-3 rounded-full hover:bg-pink-50 text-slate-600"
@@ -392,13 +413,19 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
   }
 
   // Screen 3: Mobile Editor Screen
+  const editorFrameClass = nativeMode
+    ? 'relative w-full h-dvh bg-slate-50 overflow-hidden flex flex-col select-none'
+    : 'relative w-full max-w-[420px] sm:max-w-[440px] mx-auto h-[820px] sm:h-[850px] bg-slate-50 rounded-[48px] shadow-2xl border-[10px] border-slate-900 overflow-hidden flex flex-col select-none';
   return (
-    <div className="relative w-full max-w-[420px] sm:max-w-[440px] mx-auto h-[820px] sm:h-[850px] bg-slate-50 rounded-[48px] shadow-2xl border-[10px] border-slate-900 overflow-hidden flex flex-col select-none">
-      {/* Dynamic Island */}
-      <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-6 bg-slate-900 rounded-full z-40" />
+    <div
+      className={editorFrameClass}
+      style={nativeMode ? { paddingTop: 'env(safe-area-inset-top)' } : undefined}
+    >
+      {/* Dynamic Island — browser only */}
+      {!nativeMode && <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-6 bg-slate-900 rounded-full z-40" />}
 
       {/* Top Bar */}
-      <div className="relative px-4 pt-11 pb-5 bg-white border-b border-pink-100 flex items-center justify-between z-30 shrink-0">
+      <div className={`relative px-4 ${nativeMode ? 'pt-3' : 'pt-11'} pb-5 bg-white border-b border-pink-100 flex items-center justify-between z-30 shrink-0`}>
         {/* Left: Back */}
         <button
           onClick={() => setShowBackConfirm(true)}
@@ -557,7 +584,10 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
 
 
       {/* Bottom Tool Dock */}
-      <div className="bg-white px-2 pt-4 pb-8 border-t border-pink-100 flex items-center justify-between gap-1 z-30 shrink-0">
+      <div
+        className="bg-white px-2 pt-4 border-t border-pink-100 flex items-center justify-between gap-1 z-30 shrink-0"
+        style={{ paddingBottom: nativeMode ? 'max(env(safe-area-inset-bottom), 20px)' : '32px' }}
+      >
         {([
           { panel: 'insert' as const,  category: undefined,  Icon: Gem,       label: '中身',  colorKey: 'insert',
             isActive: activePanel === 'insert' },
