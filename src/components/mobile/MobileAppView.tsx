@@ -131,6 +131,9 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
   const [showBackConfirm, setShowBackConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  // Bottom tab bar / dock icon area padding (px) — shared across all 3 screens
+  const DOCK_ICON_PAD = 16;
+
   // Screen 1: Mobile Home Screen (Matches Mockup 1)
   if (currentScreen === 'home') {
     const frameClass = nativeMode
@@ -160,18 +163,19 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
           </div>
         )}
 
-        {/* Header Logo */}
-        <div className="text-center pt-5">
-          <h1 className="font-cursive text-6xl text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-rose-400 to-blue-400 font-bold">
-            Light Deco ♡
-          </h1>
-          <p className="text-base text-pink-400 font-bold mt-0.5" style={{ letterSpacing: '0.15em', marginRight: '-0.15em' }}>
-            ペンライトデコアプリ
-          </p>
-        </div>
-
-        {/* Hero Illustration (Cute Decorated Penlight - Enlarged) */}
-        <div className="flex-1 flex items-center justify-center overflow-hidden">
+        {/* Hero — flex column: logo on top, penlight below, same bg = no split */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Logo text as normal flex item — stays above penlight */}
+          <div className="text-center pt-5 shrink-0">
+            <h1 className="font-cursive text-6xl text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-rose-400 to-blue-400 font-bold">
+              Light Deco ♡
+            </h1>
+            <p className="text-base text-pink-400 font-bold mt-0.5" style={{ letterSpacing: '0.15em', marginRight: '-0.15em' }}>
+              ペンライトデコアプリ
+            </p>
+          </div>
+          {/* Penlight — slight negative margin so dome glow softly bleeds into text area */}
+          <div className="flex-1 relative flex items-center justify-center" style={{ marginTop: '22px' }}>
           <div className="relative w-full h-full flex items-center justify-center">
             {/* Scattered sparkles around penlight */}
             <span className="absolute text-yellow-300 text-2xl animate-sparkle pointer-events-none select-none" style={{ top: '8%',  left: '18%', animationDelay: '0s' }}>✦</span>
@@ -192,47 +196,53 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
             <span className="absolute text-pink-300  text-xl  animate-float   pointer-events-none select-none" style={{ top: '91%', right: '22%', animationDelay: '0.5s' }}>✦</span>
 
             <div className="relative w-full h-full pointer-events-none">
-              {/* containerAspect = inner-width(400) / flex-1-height(≈508)
-                  → boundary at 408/1024px computes to ≈42% mask cutoff */}
               <PenlightBase config={config} showEmptyGlass containerAspect={400 / 508} />
             </div>
+          </div>
           </div>
         </div>
 
         {/* CTA Buttons */}
-        <div
-          className="px-6 space-y-2.5 pb-4"
-          style={nativeMode ? { paddingBottom: 'max(env(safe-area-inset-bottom), 24px)' } : undefined}
-        >
+        <div className="px-6 space-y-2.5 pb-4">
           <button
             onClick={() => { onNewDeco(); setCurrentScreen('select-base'); }}
-            className="w-full py-3.5 bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 hover:from-pink-500 hover:to-rose-600 text-white font-extrabold text-sm rounded-full shadow-cute hover:shadow-cute-lg transition-all active:scale-98 shimmer-btn"
+            className="w-full py-5 bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 hover:from-pink-500 hover:to-rose-600 text-white font-extrabold text-base rounded-full shadow-cute hover:shadow-cute-lg transition-all active:scale-98 shimmer-btn"
           >
             新しくデコる
           </button>
           <button
             onClick={() => setIsGalleryOpen(true)}
-            className="w-full py-3.5 bg-white/90 hover:bg-white text-pink-600 font-extrabold text-sm rounded-full border border-pink-200 shadow-xs transition-all active:scale-98"
+            className="w-full py-5 bg-white/90 hover:bg-white text-pink-600 font-extrabold text-base rounded-full border border-pink-200 shadow-xs transition-all active:scale-98"
           >
             保存したデザインを見る
           </button>
         </div>
 
         {/* Bottom Tab Bar (Home, MyPage) */}
-        <div className="h-16 bg-white/90 backdrop-blur-md border-t border-pink-100 flex items-center justify-around px-4 z-[55] relative shrink-0">
+        {/* paddingTop = safe-area-bottom so icons are centered in the full space (bar + home bar region) */}
+        <div
+          className="bg-white/90 backdrop-blur-md border-t border-pink-100 flex items-center justify-around px-4 z-[55] relative shrink-0"
+          style={nativeMode ? {
+            paddingTop: 'max(env(safe-area-inset-bottom), 16px)',
+            paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
+          } : {
+            paddingTop: `${DOCK_ICON_PAD}px`,
+            paddingBottom: `${DOCK_ICON_PAD}px`,
+          }}
+        >
           <button
             onClick={() => setIsGalleryOpen(false)}
             className={`flex flex-col items-center ${!isGalleryOpen ? 'text-pink-500' : 'text-slate-400 hover:text-pink-500'}`}
           >
-            <Home className="w-5 h-5" />
-            <span className="text-[10px] font-bold mt-0.5">ホーム</span>
+            <Home className="w-8 h-8" />
+            <span className="text-[11px] font-bold mt-1">ホーム</span>
           </button>
           <button
             onClick={() => setIsGalleryOpen(true)}
             className={`flex flex-col items-center ${isGalleryOpen ? 'text-pink-500' : 'text-slate-400 hover:text-pink-500'}`}
           >
-            <User className="w-5 h-5" />
-            <span className="text-[10px] font-bold mt-0.5">マイページ</span>
+            <User className="w-8 h-8" />
+            <span className="text-[11px] font-bold mt-1">マイページ</span>
           </button>
         </div>
 
@@ -293,7 +303,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
     };
 
     const frameClass2 = nativeMode
-      ? `relative w-full h-dvh ${APP_BG_CLASS} overflow-hidden flex flex-col justify-between select-none`
+      ? `relative w-full h-dvh bg-white overflow-hidden flex flex-col justify-between select-none`
       : `relative w-full max-w-[420px] sm:max-w-[440px] mx-auto h-[820px] sm:h-[850px] ${APP_BG_CLASS} rounded-[48px] shadow-2xl border-[10px] border-slate-900 overflow-hidden flex flex-col justify-between select-none`;
     return (
       <div
@@ -304,7 +314,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
         {!nativeMode && <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-6 bg-slate-900 rounded-full z-40" />}
 
         {/* Top Bar */}
-        <div className={`px-4 ${nativeMode ? 'pt-4' : 'pt-11'} pb-4 border-b border-pink-100 bg-white flex items-center justify-between`}>
+        <div className={`px-4 ${nativeMode ? 'pt-2' : 'pt-11'} pb-2 border-b border-pink-100 bg-white flex items-center justify-between`}>
           <button
             onClick={() => setCurrentScreen('home')}
             className="p-3 rounded-full hover:bg-pink-50 text-slate-600"
@@ -315,7 +325,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
           <div className="w-12" />
         </div>
 
-        <div className="flex-1 px-4 flex flex-col items-center justify-center gap-5">
+        <div className={`flex-1 px-4 flex flex-col items-center justify-center gap-5 ${nativeMode ? APP_BG_CLASS : ''}`}>
           <p className="text-sm text-slate-600 font-semibold text-center">
             ドームの中身を選ぼう♡
           </p>
@@ -395,7 +405,10 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
         </div>
 
         {/* Bottom CTA */}
-        <div className="p-5 border-t border-pink-50 bg-pink-50/20">
+        <div
+          className={`px-5 pt-3 border-t border-pink-50 ${nativeMode ? APP_BG_CLASS : 'bg-pink-50/20'}`}
+          style={{ paddingBottom: nativeMode ? 'max(calc(env(safe-area-inset-bottom) + 20px), 20px)' : '20px' }}
+        >
           <button
             onClick={handleNext}
             disabled={selectedInsert === null}
@@ -414,7 +427,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
 
   // Screen 3: Mobile Editor Screen
   const editorFrameClass = nativeMode
-    ? 'relative w-full h-dvh bg-slate-50 overflow-hidden flex flex-col select-none'
+    ? 'relative w-full h-dvh bg-white overflow-hidden flex flex-col select-none'
     : 'relative w-full max-w-[420px] sm:max-w-[440px] mx-auto h-[820px] sm:h-[850px] bg-slate-50 rounded-[48px] shadow-2xl border-[10px] border-slate-900 overflow-hidden flex flex-col select-none';
   return (
     <div
@@ -585,8 +598,13 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
 
       {/* Bottom Tool Dock */}
       <div
-        className="bg-white px-2 pt-4 border-t border-pink-100 flex items-center justify-between gap-1 z-30 shrink-0"
-        style={{ paddingBottom: nativeMode ? 'max(env(safe-area-inset-bottom), 20px)' : '32px' }}
+        className="bg-white px-2 border-t border-pink-100 flex items-center justify-between gap-1 z-30 shrink-0"
+        style={{
+          paddingTop: `${DOCK_ICON_PAD}px`,
+          paddingBottom: nativeMode
+            ? `max(calc(env(safe-area-inset-bottom) + ${DOCK_ICON_PAD}px), ${DOCK_ICON_PAD}px)`
+            : `${DOCK_ICON_PAD}px`,
+        }}
       >
         {([
           { panel: 'insert' as const,  category: undefined,  Icon: Gem,       label: '中身',  colorKey: 'insert',

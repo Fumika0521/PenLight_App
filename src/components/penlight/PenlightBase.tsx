@@ -117,6 +117,14 @@ export const PenlightBase: React.FC<PenlightBaseProps> = ({
     collarTopY = (topOffset + (368 / 1024) * Math.min(effectiveAspect, 1)) * 100;
   }
 
+  // Bottom ring Y% — row 877 of the 1024×1024 image (last ring of handle)
+  // Used to position the CSS drop-shadow ellipse below the handle.
+  let bottomRingY = 71.9; // default for work canvas aspect ~0.613
+  if (effectiveAspect !== undefined && baseType === 'classic') {
+    const topOffset = effectiveAspect < 1 ? (1 - effectiveAspect) / 2 : 0;
+    bottomRingY = (topOffset + (877 / 1024) * Math.min(effectiveAspect, 1)) * 100;
+  }
+
   // Mask that shows only the wavy collar/ring band (between row 368 and the head/handle boundary).
   // Used to place opaque layers on top of the glow so it cannot bleed through semi-transparent pixels.
   const collarBandMask = `linear-gradient(to bottom, transparent 0%, transparent ${(collarTopY - 0.3).toFixed(1)}%, black ${collarTopY.toFixed(1)}%, black ${headCutoff}, transparent ${headFade})`;
@@ -126,6 +134,24 @@ export const PenlightBase: React.FC<PenlightBaseProps> = ({
       ref={containerRef}
       className={`relative w-full h-full select-none pointer-events-none transition-all duration-300 ${className}`}
     >
+      {/* 0. Handle drop-shadow — small CSS ellipse behind penlight body */}
+      {baseType === 'classic' && (
+        <div
+          className="absolute z-[2] pointer-events-none"
+          style={{
+            left: '50%',
+            top: `${bottomRingY.toFixed(1)}%`,
+            transform: 'translate(-50%, -25%)',
+            width: '18%',
+            height: 0,
+            paddingBottom: '3.3%',
+            borderRadius: '50%',
+            background: 'radial-gradient(ellipse at center, rgba(120,90,110,0.28) 0%, rgba(120,90,110,0.12) 45%, transparent 75%)',
+            filter: 'blur(2px)',
+          }}
+        />
+      )}
+
       {/* 1. Main 3D Penlight — unscaled, handle only (inverse mask hides head to prevent seam) */}
       <img
         src={imageSrc}

@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Light Deco',
   webDir: 'dist',
   ios: {
-    contentInset: 'automatic',
+    contentInset: 'never',
   },
   plugins: {
     SplashScreen: {
