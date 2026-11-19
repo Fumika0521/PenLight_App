@@ -131,8 +131,9 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
   const [showBackConfirm, setShowBackConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Bottom tab bar / dock icon area padding (px) — shared across all 3 screens
-  const DOCK_ICON_PAD = 16;
+  // Bottom tab bar / dock icon area padding (px)
+  const DOCK_ICON_PAD = 10;        // ホーム・中身選択画面
+  const EDITOR_DOCK_PAD = 22;      // 作業画面（高め）
 
   // Screen 1: Mobile Home Screen (Matches Mockup 1)
   if (currentScreen === 'home') {
@@ -206,13 +207,13 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
         <div className="px-6 space-y-2.5 pb-4">
           <button
             onClick={() => { onNewDeco(); setCurrentScreen('select-base'); }}
-            className="w-full py-5 bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 hover:from-pink-500 hover:to-rose-600 text-white font-extrabold text-base rounded-full shadow-cute hover:shadow-cute-lg transition-all active:scale-98 shimmer-btn"
+            className="w-full py-4 bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 hover:from-pink-500 hover:to-rose-600 text-white font-extrabold text-base rounded-full shadow-cute hover:shadow-cute-lg transition-all active:scale-98 shimmer-btn"
           >
             新しくデコる
           </button>
           <button
             onClick={() => setIsGalleryOpen(true)}
-            className="w-full py-5 bg-white/90 hover:bg-white text-pink-600 font-extrabold text-base rounded-full border border-pink-200 shadow-xs transition-all active:scale-98"
+            className="w-full py-4 bg-white/90 hover:bg-white text-pink-600 font-extrabold text-base rounded-full border border-pink-200 shadow-xs transition-all active:scale-98"
           >
             保存したデザインを見る
           </button>
@@ -412,7 +413,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
           <button
             onClick={handleNext}
             disabled={selectedInsert === null}
-            className={`w-full py-3.5 font-extrabold text-sm rounded-full shadow-cute transition-all active:scale-98 ${
+            className={`w-full py-4 font-extrabold text-sm rounded-full shadow-cute transition-all active:scale-98 ${
               selectedInsert === null
                 ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
                 : 'bg-gradient-to-r from-pink-400 to-rose-400 hover:from-pink-500 hover:to-rose-500 text-white'
@@ -478,7 +479,7 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
 
       {/* Center Interactive Canvas — tap to close open panel */}
       <div
-        className="flex-1 relative overflow-hidden flex items-center justify-center p-1 min-h-0"
+        className="flex-1 relative overflow-hidden flex items-center justify-center px-1 py-5 min-h-0"
         onClick={() => setActivePanel(null)}
       >
         <InteractiveCanvas
@@ -600,10 +601,10 @@ export const MobileAppView: React.FC<MobileAppViewProps> = ({
       <div
         className="bg-white px-2 border-t border-pink-100 flex items-center justify-between gap-1 z-30 shrink-0"
         style={{
-          paddingTop: `${DOCK_ICON_PAD}px`,
+          paddingTop: `${EDITOR_DOCK_PAD}px`,
           paddingBottom: nativeMode
-            ? `max(calc(env(safe-area-inset-bottom) + ${DOCK_ICON_PAD}px), ${DOCK_ICON_PAD}px)`
-            : `${DOCK_ICON_PAD}px`,
+            ? `max(calc(env(safe-area-inset-bottom) + ${EDITOR_DOCK_PAD}px), ${EDITOR_DOCK_PAD}px)`
+            : `${EDITOR_DOCK_PAD}px`,
         }}
       >
         {([

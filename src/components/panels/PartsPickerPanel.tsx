@@ -133,7 +133,6 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
 
   const categories = [
     { id: 'heart',      label: 'ハート' },
-    { id: 'star',       label: '星' },
     { id: 'rhinestone', label: 'ストーン' },
     { id: 'ribbon',     label: 'リボン' },
   ];
@@ -179,6 +178,7 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
       text,
       textColor: color,
       textBorderColor: '#ffffff',
+      fontFamily: '"Zen Maru Gothic", sans-serif',
       opacity: 1,
     });
     if (onAddedTextsChange && !addedTexts.some((t) => t.text === text && t.color === color)) {
@@ -410,6 +410,7 @@ export const PartsPickerPanel: React.FC<PartsPickerPanelProps> = ({
                 onChange={(e) => setCustomText(e.target.value)}
                 placeholder=""
                 className="flex-1 px-3 py-1.5 rounded-xl border border-pink-200 text-xs focus:outline-pink-400 bg-white"
+                style={{ fontFamily: '"Zen Maru Gothic", sans-serif' }}
                 maxLength={15}
               />
               <button

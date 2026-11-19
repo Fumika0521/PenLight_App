@@ -85,10 +85,10 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
   const inner = (
     <div className={inline ? 'relative h-full w-full bg-white flex flex-col' : 'relative w-full max-w-lg bg-white rounded-3xl shadow-cute-lg border border-pink-100 overflow-hidden flex flex-col max-h-[85vh]'}>
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-3.5 border-b border-pink-100 bg-gradient-to-r from-pink-50/60 via-white to-purple-50/60 shrink-0">
+      <div className="flex items-center justify-between px-5 py-3.5 border-b border-pink-100 bg-white shrink-0">
         <div className="flex items-center gap-2">
-          <FolderHeart className="w-4 h-4 text-pink-500" />
-          <h3 className="font-extrabold text-slate-800 text-sm">保存したデザイン一覧</h3>
+          <FolderHeart className="w-5 h-5 text-pink-500" />
+          <h3 className="font-extrabold text-slate-800 text-base">保存したデザイン一覧</h3>
         </div>
         <button
           onClick={onClose}
@@ -104,13 +104,13 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-1 py-2.5 text-xs font-bold transition-all ${
+            className={`flex-1 py-2.5 font-bold transition-all flex items-center justify-center gap-1 ${
               activeTab === tab
                 ? 'text-pink-600 border-b-2 border-pink-400 bg-pink-50/40'
                 : 'text-slate-500 hover:text-slate-700'
             }`}
           >
-            {tab === 'complete' ? '✦ 完成' : '✎ 下書き'}
+            <span className="text-lg">{tab === 'complete' ? '完成' : '下書き'}</span>
           </button>
         ))}
       </div>
@@ -213,7 +213,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                                   className="w-full h-full object-contain"
                                   style={{
                                     filter: sticker.cssFilter || undefined,
-                                    clipPath: 'ellipse(48% 56% at 50% 49%)',
+                                    clipPath: 'ellipse(44% 54% at 50% 49%)',
                                   }}
                                 />
                               )}
@@ -441,7 +441,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
 
   if (inline) {
     return (
-      <div className="absolute inset-0 z-50 animate-fade-in overflow-hidden">
+      <div className="absolute inset-0 z-50 animate-fade-in overflow-hidden bg-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         {inner}
       </div>
     );

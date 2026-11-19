@@ -427,7 +427,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                         className="w-full h-full object-contain pointer-events-none select-none"
                         style={{
                           filter: sticker.cssFilter || undefined,
-                          clipPath: 'ellipse(48% 56% at 50% 49%)',
+                          clipPath: 'ellipse(44% 54% at 50% 49%)',
                         }}
                       />
                     )}
@@ -438,7 +438,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                         <span
                           className="pointer-events-none select-none"
                           style={{
-                            fontFamily: '"M PLUS Rounded 1c", sans-serif',
+                            fontFamily: '"Zen Maru Gothic", sans-serif',
                             fontWeight: 800,
                             fontSize: `${oshiNameFontPx(sticker.text.length)}px`,
                             color: 'rgba(255, 255, 255, 0.45)',
@@ -458,7 +458,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                         style={{
                           color: sticker.textColor || '#ff6584',
                           textShadow: `0 2px 6px rgba(255, 101, 132, 0.4)`,
-                          fontFamily: sticker.fontFamily || '"M PLUS Rounded 1c", sans-serif',
+                          fontFamily: sticker.fontFamily || '"Zen Maru Gothic", sans-serif',
                           fontSize: `${7.37 * sticker.scale}cqw`,
                           letterSpacing: '0.1em',
                         }}
@@ -558,7 +558,7 @@ export const InteractiveCanvas: React.FC<InteractiveCanvasProps> = ({
                         style={{
                           color: sticker.textColor || '#ff6584',
                           textShadow: `0 2px 6px rgba(255, 101, 132, 0.4)`,
-                          fontFamily: sticker.fontFamily || '"M PLUS Rounded 1c", sans-serif',
+                          fontFamily: sticker.fontFamily || '"Zen Maru Gothic", sans-serif',
                           fontSize: `${7.37 * sticker.scale}cqw`,
                           letterSpacing: '0.1em',
                         }}

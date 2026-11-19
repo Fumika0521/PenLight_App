@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PenlightConfig, StickerItem } from '../../types';
 import { PenlightBase, HEAD_SCALE, HEAD_ORIGIN } from '../penlight/PenlightBase';
 import { StickerSVG } from '../stickers/StickerSVG';
@@ -72,6 +72,11 @@ export const ColorCustomizationModal: React.FC<ColorCustomizationModalProps> = (
 }) => {
   const [tempConfig, setTempConfig] = useState<PenlightConfig>({ ...config });
 
+  // モーダルを開くたびに最新の config に同期する
+  useEffect(() => {
+    if (isOpen) setTempConfig({ ...config });
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (!isOpen) return null;
 
   const handleApply = () => {
@@ -112,18 +117,17 @@ export const ColorCustomizationModal: React.FC<ColorCustomizationModalProps> = (
                   <PenlightBase config={tempConfig} showGloss />
                 </div>
                 {/* 2. Dome glow */}
-                {tempConfig.isLightOn && (
-                  <div
-                    className="absolute inset-0 z-[5] pointer-events-none"
-                    style={{
-                      clipPath: `circle(${DOME_R}% at 50% ${DOME_Y}%)`,
-                      WebkitClipPath: `circle(${DOME_R}% at 50% ${DOME_Y}%)`,
-                      background: tempConfig.glowColor === '#F4F8FF'
-                        ? `radial-gradient(circle at 50% ${DOME_Y}%, rgba(255,255,255,0.6) 0%, rgba(220,235,255,0.25) 60%, transparent 88%)`
-                        : `radial-gradient(circle at 50% ${DOME_Y}%, ${tempConfig.glowColor}40 0%, ${tempConfig.glowColor}18 60%, transparent 88%)`,
-                    }}
-                  />
-                )}
+                <div
+                  className="absolute inset-0 z-[5] pointer-events-none transition-opacity duration-200"
+                  style={{
+                    opacity: tempConfig.isLightOn ? 1 : 0,
+                    clipPath: `circle(${DOME_R}% at 50% ${DOME_Y}%)`,
+                    WebkitClipPath: `circle(${DOME_R}% at 50% ${DOME_Y}%)`,
+                    background: tempConfig.glowColor === '#F4F8FF'
+                      ? `radial-gradient(circle at 50% ${DOME_Y}%, rgba(255,255,255,0.6) 0%, rgba(220,235,255,0.25) 60%, transparent 88%)`
+                      : `radial-gradient(circle at 50% ${DOME_Y}%, ${tempConfig.glowColor}40 0%, ${tempConfig.glowColor}18 60%, transparent 88%)`,
+                  }}
+                />
                 {/* 3. Insert layer */}
                 <div
                   className="absolute inset-0 z-10 pointer-events-none"
@@ -145,11 +149,11 @@ export const ColorCustomizationModal: React.FC<ColorCustomizationModalProps> = (
                     >
                       {(s.type === '3d-png' || s.type === 'preset') && s.imageUrl && (
                         <img src={s.imageUrl} alt="" className="w-full h-full object-contain"
-                          style={{ filter: s.cssFilter || undefined, clipPath: 'ellipse(48% 56% at 50% 49%)' }} />
+                          style={{ filter: s.cssFilter || undefined, clipPath: 'ellipse(44% 54% at 50% 49%)' }} />
                       )}
                       {s.svgKey === 'insert-oshi-name' && s.text && (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <span style={{ fontFamily: '"M PLUS Rounded 1c", sans-serif', fontWeight: 800,
+                          <span style={{ fontFamily: '"Zen Maru Gothic", sans-serif', fontWeight: 800,
                             fontSize: `${oshiNameFontPx(s.text.length) / 380 * 100}cqw`,
                             color: 'rgba(255,255,255,0.45)',
                             textShadow: '-1px -1px 0 rgba(255,255,255,0.78), 1.5px 1.5px 2px rgba(100,80,160,0.45)',
@@ -194,7 +198,7 @@ export const ColorCustomizationModal: React.FC<ColorCustomizationModalProps> = (
                         {s.type === 'text' && (
                           <div className="text-center font-extrabold leading-none whitespace-nowrap" style={{
                             color: s.textColor || '#ff6584',
-                            fontFamily: s.fontFamily || '"M PLUS Rounded 1c", sans-serif',
+                            fontFamily: s.fontFamily || '"Zen Maru Gothic", sans-serif',
                             fontSize: `${TEXT_FONT_PCT * s.scale}cqw`,
                             letterSpacing: '0.1em',
                           }}>{s.text}</div>
